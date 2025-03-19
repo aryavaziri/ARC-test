@@ -13,12 +13,12 @@ const CardItem: React.FC<CardItemProps> = ({ color, icon, label, items }) => {
         <div className="flex gap-4">
             {/* Icon positioned outside */}
             <div
-                className="flex items-center justify-center w-12 h-12 rounded-full"
+                className="flex items-center justify-center w-16 h-16 rounded-full "
                 style={{ backgroundColor: color }}
             >
                 {icon}
             </div>
-            <div className="border-gray-300 border rounded-lg shadow bg-gray-100 w-96">
+            <div className="border-gray-300 border rounded-lg shadow bg-gray-100 grow">
                 <h3 className="text-lg font-semibold border-b px-4 py-2">{label}</h3>
                 <div className="grid grid-cols-2 gap-x-2 my-2 text-gray-700 px-4 py-1">
                     {items.map((item, index) => (

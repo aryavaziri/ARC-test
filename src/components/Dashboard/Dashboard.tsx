@@ -16,7 +16,7 @@ const Dashboard = () => {
             </div>
             <div className="flex justify-between gap-4 w-full items-center">
                 <Left />
-                <div className={``}>
+                <div className={`mx-32`}>
                     <Image
                         className="object-contain"
                         width={320}
