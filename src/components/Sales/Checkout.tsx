@@ -15,8 +15,8 @@ const Checkout = () => {
                         <div className={`rounded-xl border border-gray-300 p-4 grow h-full`}>Internal Notes</div>
                     </div> */}
                     <div className="flex gap-4">
-                        <Input label='Shipping Info' name='Customer' register={register} className={`px-4`} />
-                        <Input label='Internal Notes' name='Customer' register={register} className={`px-4`} />
+                        <Input label='Shipping Info' name='Shipping Info' as='textarea' rows={4} register={register} className={`px-4`} />
+                        <Input label='Internal Notes' name='Internal Notes' as='textarea' rows={4} register={register} className={`px-4`} />
                     </div>                    <hr className={`mt-2`} />
                     <div className={``}>
                         <p className={`text-2xl mb-6`}>Print</p>

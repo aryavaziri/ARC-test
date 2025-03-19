@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { IconType } from "react-icons";
 import { FaAngleDown } from "react-icons/fa";
+import { usePathname } from "next/navigation"; // Import usePathname
 
 interface MenuItem {
     label: string;
@@ -20,6 +21,12 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ Icon, label, menuItems = [], directUrl }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname(); // Get current route
+
+    // Close dropdown when pathname changes
+    useEffect(() => {
+        setIsOpen(false);
+    }, [pathname]);
 
     // Handle outside click to close dropdown
     useEffect(() => {
