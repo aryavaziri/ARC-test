@@ -36,8 +36,8 @@ const Nav = () => {
 
   return (
     <>
-      <div className={`${pathname !== '/dashboard' ? `static top-0 left-0 ` : ``}w-full flex items-center justify-between px-12 z-[400] bg-white/40 backdrop-blur-[2px] transition-all duration-300 gap-20`}>
-        <Link href={`/`} className="h-12 w-24 relative flex items-center">
+      <div className={`${pathname !== '/dashboard' ? `static top-0 left-0 ` : ``} w-full flex items-center justify-between px-12 z-[400] bg-white/40 backdrop-blur-[2px] transition-all duration-300 gap-20`}>
+        <Link href={`/`} className="h-16 w-24 relative flex items-center">
           <Image
             className="object-contain"
             width={200}
@@ -46,37 +46,23 @@ const Nav = () => {
             src={`/next.svg`}
           />
         </Link>
-        <ul className={`flex grow h-16 `}>
-          <li className={`h-full hover:bg-gray-200`}>
+        <ul className={`flex grow h-20`}>
             <NavItem Icon={FaHome} label="Home" directUrl="/" />
-          </li>
-          <li className={`h-full hover:bg-gray-200`}>
             <NavItem
               Icon={FaShoppingCart}
               label="Sales"
               menuItems={[
-                { label: "Sales", url: "/sales" },
-                // { label: "Invoices", url: "/sales/invoices" },
+                { label: "Sales Orders", url: "/sales" },
+                { label: "New Sales Order", url: "/sales/newSales" },
               ]}
             />
-          </li>
-          <li className={`h-full hover:bg-gray-200`}>
             <NavItem
               Icon={FaTools}
               label="Settings"
               menuItems={[
                 { label: "Profile", url: "/profile" },
-                { label: "Preferences", url: "/preferences" },
               ]}
             />
-          </li>
-          {/* {links.map((el, i) => (
-            <li key={i} className={`hover:scale-[1.05] duration-100 ${el[0] == pathname ? `font-bold text-arya1` : ``}`}>
-              <Link className="flex items-center gap-2 group" href={el[0]}>
-                <span>{el[1]}</span>
-              </Link>
-            </li>
-          ))} */}
         </ul>
         {isAuth ? (
           <div className="relative text-dark">
@@ -92,17 +78,6 @@ const Nav = () => {
                     Dashboard
                   </Link>
                 </li>
-                <li
-                  className="px-4 py-2 hover:bg-gray-300 cursor-pointer"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    // setQuoteModalOpen(true);
-                  }}>
-                  Request A Proposal
-                </li>
-                {/* <li className="px-4 py-2 hover:bg-gray-300 cursor-pointer" onClick={handleTest}>
-                  Test
-                </li> */}
                 <li className="px-4 py-2 hover:bg-gray-300 cursor-pointer" onClick={handleLogOut}>
                   Logout
                 </li>
@@ -110,10 +85,7 @@ const Nav = () => {
             )}
           </div>
         ) : (
-          <div className={`flex gap-2`}>
-            <div onClick={() => setSignIn(true)} className="cursor-pointer primary-btn flex items-center font-bold text-xl border p-2 ">Sign In</div>
-
-          </div>
+          <div onClick={() => setSignIn(true)} className="cursor-pointer primary-btn flex items-center font-bold text-xl border p-2 ">Sign In</div>
         )}
       </div>
 

@@ -6,14 +6,10 @@ const Checkout = () => {
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
     return (
-        <div className="p-8 bg-white border-gray-400 rounded-2xl">
+        <div className="con">
             <p className={`text-2xl mb-6`}>Check out</p>
             <div className={`flex w-full gap-8`}>
                 <div className={`basis-1 grow flex flex-col gap-4`}>
-                    {/* <div className={`flex gap-4 w-full min-h-32`}>
-                        <div className={`rounded-xl border border-gray-300 p-4 grow h-full`}>Shipping Info</div>
-                        <div className={`rounded-xl border border-gray-300 p-4 grow h-full`}>Internal Notes</div>
-                    </div> */}
                     <div className="flex gap-4">
                         <Input label='Shipping Info' name='Shipping Info' as='textarea' rows={4} register={register} className={`px-4`} />
                         <Input label='Internal Notes' name='Internal Notes' as='textarea' rows={4} register={register} className={`px-4`} />

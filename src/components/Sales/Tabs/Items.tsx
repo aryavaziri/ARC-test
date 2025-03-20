@@ -1,4 +1,7 @@
-import React from "react";
+'use client'
+import React from "react"
+import { useForm } from "react-hook-form"
+import Input from "@/components/Input" // Assuming you have an Input component
 
 // Sample data
 const sampleData = [
@@ -30,40 +33,54 @@ const sampleData = [
     status: "Approved",
     pricingLevel: "Premium"
   }
-];
+]
 
 const Items = () => {
+  const { register, formState, handleSubmit, reset } = useForm({
+    defaultValues: {
+      action: "New",
+      line: "",
+      quantity: "",
+      itemNumber: "",
+      description: "",
+      unitPrice: "",
+      discountPrice: "",
+      totalPrice: "",
+      requestedDate: new Date().toISOString().split("T")[0], // Default to today's date
+      status: "Pending",
+      pricingLevel: "Standard"
+    }
+  })
+
+  // Check if any field is modified
+  const isDirty = Object.keys(formState.dirtyFields).length > 0
+
+  const onSubmit = (data: any) => {
+    console.log("New Item:", data)
+    reset() // Reset form after submission
+  }
+
   return (
-    <div className="p-8 bg-white border-gray-400 rounded-2xl">
+    <div className="con">
       <ul className="flex gap-4 mb-8 items-center">
         <li className="mr-auto">
           <p className="font-semibold text-4xl">Items</p>
         </li>
-        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">
-          Add New +
-        </li>
-        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">
-          Copy Function
-        </li>
-        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">
-          Import Lines
-        </li>
+        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">Add New +</li>
+        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">Copy Function</li>
+        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">Import Lines</li>
       </ul>
       <div className="border border-gray-300 rounded-2xl overflow-x-auto">
-        <table className="w-full ">
+        <table className="w-full">
           <thead>
             <tr className="bg-gray-100/40">
-              <th className="font-normal px-4 py-2">Action</th>
-              <th className="font-normal px-4 py-2">Line</th>
-              <th className="font-normal px-4 py-2">Quantity</th>
-              <th className="font-normal px-4 py-2">Item Number</th>
-              <th className="font-normal px-4 py-2">Description</th>
-              <th className="font-normal px-4 py-2">Unit Price</th>
-              <th className="font-normal px-4 py-2">Discount Price</th>
-              <th className="font-normal px-4 py-2">Total Price</th>
-              <th className="font-normal px-4 py-2">Requested Date</th>
-              <th className="font-normal px-4 py-2">Status</th>
-              <th className="font-normal px-4 py-2">Pricing Level</th>
+              {["Action", "Line", "Quantity", "Item Number", "Description", "Unit Price", "Discount Price", "Total Price", "Requested Date", "Status", "Pricing Level"].map(
+                (header) => (
+                  <th key={header} className="font-normal px-4 py-2">
+                    {header}
+                  </th>
+                )
+              )}
             </tr>
           </thead>
 
@@ -83,11 +100,57 @@ const Items = () => {
                 <td className="border border-gray-300 px-4 py-2 text-center">{item.pricingLevel}</td>
               </tr>
             ))}
+            {/* Add new item row with input fields */}
+            <tr>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="action" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="line" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="quantity" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="itemNumber" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="description" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="unitPrice" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="discountPrice" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="totalPrice" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" type="date" name="requestedDate" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="status" label="" register={register} />
+              </td>
+              <td className="border-gray-400/50 border">
+                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="pricingLevel" label="" register={register} />
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
-    </div>
-  );
-};
 
-export default Items;
+      {/* Show "Create" Button When Any Input Field is Modified */}
+      {isDirty && (
+        <button
+          onClick={handleSubmit(onSubmit)}
+          className="whitespace-nowrap w-min btn-primary"
+        >
+          Create Item
+        </button>
+      )}
+    </div>
+  )
+}
+
+export default Items

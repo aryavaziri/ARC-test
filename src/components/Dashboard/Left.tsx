@@ -5,7 +5,7 @@ import { FaTools, FaIndustry, FaShippingFast, FaCalendarAlt } from 'react-icons/
 
 const Left = () => {
   return (
-    <div className="space-y-4 p-6 grow">
+    <div className="space-y-4 grow">
       {/* Human Capital Management */}
       <CardItem
         color="#0F4C75"

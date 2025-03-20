@@ -1,10 +1,10 @@
 import React from 'react'
-import SalesOrder from '@/components/Sales/SalesOrder/SalesOrder';
+import NewSalesOrder from '@/components/Sales/NewSalesOrder/NewSalesOrder';
 
 const Page = () => {
     return (
         <div className="bg-gray-100 grow flex flex-col w-full px-12 pb-8">
-            <SalesOrder />
+            <NewSalesOrder />
         </div>
     )
 }

@@ -1,7 +1,5 @@
 'use client'
 import React from 'react'
-import Tabs from './Tabs';
-import Items from './Tabs/Items';
 import Checkout from './Checkout';
 import Info from './Info';
 import Selector from './Selector';
