@@ -1,19 +1,22 @@
 'use client'
 import { useState } from "react"
 import FilterItem from "./FilterItem"
-import Link from "next/link"
-import SalesOrderTable from "./SalesOrdersTable"
+import SalesOrderTable, { SalesOrderProps, SalesOrderTableProps } from "./SalesOrdersTable"
+import { salesOrders } from "./salesOrders" // Import the static data file
 
 const SalesOrder = () => {
-  const [selectedFilter, setSelectedFilter] = useState<string>('openOrder')
+  const [selectedFilter, setSelectedFilter] = useState<string>('')
 
   // Define order types
   const orderTypes = [
-    { label: "Open Order", qt: 3, value: "openOrder" },
-    { label: "Pending Confirm", qt: 3, value: "pendingConfirm" },
-    { label: "On Hold", qt: 4, value: "onHold" },
-    { label: "Past Due", qt: 12, value: "pastDue" },
+    { label: "Open Order", value: "Ready To Invoice" },
+    { label: "Pending Confirm", value: "Pending Confirm" },
+    { label: "On Hold", value: "On Hold" },
+    { label: "Past Due", value: "Past Due" },
   ]
+
+  // Filter sales orders based on selectedFilter
+  const filteredOrders: SalesOrderProps[] = selectedFilter ? salesOrders.filter(order => order.status === selectedFilter) : salesOrders
 
   return (
     <div className="bg-gray-100 grow flex flex-col w-full mt-4">
@@ -23,21 +26,15 @@ const SalesOrder = () => {
           <FilterItem
             key={order.value}
             label={order.label}
-            qt={order.qt}
+            qt={salesOrders.filter(o => o.status === order.value).length} // Count filtered orders
             selected={selectedFilter === order.value}
             onClick={() => setSelectedFilter(order.value)}
           />
         ))}
-        <Link
-        href={`/sales/newSales`}
-          className={`ml-auto bg-lime-300 whitespace-nowrap hover:bg-lime-200 py-2 px-6 text-lg rounded-full border cursor-pointer border-gray-400/60 flex gap-2`}
-        >
-          New Sales Order
-        </Link>
       </div>
 
-      <SalesOrderTable/>
-
+      {/* Pass the filtered orders to SalesOrderTable */}
+      <SalesOrderTable filteredOrders={filteredOrders} />
     </div>
   )
 }
