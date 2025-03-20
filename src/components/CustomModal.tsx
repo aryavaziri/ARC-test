@@ -25,7 +25,7 @@ export default function CustomModal({ Component, header, ModalButton, isOpen, on
   };
 
   const defaultModalClasses = "fixed top-0 left-0 h-screen w-screen flex items-start justify-center bg-black/50 z-[9999]";
-  const modalContentClasses = "relative bg-light shadow-lg rounded-2xl max-w-[60vw] max-h-[80vh] min-h-[40vh] overflow-y-auto mt-[10vh]";
+  const modalContentClasses = "relative bg-gray-100 shadow-lg rounded-2xl max-w-[60vw] max-h-[80vh] min-h-[40vh] overflow-y-auto mt-[10vh]";
 
   useEffect(() => {
     // console.log(isOpen);
@@ -41,7 +41,7 @@ export default function CustomModal({ Component, header, ModalButton, isOpen, on
           <ModalButton />
         ) : (
           <div className="rounded primary-btn flex justify-center gap-2 items-center">
-            <MdAddCircle className="text-2xl" />
+            <MdAddCircle className="text-2xl text-center" />
             {header && <div>{header}</div>}
           </div>
         )}
@@ -49,7 +49,7 @@ export default function CustomModal({ Component, header, ModalButton, isOpen, on
       {open && (
         <div className={defaultModalClasses} onClick={handleClose}>
           <div className={`${modalContentClasses} ${className || ""}`} onClick={e => e.stopPropagation()}>
-            {header && <h4 className="bg-arya1/80 text-start font-medium p-4 px-10">{header}</h4>}
+            {header && <h4 className="bg-sky-700 text-start text-white font-medium p-4 px-10">{header}</h4>}
             <Component handleClose={handleClose} />
           </div>
         </div>
