@@ -1,4 +1,4 @@
-import Input from '@/components/Input'
+import Input from '@/components/UI/Input'
 import React from 'react'
 import { useForm } from 'react-hook-form';
 

@@ -8,15 +8,15 @@ type Props = {
 };
 
 const ExternalControlledModal: React.FC<Props> = ({ Component, isOpen, onClose, componentProps, header, className }) => {
-  const modalWrapperClasses = "fixed inset-0 z-[3000] flex items-center justify-center bg-black lg:bg-black/50";
-  const modalContentClasses = "relative bg-light shadow-lg shadow-dark/20 flex flex-col lg:rounded-xl min-w-[40vw] min-h-[40vh] overflow-hidden ";
+  const modalWrapperClasses = "fixed top-0 left-0 h-screen w-screen flex items-start justify-center bg-black/50 z-[9999] backdrop-blur-xs";
+  const modalContentClasses = "relative bg-bg text-text shadow shadow-light rounded-2xl max-w-[60vw] max-h-[80vh] min-h-[40vh] overflow-y-auto mt-[10vh]";
   return (
     <>
       {isOpen && (
         <div className={modalWrapperClasses} onClick={onClose}>
           <div className={`${modalContentClasses} ${className || ""}`} onClick={e => e.stopPropagation()}>
-            {header && <h5 className="bg-arya1/80 text-start font-semibold py-2 px-8 uppercase">{header}</h5>}
-            <Component {...componentProps} />
+          {header && <h4 className="bg-text text-bg text-start text-light font-medium p-4 px-10">{header}</h4>}
+          <Component {...componentProps} />
           </div>
         </div>
       )}

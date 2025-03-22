@@ -1,24 +1,24 @@
 import React from "react";
-import Input from "@/components/Input";
-import Input2 from "@/components/Input2";
+import Input from "@/components/UI/Input";
+import Input2 from "@/components/UI/Input2";
 import { useForm } from "react-hook-form";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
-import CustomModal from "@/components/CustomModal";
+import CustomModal from "@/components/Modals/CustomModal";
 import SearchTestModal from "@/components/Modals/SearchTestModal";
 
 const Info = () => {
     const { register } = useForm();
 
     return (
-        <div className="bg-white shadow-md p-6 rounded-2xl border border-gray-300">
+        <div className="con">
             <div className="flex items-center gap-2">
                 <Input2 label="New Sales Order" name="Search_Sales_Order" register={register} className="px-4 w-full" />
                 <CustomModal
                     className={`min-w-[600px]`}
                     Component={SearchTestModal}
                     ModalButton={() => (
-                        <div className="btn-icon hover:bg-gray-200/60 bg-gray-200/0 p-1 rounded">
+                        <div className="btn-icon">
                             <MdOutlineSearch size={28} />
                         </div>
                     )}
@@ -27,10 +27,8 @@ const Info = () => {
             </div>
             <hr className="mt-4" />
 
-            {/* Customer Info Section */}
             <p className="text-2xl font-semibold mb-2">Customer Info</p>
             <div className="grid grid-cols-2 gap-28 mb-4">
-                {/* Input + Search Button */}
                 <div className="flex items-center gap-2">
                     <Input2 label="Customer" name="Customer" register={register} className="w-full" />
                     <button className="btn-icon">

@@ -4,7 +4,7 @@ import Body from '@/components/Sales/NewSalesOrder/Body';
 
 const NewSalesOrder = () => {
     return (
-        <div className="bg-gray-100 grow flex flex-col w-full px-12 pb-8">
+        <div className="grow flex flex-col w-full pb-8 px-12">
             <Header />
             <Body />
         </div>

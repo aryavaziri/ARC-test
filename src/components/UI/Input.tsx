@@ -23,11 +23,6 @@ const Input = <T extends FieldValues>({
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
 
-  useEffect(() => {
-    console.log(isFocused);
-    console.log(hasValue);
-  }, [isFocused, hasValue]);
-
   const Component = as;
   const isNumberInput = type === "number";
   const isCheckbox = type === "checkbox";
@@ -44,7 +39,7 @@ const Input = <T extends FieldValues>({
           {...register(name, { setValueAs: (value) => !!value })}
           {...rest}
           type={type}
-          className={`whitespace-nowrap bg-white/80 border border-dark/30 scale-[1.5] ${rest.className || ""
+          className={`whitespace-nowrap bg-light/80 border border-dark/30 scale-[1.5] ${rest.className || ""
             }`}
         />
       )}
@@ -52,7 +47,7 @@ const Input = <T extends FieldValues>({
       {/* Label - Clickable & Transitions Smoothly */}
       {!isCheckbox ? (
         <label
-          className={`absolute left-4 transition-all duration-200 bg-white px-1 cursor-text ${isFocused || hasValue
+          className={`absolute z-10 left-4 transition-all duration-200 bg-light px-1 cursor-text ${isFocused || hasValue
             ? "top-[-8px] text-sm text-gray-500 scale-90"
             : "top-3 text-gray-600"
             }`}
@@ -62,7 +57,7 @@ const Input = <T extends FieldValues>({
           {rest?.required && <span className="text-rose-600">*</span>}
         </label>) : (
         <label
-          className={`transition-all duration-200 bg-white px-1 cursor-text whitespace-nowrap text-gray-600`}
+          className={`transition-all duration-200 px-1 cursor-text whitespace-nowrap text-text`}
           htmlFor={name}
         >
           {capitalizeFirstLetter(label ?? name)}{" "}
@@ -72,26 +67,25 @@ const Input = <T extends FieldValues>({
 
       {!isCheckbox && (
         <Component
-          id={name}
+          id={name}  // Ensure id is explicitly set
           {...register(name, {
             setValueAs: (value) => {
-              if (isNumberInput) {
-                return !value ? undefined : parseFloat(value);
-              }
+              if (isNumberInput) return value ? parseFloat(value) : undefined;
               return value === "" ? undefined : value;
             },
           })}
           {...rest}
           type={type}
-          className={`${error ? `bg-pink-500/30` : `bg-white`
-            } w-full rounded-lg px-2 py-[10px] border border-gray-400/70 focus:outline-none focus:ring-2 focus:ring-blue-400 ${rest.className || ""
-            }`}
+          className={`${error ? `bg-pink-500/30` : `bg-light`} 
+          w-full rounded-lg px-2 py-[10px] border text-dark border-gray-400/70 
+          focus:outline-none focus:ring-2 focus:ring-blue-400 ${rest.className || ""}`}
           onFocus={() => setIsFocused(true)}
           onBlur={(e) => {
             setIsFocused(false);
             setHasValue(e.target.value.length > 0);
           }}
         />
+
       )}
 
       {error && <div className="text-rose-700 mb-0 overflow-hidden">{error.message}</div>}

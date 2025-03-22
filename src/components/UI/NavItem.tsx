@@ -47,16 +47,15 @@ const NavItem: React.FC<NavItemProps> = ({ Icon, label, menuItems = [], directUr
   // ✅ Check if the link is active
   const isActive =
     pathname === directUrl ||
-    menuItems.some((item) => pathname.startsWith(item.url)); // Match dropdown items too
+    menuItems.some((item) => pathname === item.url);
+    // menuItems.some((item) => pathname.startsWith(item.url)); // Match dropdown items too
 
   return (
-    <div ref={dropdownRef} className="relative h-full cursor-pointer">
+    <div ref={dropdownRef} className={`relative h-full cursor-pointer ${isActive ? "bg-bg text-text" : "hover:bg-primary/40"}`}>
       {directUrl ? (
         <Link
           href={directUrl}
-          className={`flex flex-col justify-between h-full items-center p-3 text-gray-500 ${
-            isActive ? "bg-gray-400 text-white" : "hover:bg-gray-200"
-          }`}
+          className={`flex flex-col justify-between h-full items-center p-3 ${``}`}
         >
           <Icon className="text-3xl" />
           <span className="text-sm">{label}</span>
@@ -64,9 +63,7 @@ const NavItem: React.FC<NavItemProps> = ({ Icon, label, menuItems = [], directUr
       ) : (
         <button
           onClick={handleClick}
-          className={`flex flex-col h-full cursor-pointer justify-between items-center p-3 gap-1 text-gray-500 ${
-            isActive ? "bg-gray-400 text-white" : "hover:bg-gray-200"
-          }`}
+          className={`flex flex-col h-full cursor-pointer justify-between items-center p-3 gap-1 ${``}`}
         >
           <div className="flex items-center gap-1">
             <Icon className="text-3xl" />
@@ -78,16 +75,14 @@ const NavItem: React.FC<NavItemProps> = ({ Icon, label, menuItems = [], directUr
         </button>
       )}
 
-      {/* Dropdown Menu */}
       {isOpen && menuItems.length > 0 && (
-        <div className="absolute left-0 mt-[1px] w-48 bg-white border border-gray-400 shadow-xs cursor-pointer rounded-xs text-sm">
+        <div className="absolute left-0 mt-[1px] w-48 bg-bg border border-gray-400 shadow-xs cursor-pointer rounded-xs text-sm divide-y divide-border/20">
           {menuItems.map((item, index) => (
             <Link
               key={index}
               href={item.url}
-              className={`block px-4 py-2 hover:bg-gray-100 ${
-                pathname.startsWith(item.url) ? "bg-gray-400 text-white" : ""
-              }`}
+              className={`block px-4 py-2 hover:bg-primary/20 ${pathname === item.url ? "font-bold bg-primary/15" : ""
+                }`}
             >
               {item.label}
             </Link>

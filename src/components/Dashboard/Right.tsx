@@ -5,7 +5,7 @@ import { FaTools, FaIndustry, FaShippingFast, FaCalendarAlt, FaMoneyBillWave, Fa
 
 const Right = () => {
   return (
-    <div className="space-y-4 grow">
+    <div className="space-y-4">
       <CardItem
         color="#F4A261"
         icon={<FaMoneyBillWave size={24} color="white" />}
@@ -55,7 +55,6 @@ const Right = () => {
         ]}
       />
 
-      {/* Product Management */}
       <CardItem
         color="#6D9DC5"
         icon={<FaClipboardList size={24} color="white" />}
@@ -72,7 +71,6 @@ const Right = () => {
         ]}
       />
 
-      {/* Project Management */}
       <CardItem
         color="#90CAF9"
         icon={<FaProjectDiagram size={24} color="white" />}

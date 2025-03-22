@@ -7,12 +7,9 @@ interface FilterItemProps {
 
 const FilterItem = ({ label, qt, selected, onClick }: FilterItemProps) => {
   return (
-    <div
-      onClick={onClick}
-      className={`${selected ? `bg-lime-300` : `hover:bg-gray-400/30`} whitespace-nowrap py-2 px-6 text-lg rounded-full border cursor-pointer border-gray-400/60 flex gap-2`}
-    >
+    <div onClick={onClick} className={`btn ${selected ? `btn-primary` : ``}`} >
       <span>{label}</span>
-      <span className="h-8 aspect-square bg-white border-gray-300 border text-sm flex justify-center items-center text-center shadow rounded-full">
+      <span className="h-8 aspect-square bg-light text-dark text-sm center shadow rounded-full">
         {qt}
       </span>
     </div>

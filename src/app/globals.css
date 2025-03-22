@@ -1,78 +1,25 @@
 @import "tailwindcss";
-@layer components {
-    /* Buttons */
-    .con {        
-        @apply shadow border border-gray-300 p-8 rounded-2xl bg-white flex flex-col gap-5 w-full
-      }
-    
-      .btn-primary {
-      @apply rounded-full border border-sky-400 p-2 px-4 bg-sky-200 hover:bg-sky-300/70 font-semibold cursor-pointer;
-    }
-  
-    .btn-secondary {
-      @apply rounded-full border border-gray-400 p-2 px-4 hover:bg-gray-300 cursor-pointer;
-    }
-  
-    .btn-action {
-      @apply rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer transition-all;
-    }
-  
-    /* Input Fields */
-    .input-base {
-      @apply w-full rounded-lg px-2 py-2 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400;
-    }
-  
-    .input-error {
-      @apply bg-red-100 border-red-500;
-    }
-  
-    /* Table Styles */
-    .table-base {
-      @apply w-full border border-gray-300 rounded-2xl overflow-x-auto whitespace-nowrap;
-      /* @apply border border-gray-300 rounded-2xl overflow-x-auto mt-8 whitespace-nowrap; */
-    }
-  
-    .table-header {        
-      @apply px-4 py-2 border border-gray-300 text-left;
-    }
+@import "../../public/css/UIComponents.css";
+@import "../../public/css/TableComponents.css";
+@import "../../public/css/Colors.css";
 
-    .table-row {
-      @apply border border-gray-300 px-4 py-2;
-    }
-  
-    .table-row-hover {
-      @apply hover:bg-gray-100 transition-all;
-    }
-  
-    /* Card / Container */
-    .card {
-      @apply bg-white shadow-md border border-gray-300 rounded-xl p-6;
-    }
-  
-    .card-header {
-      @apply text-2xl font-bold mb-4;
-    }
-  
-    /* Navigation */
-    .nav-container {
-      @apply w-full flex items-center justify-between px-12 z-50 bg-white/40 backdrop-blur-[2px] transition-all duration-300 gap-20;
-    }
-  
-    .nav-item {
-      @apply flex flex-col h-full cursor-pointer justify-between items-center p-4 gap-1 text-gray-500;
-    }
-  
-    .nav-item-hover {
-      @apply hover:bg-gray-200;
-    }
-  
-    /* Tabs */
-    .tab-button {
-      @apply px-6 py-2 text-lg font-medium transition-all rounded-full whitespace-nowrap text-gray-600 hover:bg-gray-200;
-    }
-  
-    .tab-active {
-      @apply bg-green-500 hover:bg-green-600/80 text-white font-semibold;
-    }
-  }
-  
+@theme {
+  --color-light: #f0f0f0;
+  --color-dark: #202020;
+  --color-primary: #4f46e5;
+  --color-secondary: #22c55e;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-bg: #ffffff;
+  --color-text: #1f2937;
+  --color-border: #4f6e96;
+  --font-primary: "Inter", sans-serif;
+  --text-xl: 1.25rem;
+  --font-weight-semibold: 600;
+  --spacing-4: 1rem;
+  --radius-lg: 0.5rem;
+  --shadow-arya: 0 0 40px -4px;
+  --shadow-arya2: 0 0 20px -4px;
+  --breakpoint-3xl: 120rem;
+}
+

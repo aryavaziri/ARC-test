@@ -5,8 +5,7 @@ import { FaTools, FaIndustry, FaShippingFast, FaCalendarAlt } from 'react-icons/
 
 const Left = () => {
   return (
-    <div className="space-y-4 grow">
-      {/* Human Capital Management */}
+    <div className="space-y-4">
       <CardItem
         color="#0F4C75"
         icon={<IoBriefcaseSharp size={24} color="white" />}
@@ -23,7 +22,6 @@ const Left = () => {
         ]}
       />
 
-      {/* Service and Asset Management */}
       <CardItem
         color="#6ABF69"
         icon={<FaTools size={24} color="white" />}
@@ -39,7 +37,6 @@ const Left = () => {
         ]}
       />
 
-      {/* Production Management */}
       <CardItem
         color="#F4A261"
         icon={<FaIndustry size={24} color="white" />}
@@ -53,7 +50,6 @@ const Left = () => {
         ]}
       />
 
-      {/* Supply Chain Management */}
       <CardItem
         color="#2A9D8F"
         icon={<FaShippingFast size={24} color="white" />}
@@ -70,7 +66,6 @@ const Left = () => {
         ]}
       />
 
-      {/* Planning and Scheduling */}
       <CardItem
         color="#E76F51"
         icon={<FaCalendarAlt size={24} color="white" />}

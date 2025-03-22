@@ -1,7 +1,7 @@
 'use client'
 import React from "react"
 import { useForm } from "react-hook-form"
-import Input from "@/components/Input" // Assuming you have an Input component
+import Input from "@/components/UI/Input" // Assuming you have an Input component
 
 // Sample data
 const sampleData = [
@@ -62,21 +62,19 @@ const Items = () => {
 
   return (
     <div className="con">
-      <ul className="flex gap-4 mb-8 items-center">
-        <li className="mr-auto">
-          <p className="font-semibold text-4xl">Items</p>
-        </li>
-        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">Add New +</li>
-        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">Copy Function</li>
-        <li className="rounded-full border p-2 px-4 hover:bg-gray-300 cursor-pointer">Import Lines</li>
+      <ul className="flex gap-4">
+        <p className="mr-auto font-semibold text-4xl">Items</p>
+        <li className="btn">Add New +</li>
+        <li className="btn">Copy Function</li>
+        <li className="btn">Import Lines</li>
       </ul>
-      <div className="border border-gray-300 rounded-2xl overflow-x-auto">
-        <table className="w-full">
+      <div className="border border-border whitespace-nowrap rounded-2xl overflow-x-auto">
+        <table className="my-table">
           <thead>
-            <tr className="bg-gray-100/40">
+            <tr>
               {["Action", "Line", "Quantity", "Item Number", "Description", "Unit Price", "Discount Price", "Total Price", "Requested Date", "Status", "Pricing Level"].map(
                 (header) => (
-                  <th key={header} className="font-normal px-4 py-2">
+                  <th key={header}>
                     {header}
                   </th>
                 )
@@ -86,55 +84,32 @@ const Items = () => {
 
           <tbody>
             {sampleData.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-100 transition-all">
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.action}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.line}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.quantity}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.itemNumber}</td>
-                <td className="border border-gray-300 px-4 py-2">{item.description}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">${item.unitPrice.toFixed(2)}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">${item.discountPrice.toFixed(2)}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">${item.totalPrice.toFixed(2)}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.requestedDate}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.status}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">{item.pricingLevel}</td>
+              <tr key={item.id}>
+                <td>{item.action}</td>
+                <td>{item.line}</td>
+                <td>{item.quantity}</td>
+                <td>{item.itemNumber}</td>
+                <td>{item.description}</td>
+                <td>${item.unitPrice.toFixed(2)}</td>
+                <td>${item.discountPrice.toFixed(2)}</td>
+                <td>${item.totalPrice.toFixed(2)}</td>
+                <td>{item.requestedDate}</td>
+                <td>{item.status}</td>
+                <td>{item.pricingLevel}</td>
               </tr>
             ))}
-            {/* Add new item row with input fields */}
             <tr>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="action" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="line" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="quantity" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="itemNumber" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="description" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="unitPrice" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="discountPrice" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="totalPrice" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" type="date" name="requestedDate" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="status" label="" register={register} />
-              </td>
-              <td className="border-gray-400/50 border">
-                <Input placeholder='type...' className="rounded-none border-none bg-amber-200/20!" name="pricingLevel" label="" register={register} />
-              </td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="action" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="line" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="quantity" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="itemNumber" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="description" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="unitPrice" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="discountPrice" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="totalPrice" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="requestedDate" type="date" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="status" /></td>
+              <td className="p-0"><Input placeholder='type...' label="" register={register} name="pricingLevel" /></td>
             </tr>
           </tbody>
         </table>
@@ -144,7 +119,7 @@ const Items = () => {
       {isDirty && (
         <button
           onClick={handleSubmit(onSubmit)}
-          className="whitespace-nowrap w-min btn-primary"
+          className="btn btn-primary"
         >
           Create Item
         </button>

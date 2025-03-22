@@ -1,8 +1,13 @@
 "use client";
 
-import { createContext, useState, Dispatch, SetStateAction, useContext, useEffect} from "react";
-// import { SessionProvider } from "next-auth/react";
+import { createContext, useState, Dispatch, SetStateAction, useContext, useEffect } from "react";
+import { SessionProvider } from "next-auth/react";
 import { isMobile as isM } from "react-device-detect";
+import ReduxProvider from "./ReduxProvider";
+
+export const themes = ['light', 'dark', 'custom1', 'custom2', 'custom3'] as const;
+
+export type Theme = typeof themes[number];
 
 interface ContextProps {
   isAuth: boolean;
@@ -16,7 +21,10 @@ interface ContextProps {
   isMobile: boolean;
   navTab: string;
   setNavTab: Dispatch<SetStateAction<string>>;
+  theme: Theme;
+  setTheme: Dispatch<SetStateAction<Theme>>;
 }
+
 
 export const Context = createContext<ContextProps>({} as ContextProps);
 
@@ -30,12 +38,30 @@ export default function Provider({ children }: React.PropsWithChildren) {
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [isSuperUser, setIsSuperUser] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [theme, setTheme] = useState<Theme>('light');
   const [quoteModalOpen, setQuoteModalOpen] = useState<boolean>(false);
   const [navTab, setNavTab] = useState<string>("");
 
   useEffect(() => {
     setIsMobile(isM);
   }, [isM])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = window.localStorage.getItem('theme');
+      if (savedTheme && themes.includes(savedTheme as Theme)) {
+        setTheme(savedTheme as Theme);
+      } else {
+        setTheme('light'); // fallback or default
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('theme', theme)
+    }
+  }, [theme])
 
   const myContext = {
     isAuth,
@@ -49,13 +75,19 @@ export default function Provider({ children }: React.PropsWithChildren) {
     setIsAdmin,
     quoteModalOpen,
     setQuoteModalOpen,
+    theme,
+    setTheme
   };
 
   return (
-    // <ReduxProvider>
-    // <SessionProvider>
-    // </SessionProvider>
-    <Context.Provider value={myContext}>{children}</Context.Provider>
-    // </ReduxProvider>
+    <SessionProvider>
+      <ReduxProvider >
+        <Context.Provider value={myContext} >
+          <main data-theme={myContext.theme} className="min-h-screen flex flex-col text-text bg-bg border-border">
+            {children}
+          </main>
+        </Context.Provider>
+      </ReduxProvider>
+    </SessionProvider>
   );
 }
