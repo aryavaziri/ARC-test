@@ -3,22 +3,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import NavItem from "./NavItem";
 import { usePathname } from "next/navigation";
 import { useMyContext } from "@/app/Provider";
-import NavItem from "./NavItem";
 import { FaHome, FaShoppingCart, FaTools } from "react-icons/fa";
 import { useAuth } from "@/store/hooks/authHooks";
 import { logout } from "@/store/slice/userSlice";
 import { signOut } from "next-auth/react";
 import { IoClose } from "react-icons/io5";
 import { MdMenu } from "react-icons/md";
+import { themeLogos } from "@/lib/constants";
 
 const Nav = () => {
   const { userData } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { isAuth } = useMyContext();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null); // 🔹 Create ref for dropdown
+
+  const { isAuth,theme } = useMyContext();
 
   const handleLogOut = async () => {
     await signOut({ redirectTo: `/login` });
@@ -47,7 +49,13 @@ const Nav = () => {
         w-full flex items-center justify-between px-12 z-[400] bg-linear-80/hsl from-secondary/10 via-primary/20 to-secondary/20 bg-primary/20 backdrop-blur-[2px] transition-all duration-300 gap-20`}>
 
       <Link href={`/`} className="h-16 w-24 relative flex items-center">
-        <Image className="object-contain" width={200} height={20} alt="LOGO" src={`/next.svg`} />
+      <Image 
+        className="object-contain" 
+        width={100} 
+        height={50} 
+        alt="LOGO" 
+        src={themeLogos[theme] || "/logo/light.png"} 
+      />
       </Link>
 
       <ul className={`flex grow h-20`}>

@@ -6,7 +6,8 @@ import { RiMenuSearchLine } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import CustomModal from "@/components/Modals/CustomModal";
 import SearchTestModal from "@/components/Modals/SearchTestModal";
-
+import SearchCustomer from "@/components/Modals/SearchCustomer";
+import { IoMdRefresh } from 'react-icons/io'
 const Info = () => {
     const { register } = useForm();
 
@@ -31,9 +32,20 @@ const Info = () => {
             <div className="grid grid-cols-2 gap-28 mb-4">
                 <div className="flex items-center gap-2">
                     <Input2 label="Customer" name="Customer" register={register} className="w-full" />
-                    <button className="btn-icon">
+                    <CustomModal
+                    className={`min-w-[1000px]`}
+                    Component={SearchCustomer}
+                    ModalButton={() => (
+                        <div className="btn-icon">
+                            <MdOutlineSearch size={28} />
+                        </div>
+                    )}
+                    header="Search Customer"
+                />
+                    {/* <button className="btn-icon">
                         <MdOutlineSearch size={28} />
-                    </button>
+                        
+                    </button> */}
                 </div>
 
                 <div className="flex items-center gap-2">
