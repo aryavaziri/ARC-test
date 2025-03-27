@@ -2,10 +2,13 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import user from "./slice/userSlice";
 import customer from "./slice/customerSlice";
+import dynamicModel from "./slice/dynamicModelSlice";
+import dynamic from "next/dynamic";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
+      dynamicModel,
       user,
       customer
     },

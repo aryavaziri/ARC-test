@@ -11,7 +11,7 @@ const Page = () => {
       <div className="mt-8 con">
         <p className="text-2xl font-semibold mb-2">Database Management</p>
         <div className="flex flex-col gap-8">
-          <button className={`btn btn-primary w-min`} onClick={syncTables} >SYNC DB</button>
+          <button className={`btn btn-primary w-min`} onClick={async ()=>await syncTables()} >SYNC DB</button>
           {/* <button className={`btn btn-primary w-min`} onClick={createUser} >Create User</button> */}
           {/* <button className={`btn btn-primary w-min`} onClick={signin} >SIGN IN</button> */}
         </div>

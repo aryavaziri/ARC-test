@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TUser, userSchema } from "@/types/user";
 import { useAuth } from "@/store/hooks/authHooks";
-import Input from "@/components/UI/Input3";
+import Input from "@/components/UI/Input";
 import Link from "next/link";
 
 const Page = () => {
@@ -52,9 +52,9 @@ const Page = () => {
   return (
     <div className="con flex gap-8 w-[400px] mt-[12vh] mx-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 h-full w-full">
-        <Input name="email" label="Email" type="email" register={register} error={formState.errors.email} placeholder="Enter your email" disabled />
-        <Input name="firstName" label="First Name" register={register} error={formState.errors.firstName} placeholder="Enter your first name" />
-        <Input name="lastName" label="Last Name" register={register} error={formState.errors.lastName} placeholder="Enter your last name" />
+        <Input style={3} name="email" label="Email" type="email" register={register} error={formState.errors.email} placeholder="Enter your email" disabled />
+        <Input style={3} name="firstName" label="First Name" register={register} error={formState.errors.firstName} placeholder="Enter your first name" />
+        <Input style={3} name="lastName" label="Last Name" register={register} error={formState.errors.lastName} placeholder="Enter your last name" />
         <div className={`flex gap-4 mt-12`}>
           <Link className={`btn btn-primary mx-auto w-fit`} href={`setPassword/`}>
             Reset Password

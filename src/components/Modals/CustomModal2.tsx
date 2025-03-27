@@ -15,7 +15,7 @@ const ExternalControlledModal: React.FC<Props> = ({ Component, isOpen, onClose, 
       {isOpen && (
         <div className={modalWrapperClasses} onClick={onClose}>
           <div className={`${modalContentClasses} ${className || ""}`} onClick={e => e.stopPropagation()}>
-          {header && <h4 className="bg-text text-bg text-start text-light font-medium p-4 px-10">{header}</h4>}
+          {header && <h4 className="bg-text text-bg text-start font-medium p-4 px-10">{header}</h4>}
           <Component {...componentProps} />
           </div>
         </div>

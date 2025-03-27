@@ -16,7 +16,7 @@ const ToastWrapper = () => {
       draggable
       pauseOnHover
       toastClassName={() =>
-        "relative flex p-1 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer bg-[#262626] text-white shadow-lg"
+        "text-sm font-white font-md block p-5 min-w-[250px] relative flex p-1 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer bg-[#262626] text-white shadow-lg"
       }
       // bodyClassName={() => "text-sm font-white font-md block p-5"}
       progressClassName={'bg-[#FCD618]'}

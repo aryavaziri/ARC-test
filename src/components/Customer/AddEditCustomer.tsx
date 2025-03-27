@@ -1,6 +1,6 @@
 import { useCustomerModel } from '@/store/hooks/customerHooks';
 import React, { useEffect } from 'react';
-import Input from '../UI/Input3';
+import Input from '../UI/Input';
 import { useForm } from 'react-hook-form';
 import { customerSchema, TCustomer } from '@/types/customer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,9 +56,9 @@ const AddEditCustomer: React.FC<Props> = ({ customerId, onClose }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='p-8 flex flex-col gap-2'>
-      {customer && <Input register={register} name="id" disabled />}
-      <Input register={register} error={errors.companyName} name="companyName" required />
-      <Input register={register} error={errors.accountNumber} name="accountNumber" />
+      {customer && <Input style={3} register={register} name="id" disabled />}
+      <Input style={3} register={register} error={errors.companyName} name="companyName" required />
+      <Input style={3} register={register} error={errors.accountNumber} name="accountNumber" />
 
       <button className={`btn btn-primary mt-4 w-full`} type="submit" disabled={isSubmitting}>
         {customerId ? 'Update Customer' : 'Add Customer'}

@@ -1,18 +1,17 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import CustomerTable from '@/components/Customer/CustomerTable'
 import CustomerTable2 from '@/components/Customer/CustomerTable2'
-import SearchCustomer from "@/components/Modals/SearchCustomer";
-import CustomerTable from "@/components/Customer/CustomerTable2";
 
 const Customer = async () => {
   const session = await auth()
-  if (!session?.user) redirect(`/`)
+  if (!session?.user) redirect(`/login`)
 
 
   return (
     <div className="p-12">
       <div className="mt-8 con">
-        <CustomerTable  />
+        <CustomerTable />
       </div>
       <div className="mt-8 con">
         <CustomerTable2 />

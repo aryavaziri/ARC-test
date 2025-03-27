@@ -9,22 +9,14 @@ export class UserRole extends Model {
     @AutoIncrement
     @Column({
         type: DataType.INTEGER,
-    }
-    )
+    })
     declare id: number;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
-        unique: true,
+        // unique: true,
     })
     declare role: string;
 
-    @BeforeCreate
-    static async setCustomAutoIncrement(userRole: UserRole) {
-        const lastRecord = await UserRole.findOne({
-            order: [["id", "DESC"]],
-        });
-        userRole.id = lastRecord ? lastRecord.id + 1 : 1;
-    }
 }
