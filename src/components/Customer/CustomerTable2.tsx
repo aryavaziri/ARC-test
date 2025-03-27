@@ -5,7 +5,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
 import { useCustomerModel } from '@/store/hooks/customerHooks';
 import { useState, useEffect } from "react";
-import Input from "../UI/Input3";
+import Input from "../UI/Input";
 import { useForm } from "react-hook-form";
 import { customerSchema, TCustomer } from "@/types/customer";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -98,8 +98,8 @@ export default function CustomerTable() {
             {/* Inline Add New Customer Row */}
             <tr>
               <td></td>
-              <td className={`p-0`} ><Input placeholder='type...' className={`px-4 h-16`} label="" register={register} error={errors.companyName} name="companyName" /></td>
-              <td className={`p-0`} ><Input placeholder='type...' className={`px-4 h-16`} label="" register={register} error={errors.accountNumber} name="accountNumber" /></td>
+              <td className={`p-0`} ><Input style={3} placeholder='type...' className={`px-4 h-16`} label="" register={register} error={errors.companyName} name="companyName" /></td>
+              <td className={`p-0`} ><Input style={3} placeholder='type...' className={`px-4 h-16`} label="" register={register} error={errors.accountNumber} name="accountNumber" /></td>
               <td>
                 <form onSubmit={handleSubmit(onAddSubmit)}>
                   <button type="submit" className="mx-auto btn btn-primary flex items-center gap-1" disabled={isSubmitting}>
@@ -171,9 +171,9 @@ const EditCustomerForm: React.FC<EditFormProps> = ({ customer, onClose, onSubmit
 
   return (
     <form onSubmit={handleSubmit(submit)} className="p-8 flex flex-col gap-2">
-      <Input register={register} name="id" disabled />
-      <Input register={register} error={errors.companyName} name="companyName" />
-      <Input register={register} error={errors.accountNumber} name="accountNumber" />
+      <Input style={3} register={register} name="id" disabled />
+      <Input style={3} register={register} error={errors.companyName} name="companyName" />
+      <Input style={3} register={register} error={errors.accountNumber} name="accountNumber" />
 
       <button className="btn btn-primary mt-4 w-full" type="submit" disabled={isSubmitting}>
         Update Customer

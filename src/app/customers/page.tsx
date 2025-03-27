@@ -5,7 +5,7 @@ import CustomerTable2 from '@/components/Customer/CustomerTable2'
 
 const Customer = async () => {
   const session = await auth()
-  if (!session?.user) redirect(`/`)
+  if (!session?.user) redirect(`/login`)
 
 
   return (

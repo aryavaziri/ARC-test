@@ -16,6 +16,10 @@
   .my-table > tbody > tr > td {
     @apply px-4 py-2 cursor-default;
   }
+  
+  .row-selected {
+    @apply !bg-primary/30 !text-text hover:!bg-primary/20;
+  }
 
   .my-table input {
     @apply !rounded-none border-none bg-amber-200/20! !text-text;

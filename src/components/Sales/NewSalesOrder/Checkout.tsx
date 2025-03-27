@@ -10,7 +10,7 @@ const Checkout = () => {
             <p className={`text-2xl mb-6`}>Check out</p>
             <div className={`flex w-full gap-8`}>
                 <div className={`basis-1 grow flex flex-col gap-4`}>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 items-start">
                         <Input label='Shipping Info' name='Shipping Info' as='textarea' rows={4} register={register} className={`px-4`} />
                         <Input label='Internal Notes' name='Internal Notes' as='textarea' rows={4} register={register} className={`px-4`} />
                     </div>                    <hr className={`mt-2`} />

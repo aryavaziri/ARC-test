@@ -52,7 +52,7 @@ const Nav = () => {
 
       <ul className={`flex grow h-20`}>
         <NavItem Icon={FaHome} label="Home" directUrl="/" />
-        <NavItem Icon={FaShoppingCart} label="Sales" menuItems={[{ label: "Customers", url: "/customers" }, { label: "Sales Orders", url: "/sales" }, { label: "New Sales Order", url: "/sales/newSales" }]} />
+        <NavItem Icon={FaShoppingCart} label="Sales" menuItems={[{ label: "Dynamic form", url: "/dynamic" }, { label: "Customers", url: "/customers" }, { label: "Sales Orders", url: "/sales" }, { label: "New Sales Order", url: "/sales/newSales" }]} />
         <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Database", url: "/setting/database" }, { label: "Theme", url: "/setting/theme" }, { label: "API Test", url: "/setting/test" }]} />
       </ul>
 

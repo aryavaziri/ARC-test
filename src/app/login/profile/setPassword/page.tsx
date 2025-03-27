@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { passwordSetSchema, TPassInput } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { setPassword } from "@/actions/auth";
-import Input from "@/components/UI/Input3";
+import Input from "@/components/UI/Input";
 import { toast } from "react-toastify";
 import { useAuth } from "@/store/hooks/authHooks";
 import { RootState } from "@/store/store";
@@ -80,9 +80,9 @@ const SetPasswordPage = () => {
     <div className="my-24 mgs flex items-center flex-col">
       <h1 className="text-4xl my-8">Set Your Password</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="min-w-[400px] flex flex-col gap-4">
-        <Input name="email" type="email" register={register} error={errors.email} />
-        <Input name="password" type="password" register={register} error={errors.password} />
-        <Input label="Confirm Password" name="password2" type="password" register={register} error={errors.password2} />
+        <Input style={3} name="email" type="email" register={register} error={errors.email} />
+        <Input style={3} name="password" type="password" register={register} error={errors.password} />
+        <Input style={3} label="Confirm Password" name="password2" type="password" register={register} error={errors.password2} />
         {errorMessage && <span className="text-red-500">{errorMessage}</span>}
         <button type="submit" className="btn btn-primary">
           SUBMIT

@@ -7,7 +7,7 @@ import { RiLoaderFill } from "react-icons/ri";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { LoginInput, preRegisterSchema, signInSchema, TPreRegister } from "@/types/user";
-import Input from "@/components/UI/Input3";
+import Input from "@/components/UI/Input";
 import { preRegister, resetPassword } from "@/actions/user";
 import { toast } from "react-toastify";
 import { isMobile } from "react-device-detect";
@@ -196,24 +196,24 @@ const Login = () => {
         <div className={`flex w-full mb-8 gap-4 flex-col rounded-lg`}>
           {modalState === "reset" ? (
             <>
-              <Input onKeyDown={handleKeyDown} name={"email"} register={registerReset} error={formStateReset.errors.email} type="email" />
+              <Input style={3} onKeyDown={handleKeyDown} name={"email"} register={registerReset} error={formStateReset.errors.email} type="email" />
               <button onClick={handleSubmitReset(handleResetPassword)} className={`btn btn-primary mt-8`}>
                 {loadinggggggg ? <RiLoaderFill className={`animate-spin h-8`} /> : <div>Send Reset Link</div>}
               </button>
             </>
           ) : modalState === "register" ? (
             <>
-              <Input onKeyDown={handleKeyDown} name={"email"} register={register2} error={formState2.errors.email} type="email" />
-              <Input onKeyDown={handleKeyDown} name={"firstName"} register={register2} error={formState2.errors.firstName} />
-              <Input onKeyDown={handleKeyDown} name={"lastName"} register={register2} error={formState2.errors.lastName} />
+              <Input style={3} onKeyDown={handleKeyDown} name={"email"} register={register2} error={formState2.errors.email} type="email" />
+              <Input style={3} onKeyDown={handleKeyDown} name={"firstName"} register={register2} error={formState2.errors.firstName} />
+              <Input style={3} onKeyDown={handleKeyDown} name={"lastName"} register={register2} error={formState2.errors.lastName} />
               <button onClick={handleSubmit2(handleRegister)} className={`btn btn-primary mt-8`}>
                 {loadinggggggg ? <RiLoaderFill className={`animate-spin h-8`} /> : <div>REGISTER</div>}
               </button>
             </>
           ) : (
             <>
-              <Input onKeyDown={handleKeyDown} name={"email"} register={register} error={formState.errors.email} type="email" />
-              <Input onKeyDown={handleKeyDown} name={"password"} register={register} error={formState.errors.password} type="password" />
+              <Input style={3} onKeyDown={handleKeyDown} name={"email"} register={register} error={formState.errors.email} type="email" />
+              <Input style={3} onKeyDown={handleKeyDown} name={"password"} register={register} error={formState.errors.password} type="password" />
               <div className={`flex justify-between items-center`}>
                 {
                   <button className={`text-sm underline font-normal mb-2 text-sky-800 cursor-pointer hover:font-semibold`} onClick={() => setModalState("reset")}>

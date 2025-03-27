@@ -1,7 +1,7 @@
 'use client'
 import React from "react"
 import { useForm } from "react-hook-form"
-import Input from "@/components/UI/Input" // Assuming you have an Input component
+import Input from "@/components/UI/Input"
 
 // Sample data
 const sampleData = [
