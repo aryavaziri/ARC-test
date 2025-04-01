@@ -1,28 +1,59 @@
 @layer components {
   .my-table {
-    @apply w-full bg-primary/20;
+    @apply w-full overflow-hidden transition;
   }
 
   .my-table > thead > tr {
-    @apply text-center divide-x divide-border text-bg bg-text cursor-default border-b border-border;
+    @apply text-text;
   }
+
   .my-table > thead > tr > th {
-    @apply px-4 py-2 cursor-default;
+    @apply py-2 cursor-default font-light text-sm;
+  }
+
+  .my-table > tbody {
+    @apply gap-4 text-text;
   }
 
   .my-table > tbody > tr {
-    @apply text-center divide-x border-b border-primary/50 text-text divide-border bg-bg/20 hover:bg-primary/10 cursor-default;
+    @apply text-center relative;
   }
+
+  .my-table > tbody > tr::after {
+    content: "";
+    @apply block border inset-y-1 inset-x-0 rounded-xl border-border/20 absolute;
+  }
+
+  .my-table > tbody > tr:hover::after {
+    @apply bg-primary/10;
+  }
+
   .my-table > tbody > tr > td {
-    @apply px-4 py-2 cursor-default;
+    @apply py-3 cursor-default px-2;
   }
-  
-  .row-selected {
-    @apply !bg-primary/30 !text-text hover:!bg-primary/20;
+
+  .my-table > tbody > tr > td:has(button) {
+    @apply flex gap-2 justify-center items-center z-1 relative;
+  }
+
+  .my-table > tbody > tr:has(input):hover::after {
+    @apply z-1 relative;
+  }
+
+  .row-selected::after {
+    @apply !bg-primary/30 !text-text;
+  }
+
+  .row-selected:hover::after {
+    @apply !bg-primary/40;
   }
 
   .my-table input {
-    @apply !rounded-none border-none bg-amber-200/20! !text-text;
+    @apply !rounded-none !text-text;
+  }
+
+  .my-table td.subtitle > * {
+    @apply rounded-full bg-secondary-200/50 w-min mx-auto text-sm px-2 py-1;
   }
 
   .tab-button {
