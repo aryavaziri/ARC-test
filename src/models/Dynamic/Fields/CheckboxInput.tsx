@@ -1,11 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    PrimaryKey,
-    Default,
-  } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, Default } from "sequelize-typescript";
   
   @Table({
     tableName: "CheckboxInputs",
@@ -23,11 +16,7 @@ import {
     })
     declare label: string;
   
-    @Column({
-      type: DataType.BOOLEAN,
-      // allowNull: true,
-      // defaultValue: false,
-    })
+    @Column(DataType.BOOLEAN)
     declare isRequired: boolean;
   }
   

@@ -1,11 +1,12 @@
-import { DynamicModel } from "./DynamicModel";
-import { ModelTextInput, ModelLongTextInput, ModelNumberInput, ModelDateInput, ModelCheckboxInput } from "./M2M";
+import { DynamicModel, LineItem } from "./DynamicModel";
+import { ModelTextInput, ModelLongTextInput, ModelNumberInput, ModelDateInput, ModelCheckboxInput, ModelLookupInput } from "./M2M";
+import { DateInputRecord, LongTextInputRecord, NumberInputRecord, TextInputRecord, CheckboxInputRecord, LookupInputRecord } from "./Records";
 import { TextInput } from "./Fields/TextInput";
 import { LongTextInput } from "./Fields/LongTextInput";
 import { DateInput } from "./Fields/DateInput";
 import { NumberInput } from "./Fields/NumberInput";
-import { DateInputRecord, LongTextInputRecord, NumberInputRecord, TextInputRecord, CheckboxInputRecord } from "./Records";
 import { CheckboxInput } from "./Fields/CheckboxInput";
+import { LookupInput } from "./Fields/LookupInput";
 
 export const setAssociations = () => {
 
@@ -46,6 +47,13 @@ export const setAssociations = () => {
         as: "ModelCheckboxInputs",
         onDelete: "CASCADE",
     });
+    DynamicModel.belongsToMany(LookupInput, {
+        through: ModelLookupInput,
+        foreignKey: "modelId",
+        otherKey: "inputId",
+        as: "ModelLookupInputs", 
+        onDelete: "CASCADE",
+    });
 
 
     ModelTextInput.belongsTo(TextInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
@@ -53,29 +61,38 @@ export const setAssociations = () => {
     ModelDateInput.belongsTo(DateInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
     ModelNumberInput.belongsTo(NumberInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
     ModelCheckboxInput.belongsTo(CheckboxInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
+    ModelLookupInput.belongsTo(LookupInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
+
+    LineItem.belongsTo(DynamicModel, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
 
 
-    ModelTextInput.hasMany(TextInputRecord, {
+
+    TextInput.hasMany(TextInputRecord, {
         foreignKey: "fieldId",
         as: "records",
         onDelete: "CASCADE",
     });
-    ModelNumberInput.hasMany(NumberInputRecord, {
+    NumberInput.hasMany(NumberInputRecord, {
         foreignKey: "fieldId",
         as: "records",
         onDelete: "CASCADE",
     });
-    ModelDateInput.hasMany(DateInputRecord, {
+    DateInput.hasMany(DateInputRecord, {
         foreignKey: "fieldId",
         as: "records",
         onDelete: "CASCADE",
     });
-    ModelLongTextInput.hasMany(LongTextInputRecord, {
+    LongTextInput.hasMany(LongTextInputRecord, {
         foreignKey: "fieldId",
         as: "records",
         onDelete: "CASCADE",
     });
-    ModelCheckboxInput.hasMany(CheckboxInputRecord , {
+    CheckboxInput.hasMany(CheckboxInputRecord, {
+        foreignKey: "fieldId",
+        as: "records",
+        onDelete: "CASCADE",
+    });
+    LookupInput.hasMany(LookupInputRecord, {
         foreignKey: "fieldId",
         as: "records",
         onDelete: "CASCADE",

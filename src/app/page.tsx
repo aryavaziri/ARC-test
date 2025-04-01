@@ -1,6 +1,6 @@
 'use client'
-import Left from "@/components/Dashboard/Left";
-import Right from "@/components/Dashboard/Right";
+import Left from "@/components/Landing/Left";
+import Right from "@/components/Landing/Right";
 import Image from "next/image";
 
 export default function Home() {

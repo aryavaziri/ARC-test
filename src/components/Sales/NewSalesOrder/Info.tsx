@@ -17,8 +17,8 @@ const Info = () => {
                     className={`min-w-[600px]`}
                     Component={SearchTestModal}
                     ModalButton={() => (
-                        <div className="btn-icon">
-                            <MdOutlineSearch size={28} />
+                        <div className="btn-icon aspect-square">
+                            <MdOutlineSearch />
                         </div>
                     )}
                     header="Search"
@@ -30,15 +30,15 @@ const Info = () => {
             <div className="grid grid-cols-2 gap-28 mb-4">
                 <div className="flex items-center gap-2">
                     <Input style={2} label="Customer" name="Customer" register={register} className="w-full" />
-                    <button className="btn-icon">
-                        <MdOutlineSearch size={28} />
+                    <button className="btn-icon aspect-square">
+                        <MdOutlineSearch />
                     </button>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Input style={2} label="Contact" name="Contact" register={register} className="w-full" />
-                    <button className="btn-icon">
-                        <MdOutlineSearch size={28} />
+                    <button className="btn-icon aspect-square">
+                        <MdOutlineSearch />
                     </button>
                 </div>
             </div>

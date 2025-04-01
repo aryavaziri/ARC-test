@@ -1,4 +1,4 @@
-import Dashboard from "@/components/Dashboard/Dashboard";
+import Dashboard from "@/components/Landing/Dashboard";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 

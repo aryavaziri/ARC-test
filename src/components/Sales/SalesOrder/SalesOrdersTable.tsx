@@ -20,7 +20,7 @@ export interface SalesOrderTableProps {
 
 const SalesOrderTable: React.FC<SalesOrderTableProps> = ({ filteredOrders }) => {
   return (
-    <div className="border border-border rounded-2xl overflow-x-auto mt-8 whitespace-nowrap">
+    <div className="overflow-x-auto mt-8 whitespace-nowrap">
       <table className="my-table">
         <thead className="">
           <tr>

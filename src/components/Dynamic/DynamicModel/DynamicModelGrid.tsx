@@ -8,19 +8,20 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useEffect } from "react"
 
-type Props = {
-  // onSelectModel: (model: TDynamicModel) => void;
-};
 
 const schema = dynamicModelSchema.partial({ id: true });
 type FormValues = z.infer<typeof schema>;
 
-const DynamicModelGrid: React.FC<Props> = ({ }) => {
-  const { models, addNewItem, setSelectedModel, selectedModel } = useDynamicModel();
-  const handleClick = (model: TDynamicModel) => {
-    // console.log(model)
+const DynamicModelGrid: React.FC = () => {
+  const { refetch, models, addNewItem, setSelectedModel, selectedModel, getData } = useDynamicModel();
+  const handleClick = async (model: TDynamicModel) => {
     setSelectedModel(model)
   }
+  useEffect(() => {
+    selectedModel && getData()
+  }, [selectedModel]);
+
+  useEffect(() => { refetch() }, []);
 
   const {
     register,
@@ -40,15 +41,15 @@ const DynamicModelGrid: React.FC<Props> = ({ }) => {
   const onSubmit = async (data: FormValues) => {
     try {
       const result = await addNewItem(data);
-      reset(); // clear input after success
+      reset({name:""}); 
     } catch (err) {
       console.error("Add model failed:", err);
     }
   };
 
   return (
-    <div className="rounded-xl overflow-x-auto">
-      <table className="w-min my-table whitespace-nowrap">
+    <div className="w-[400px] con overflow-x-auto">
+      <table className="my-table whitespace-nowrap">
         <thead>
           <tr>
             <th>ID</th>
@@ -59,30 +60,29 @@ const DynamicModelGrid: React.FC<Props> = ({ }) => {
           {models.map(model => (
             <tr
               key={model.id}
-              // className="cursor-pointer hover:bg-gray-100"
-              className={`cursor-pointer hover:bg-gray-100 ${selectedModel?.id === model.id ? 'row-selected' : ''}`}
-              // onClick={() => onSelectModel(model)}
+              className={`cursor-pointer ${selectedModel?.id === model.id ? 'row-selected' : ''}`}
               onClick={() => handleClick(model)}
             >
               <td>{model.id.slice(0, 8)}...</td>
               <td>{model.name}</td>
             </tr>
           ))}
-          <tr>
+          <tr className="after:border-none">
             <td className="p-0">
               <button
-                className="btn btn-primary rounded-none w-full"
+                className="my-1 btn btn-primary py-1 rounded w-full"
                 onClick={handleSubmit(onSubmit)}
               >
                 Add New
               </button>
             </td>
-            <td className="p-0 bg-lime-200">
+            <td className={`p-0 ${errors.name?`after:bg-rose-200`:`after:bg-lime-200`}`}>
               <Input
+              className={`ml-2 mr-1 rounded`}
                 register={register}
                 name="name"
                 label=""
-                // error={errors.name}
+
               />
             </td>
           </tr>

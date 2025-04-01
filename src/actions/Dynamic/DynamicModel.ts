@@ -6,51 +6,10 @@ import sequelize from "@/lib/Sequelize"
 import { CheckboxInput } from "@/models/Dynamic/Fields/CheckboxInput"
 import { DateInput } from "@/models/Dynamic/Fields/DateInput"
 import { LongTextInput } from "@/models/Dynamic/Fields/LongTextInput"
+import { LookupInput } from "@/models/Dynamic/Fields/LookupInput"
 import { NumberInput } from "@/models/Dynamic/Fields/NumberInput"
 import { TextInput } from "@/models/Dynamic/Fields/TextInput"
-import { ModelCheckboxInput, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelTextInput } from "@/models/Dynamic/M2M"
-
-// import { ModelTextInput } from '@/db/models/Fields/Relations/ModelTextInput';
-// import { ModelNumberInput } from '@/db/models/Fields/Relations/ModelNumberInput';
-// import { ModelDateInput } from '@/db/models/Fields/Relations/ModelDateInput';
-// import { ModelLongTextInput } from '@/db/models/Fields/Relations/ModelLongTextInput';
-
-
-// export const getAllModels = async () => {
-//   return handleWithTryCatch(async () => {
-//     await sequelize.authenticate();
-//     const models = await DynamicModel.findAll({ raw: true })
-//     return models
-//   })
-// }
-
-
-// export const addSampleModel = async () => {
-//   return handleWithTryCatch(async () => {
-//     await sequelize.authenticate();
-//     await DynamicModel.create({ name: "Sales Orders" })
-//     return
-//   })
-// }
-
-// export const getModelInputs = async (modelId?: string | undefined) => {
-//   return handleWithTryCatch(async () => {
-//     if (!modelId) return
-//     await sequelize.authenticate();
-
-//     const textInputs = await ModelTextInput.findAll({
-//       where: { modelId },
-//       include: [{ model: TextInput, as: "input" }],
-//     });
-
-//     const formatted = textInputs.map((record) => {
-//       const plain = record.get({ plain: true });
-//       return plain;
-//     });
-
-//     return formatted;
-//   });
-// };
+import { ModelCheckboxInput, ModelDateInput, ModelLongTextInput, ModelLookupInput, ModelNumberInput, ModelTextInput } from "@/models/Dynamic/M2M"
 
 export const createInputField = async (data: any) => {
   return handleWithTryCatch(async () => {
@@ -91,13 +50,16 @@ export const createInputField = async (data: any) => {
         break;
 
       case 'date':
-        res = await DateInput.create(
-          //   {
-          //   ...data, startRange: new Date(data.startRange),
-          //   endRange: new Date(data.endRange),
-          // }
-          data, { raw: true });
+        res = await DateInput.create(data, { raw: true });
         await ModelDateInput.create({
+          modelId: data.modelId,
+          inputId: res.id,
+        });
+        break;
+
+        case 'lookup':
+        res = await LookupInput.create(data, { raw: true });
+        await ModelLookupInput.create({
           modelId: data.modelId,
           inputId: res.id,
         });

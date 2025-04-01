@@ -1,103 +1,83 @@
+// src/components/Dynamic/DynamicModel/Fields/AddEditDynamicField.tsx
 'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import Select from "react-select";
-import Input from "@/components/UI/Input";
-import {
-  textInputSchema,
-  numberInputSchema,
-  longTextInputSchema,
-  checkboxInputSchema,
-  dateInputSchema,
-  FieldType
-} from "@/types/dynamicModel";
-import { useDynamicModel } from "@/store/hooks/dynamicModelsHooks";
+import { Control, FieldErrors, useForm, UseFormSetValue } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import Select from 'react-select';
+import Input from '@/components/UI/Input';
+import { FieldType, TField, createFieldSchema, fieldSchema, TCreateField } from '@/types/dynamicModel';
+import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
+import TextFieldInputs from './TextFieldInputs';
+import NumberFieldInputs from './NumberFieldInputs';
+import LongTextFieldInputs from './LongTextFieldInputs';
+import DateFieldInputs from './DateFieldInputs';
+import LookupFieldInputs from './LookupFieldInputs';
 
 const fieldTypes = [
-  { label: "Text", value: "text" },
-  { label: "Number", value: "number" },
-  { label: "Long Text", value: "longText" },
-  { label: "Date", value: "date" },
-  { label: "Checkbox", value: "checkbox" },
+  { label: 'Text', value: 'text' },
+  { label: 'Number', value: 'number' },
+  { label: 'Long Text', value: 'longText' },
+  { label: 'Date', value: 'date' },
+  { label: 'Checkbox', value: 'checkbox' },
+  { label: 'Lookup', value: 'lookup' },
 ] as const;
-
-const unifiedSchema = z.discriminatedUnion("type", [
-  textInputSchema.partial({ id: true }).extend({ type: z.literal("text") }),
-  numberInputSchema.partial({ id: true }).extend({ type: z.literal("number") }),
-  longTextInputSchema.partial({ id: true }).extend({ type: z.literal("longText") }),
-  checkboxInputSchema.partial({ id: true }).extend({ type: z.literal("checkbox") }),
-  dateInputSchema.partial({ id: true }).extend({ type: z.literal("date") }),
-]);
-
-type TUnifiedSchema = z.infer<typeof unifiedSchema>;
 
 type Props = {
   onClose: () => void;
 };
-
 export default function AddEditDynamicField({ onClose }: Props) {
-  const { selectedModel, addInputField, selectedField } = useDynamicModel();
+  const { selectedModel, addInputField, selectedField, models, editInputField } = useDynamicModel();
   const isEditMode = Boolean(selectedField);
 
-  // Set initial input type from field or default to 'text'
   const [selectedInputType, setSelectedInputType] = useState<FieldType>(
-    (selectedField?.type as FieldType) || "text"
+    (selectedField?.type as FieldType) || 'text'
   );
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
-  } = useForm<TUnifiedSchema>({
-    resolver: zodResolver(unifiedSchema),
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<TCreateField>({
+    resolver: zodResolver(isEditMode ? fieldSchema : createFieldSchema),
   });
 
-  // 🧠 Reset form when selectedField or type changes
-  useEffect(() => {
-    if (selectedField) {
-      const fieldType = selectedField.type;
-      if (
-        fieldType === "text" ||
-        fieldType === "number" ||
-        fieldType === "date" ||
-        fieldType === "checkbox" ||
-        fieldType === "longText"
-      ) {
-        reset({
-          ...selectedField,
-          type: fieldType,
-        } as TUnifiedSchema);
-        setSelectedInputType(fieldType); // Update local state if needed
-      }
-    } else {
-      reset({
-        label: '',
-        type: selectedInputType,
-      } as Partial<TUnifiedSchema>);
-    }
-  }, [selectedField, reset, selectedInputType]);
-
-  const onSubmit = async (formData: TUnifiedSchema) => {
+  const onSubmit = async (formData: TCreateField | TField) => {
     if (!selectedModel?.id) return;
+
+    const input = {
+      ...formData,
+      type: selectedInputType,
+    };
 
     const payload = {
       modelId: selectedModel.id,
-      input: formData,
+      input: input as TCreateField | TField,
     };
 
+    console.log(payload)
     if (isEditMode) {
-      console.log("Edit mode", payload);
-      // await editInputField(payload);
+      await editInputField(payload as { modelId: string; input: TField });
     } else {
-      await addInputField(payload);
+      await addInputField(payload as { modelId: string; input: TCreateField });
     }
 
     onClose();
   };
+
+  useEffect(() => {
+    if (selectedField) {
+      const fieldType = selectedField.type as FieldType;
+      reset({ ...selectedField, type: fieldType } as TCreateField);
+      setSelectedInputType(fieldType);
+    } else {
+      reset({ label: '', type: selectedInputType } as Partial<TCreateField>);
+    }
+  }, [selectedField, reset, selectedInputType]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 p-8">
@@ -107,12 +87,12 @@ export default function AddEditDynamicField({ onClose }: Props) {
           <Select
             options={fieldTypes}
             value={fieldTypes.find(opt => opt.value === selectedInputType)}
-            onChange={(option) => setSelectedInputType(option?.value as FieldType)}
+            onChange={option => setSelectedInputType(option?.value as FieldType)}
             classNamePrefix="react-select"
-            menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+            menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
             styles={{
               menuPortal: base => ({ ...base, zIndex: 9999 }),
-              menu: base => ({ ...base, position: "absolute" }),
+              menu: base => ({ ...base, position: 'absolute' }),
             }}
           />
         </div>
@@ -122,71 +102,22 @@ export default function AddEditDynamicField({ onClose }: Props) {
         name="label"
         label="Label"
         register={register}
-        error={"label" in errors ? errors.label : undefined}
+        error={'label' in errors ? errors.label : undefined}
         style={3}
       />
 
-      {selectedInputType === "text" && (
-        <Input
-          name="maxLength"
-          label="Max Length"
-          type="number"
-          register={register}
-          error={"maxLength" in errors ? errors.maxLength : undefined}
-          style={3}
-        />
-      )}
-
-      {selectedInputType === "number" && (
-        <>
-          <Input
-            name="min"
-            label="Minimum"
-            type="number"
-            register={register}
-            error={"min" in errors ? errors.min : undefined}
-            style={3}
-          />
-          <Input
-            name="max"
-            label="Maximum"
-            type="number"
-            register={register}
-            error={"max" in errors ? errors.max : undefined}
-            style={3}
-          />
-        </>
-      )}
-
-      {selectedInputType === "date" && (
-        <>
-          <Input
-            name="startRange"
-            label="Start Range"
-            type="date"
-            register={register}
-            error={"startRange" in errors ? errors.startRange : undefined}
-            style={3}
-          />
-          <Input
-            name="endRange"
-            label="End Range"
-            type="date"
-            register={register}
-            error={"endRange" in errors ? errors.endRange : undefined}
-            style={3}
-          />
-        </>
-      )}
-
-      {selectedInputType === "longText" && (
-        <Input
-          name="maxLength"
-          label="Max Length"
-          type="number"
-          register={register}
-          error={"maxLength" in errors ? errors.maxLength : undefined}
-          style={3}
+      {selectedInputType === 'text' && <TextFieldInputs register={register} errors={errors} />}
+      {selectedInputType === 'number' && <NumberFieldInputs register={register} errors={errors} />}
+      {selectedInputType === 'longText' && <LongTextFieldInputs register={register} errors={errors} />}
+      {selectedInputType === 'date' && <DateFieldInputs register={register} errors={errors} />}
+      {/* {selectedInputType === 'checkbox' && <CheckboxFieldInputs register={register} errors={errors} />} */}
+      {selectedInputType === 'lookup' && (
+        <LookupFieldInputs
+          control={control as Control<any>}
+          errors={errors as FieldErrors<any>}
+          models={models}
+          watch={watch as (name: any) => any}
+          setValue={setValue as UseFormSetValue<any>}
         />
       )}
 
@@ -195,12 +126,12 @@ export default function AddEditDynamicField({ onClose }: Props) {
         label="Required"
         type="checkbox"
         register={register}
-        error={"isRequired" in errors ? errors.isRequired : undefined}
+        error={'isRequired' in errors ? errors.isRequired : undefined}
         style={3}
       />
 
       <button type="submit" className="btn btn-primary mt-4">
-        {isEditMode ? "Update Field" : "Add Field"}
+        {isEditMode ? 'Update Field' : 'Add Field'}
       </button>
     </form>
   );

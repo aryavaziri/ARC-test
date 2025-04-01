@@ -3,7 +3,7 @@ import "./globals.css";
 import Provider from "@/app/Provider";
 import { Suspense } from "react";
 import Nav from "@/components/UI/Nav";
-import { Jost } from "next/font/google";
+import { Jost, Poppins, IBM_Plex_Sans } from "next/font/google";
 import ToastWrapper from "./ToastWrapper";
 
 export const metadata: Metadata = {
@@ -14,6 +14,16 @@ const jost = Jost({
   subsets: ["latin"],
 });
 
+const ibm = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jost.className} antialiased`}
+        className={`${poppins.className} antialiased`}
       >
         <Provider>
           <ToastWrapper />

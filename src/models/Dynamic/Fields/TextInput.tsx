@@ -1,15 +1,8 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  PrimaryKey,
-  Default,
-} from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, Default } from "sequelize-typescript";
 
 @Table({
   tableName: "TextInputs",
-  timestamps: true,
+  timestamps: false,
 })
 export class TextInput extends Model {
   @PrimaryKey
@@ -23,17 +16,10 @@ export class TextInput extends Model {
   })
   declare label: string;
 
-  @Column({
-    type: DataType.BOOLEAN,
-    // allowNull: true,
-    // defaultValue: false,
-  })
-  declare isRequired: boolean;
-
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
+  @Column(DataType.INTEGER)
   declare maxLength: number;
+
+  @Column(DataType.BOOLEAN)
+  declare isRequired: boolean;
 
 }

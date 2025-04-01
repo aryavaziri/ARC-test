@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { StylesConfig } from 'react-select';
 import { FieldError, UseFormRegister, FieldValues, Path } from "react-hook-form";
 
 interface Props<T extends FieldValues> {

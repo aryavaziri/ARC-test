@@ -6,15 +6,19 @@ import {
     DataType,
     PrimaryKey,
     Default,
+    AutoIncrement,
+    ForeignKey,
 } from "sequelize-typescript";
 import { TextInput } from "./Fields/TextInput";
 import { LongTextInput } from "./Fields/LongTextInput";
 import { DateInput } from "./Fields/DateInput";
 import { NumberInput } from "./Fields/NumberInput";
+import { CheckboxInput } from "./Fields/CheckboxInput";
+import { LookupInput } from "./Fields/LookupInput";
 
 @Table({
     tableName: "DynamicModel",
-    timestamps: true,
+    timestamps: false,
 })
 export class DynamicModel extends Model {
     @PrimaryKey
@@ -35,9 +39,26 @@ export class DynamicModel extends Model {
     })
     declare layoutType: string;
 
-    TextInputs!: TextInput[]
-    LongTextInputs!: LongTextInput[]
-    DateInputs!: DateInput[]
-    NumberInputs!: NumberInput[]
+    TextInputs?: TextInput[]
+    LongTextInputs?: LongTextInput[]
+    DateInputs?: DateInput[]
+    NumberInputs?: NumberInput[]
+    CheckboxInputs?: CheckboxInput[]
+    LookupInputs?: LookupInput[]
+}
+
+@Table({
+    tableName: "LineItem",
+    timestamps: true,
+})
+export class LineItem extends Model {
+    @PrimaryKey
+    @Default(DataType.UUIDV4)
+    @Column(DataType.UUID)
+    declare id: string;
+
+    @ForeignKey(() => DynamicModel)
+    @Column(DataType.UUID)
+    declare modelId: string;
 
 }

@@ -2,7 +2,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { TResponse } from "@/lib/helpers";
-import { TDynamicModel, TField, TRecord } from "@/types/dynamicModel";
+import { TDynamicModel, TField, TLineItem, TRecord } from "@/types/dynamicModel";
 
 export const getDynamicModels = createAsyncThunk<
   TDynamicModel[],
@@ -66,6 +66,7 @@ export const addInputFieldToModel = createAsyncThunk<
       `/api/dynamic-models/${modelId}/fields`,
       rest
     );
+    console.log(response);
 
     if (response?.success && response.data) {
       return response.data;
@@ -111,50 +112,116 @@ export const deleteDynamicField = createAsyncThunk<
 });
 
 
-export const fetchModelRecords = createAsyncThunk<
-TRecord[],
-  string,
+// export const fetchLineItems = createAsyncThunk<
+//   TRecord[],
+//   string,
+//   { rejectValue: string }
+// >('dynamicModels/fetchRecords', async (modelId, thunkAPI) => {
+//   try {
+//     const { data: response } = await axios.get<TResponse>(
+//       `/api/dynamic-models/${modelId}/records`
+//     )
+//     if (response.success && response.data) return response.data
+//     return thunkAPI.rejectWithValue(response.error ?? 'Failed to fetch records')
+//   } catch (err) {
+//     return thunkAPI.rejectWithValue('Unexpected error while fetching records')
+//   }
+// })
+
+export const editDynamicFieldAction = createAsyncThunk<
+  TField & { modelId: string },
+  TField & { modelId: string },
   { rejectValue: string }
->('dynamicModels/fetchRecords', async (modelId, thunkAPI) => {
+>('dynamicModels/editFields', async (field, thunkAPI) => {
   try {
-    const { data: response } = await axios.get<TResponse>(
-      `/api/dynamic-models/${modelId}/records`
+    console.log(field)
+    const { data: response } = await axios.put<TResponse>(
+      `/api/dynamic-models/${field.modelId}/fields/${field.id}`, field
     )
     if (response.success && response.data) return response.data
     return thunkAPI.rejectWithValue(response.error ?? 'Failed to fetch records')
   } catch (err) {
-    return thunkAPI.rejectWithValue('Unexpected error while fetching records')
+    return thunkAPI.rejectWithValue('Unexpected error while editing fields')
   }
 })
 
-export const editDynamicField = createAsyncThunk<
-TField,
-  TField,
+export const addLineItem = createAsyncThunk<
+  TLineItem,
+  { records: TRecord[]; modelId: string },
   { rejectValue: string }
->('dynamicModels/editFields', async (modelId, thunkAPI) => {
-  try {
-    const { data: response } = await axios.get<TResponse>(
-      `/api/dynamic-models/${modelId}/records`
-    )
-    if (response.success && response.data) return response.data
-    return thunkAPI.rejectWithValue(response.error ?? 'Failed to fetch records')
-  } catch (err) {
-    return thunkAPI.rejectWithValue('Unexpected error while fetching records')
-  }
-})
-
-export const createModelRecord = createAsyncThunk<
-TRecord,
-TRecord,
-  { rejectValue: string }
->('dynamicModels/fetchRecords', async (record, thunkAPI) => {
+>('dynamicModels/addRecord', async ({ records, modelId }, thunkAPI) => {
   try {
     const { data: response } = await axios.post<TResponse>(
-      `/api/dynamic-models/${record.modelId}/records`,record
+      `/api/dynamic-models/${modelId}/records`, records
     )
     if (response.success && response.data) return response.data
-    return thunkAPI.rejectWithValue(response.error ?? 'Failed to fetch records')
+    return thunkAPI.rejectWithValue(response.error ?? 'Failed to add record')
+  } catch (err) {
+    return thunkAPI.rejectWithValue('Unexpected error while adding records')
+  }
+})
+
+export const getLineItem = createAsyncThunk<
+  TLineItem[],
+  String,
+  { rejectValue: string }
+>('dynamicModels/getData', async (modelId, thunkAPI) => {
+  try {
+    const { data: response } = await axios.get<TResponse>(
+      `/api/dynamic-models/${modelId}/data`
+    )
+    if (response.success && response.data) return response.data
+    return thunkAPI.rejectWithValue(response.error ?? 'Failed to add record')
   } catch (err) {
     return thunkAPI.rejectWithValue('Unexpected error while fetching records')
   }
 })
+
+export const removeLineItemAction = createAsyncThunk<
+  String,
+  String,
+  { rejectValue: string }
+>('dynamicModels/delData', async (lineItemId, thunkAPI) => {
+  try {
+    const { data: response } = await axios.delete<TResponse>(
+      `/api/dynamic-models/_/data/${lineItemId}`
+    )
+    if (response.success && response.data) return response.data.id
+    return thunkAPI.rejectWithValue(response.error ?? 'Failed to remove record')
+  } catch (err) {
+    return thunkAPI.rejectWithValue('Unexpected error while deleting records')
+  }
+})
+
+// export const createModelMultiRecord = createAsyncThunk<
+// TRecord[],
+// TRecord[],
+//   { rejectValue: string }
+// >('dynamicModels/addRecord', async (record, thunkAPI) => {
+//   try {
+//     const { data: response } = await axios.post<TResponse>(
+//       `/api/dynamic-models/${record[0].modelId}/records`,record
+//     )
+//     if (response.success && response.data) return response.data
+//     return thunkAPI.rejectWithValue(response.error ?? 'Failed to add record')
+//   } catch (err) {
+//     return thunkAPI.rejectWithValue('Unexpected error while fetching records')
+//   }
+// })
+
+// export const getRecordsAction = createAsyncThunk<
+//   TRecord[],
+//   String,
+//   { rejectValue: string }
+// >('dynamicModels/getRecords', async (modelId, thunkAPI) => {
+//   try {
+//     const { data: response } = await axios.get<TResponse>(
+//       `/api/dynamic-models/${modelId}/records`
+//     )
+//     if (response.success && response.data) return response.data
+//     return thunkAPI.rejectWithValue(response.error ?? 'Failed to add record')
+//   } catch (err) {
+//     return thunkAPI.rejectWithValue('Unexpected error while fetching records')
+//   }
+// })
+

@@ -68,7 +68,7 @@ const Items = () => {
         <li className="btn">Copy Function</li>
         <li className="btn">Import Lines</li>
       </ul>
-      <div className="border border-border whitespace-nowrap rounded-2xl overflow-x-auto">
+      <div className="whitespace-nowrap overflow-x-auto">
         <table className="my-table">
           <thead>
             <tr>

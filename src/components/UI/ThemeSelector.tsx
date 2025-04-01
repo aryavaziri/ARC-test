@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 
 const ThemeSelector = () => {
   const { theme, setTheme } = useMyContext();
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-  if (!hasMounted) return null;
+  // const [hasMounted, setHasMounted] = useState(false);
+  // useEffect(() => {
+  //   setHasMounted(true);
+  // }, []);
+  // if (!hasMounted) return null;
 
   return (
     <div className="flex flex-wrap gap-4 items-center">

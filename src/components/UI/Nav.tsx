@@ -12,6 +12,7 @@ import { logout } from "@/store/slice/userSlice";
 import { signOut } from "next-auth/react";
 import { IoClose } from "react-icons/io5";
 import { MdMenu } from "react-icons/md";
+import { syncTables } from "@/actions/db/sync";
 
 const Nav = () => {
   const { userData } = useAuth();
@@ -55,7 +56,7 @@ const Nav = () => {
         <NavItem Icon={FaShoppingCart} label="Sales" menuItems={[{ label: "Dynamic form", url: "/dynamic" }, { label: "Customers", url: "/customers" }, { label: "Sales Orders", url: "/sales" }, { label: "New Sales Order", url: "/sales/newSales" }]} />
         <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Database", url: "/setting/database" }, { label: "Theme", url: "/setting/theme" }, { label: "API Test", url: "/setting/test" }]} />
       </ul>
-
+      <button className={`btn btn-primary w-min`} onClick={async () => await syncTables()} >SYNC DB</button>
       {isAuth ? (
         <div className="relative" ref={dropdownRef}> {/* 🔹 Wrap dropdown in ref */}
           {/* <button className="btn" onClick={() => setDropdownOpen(prev => !prev)}>User</button> */}

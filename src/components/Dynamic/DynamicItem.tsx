@@ -2,7 +2,7 @@ import { FieldError, FieldValues, Path, UseFormRegister } from 'react-hook-form'
 import Input from '@/components/UI/Input'
 import { FieldType } from '@/types/dynamicModel'
 
-export type DynamicInputType = 'text' | 'number' | 'date' | 'longText' | 'checkbox'
+export type DynamicInputType = 'text' | 'number' | 'date' | 'longText' | 'checkbox' | 'lookup'
 
 export interface DynamicItemProps<T extends FieldValues> {
   name: Path<T>

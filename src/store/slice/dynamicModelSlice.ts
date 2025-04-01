@@ -1,12 +1,14 @@
 // slice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TField, TDynamicModel, TRecord } from "@/types/dynamicModel";
-import { addFieldBuilder, fieldBuilder, modelBuilder, recordBuilder } from "./dynamicBuilders";
+import { TField, TDynamicModel, TRecord, TLineItem } from "@/types/dynamicModel";
+import { addFieldBuilder, editFieldBuilder, fieldBuilder, modelBuilder, recordBuilder } from "./dynamicBuilders";
 
 export interface DynamicModelState {
   dynamicModels: TDynamicModel[];
   inputFields: TField[];
+  allFields: TField[];
   records: TRecord[];
+  selectedLineItem: TLineItem[] | null;
   selectedModel: TDynamicModel | null;
   selectedField: TField | null;
   selectedRecord: TRecord | null;
@@ -17,7 +19,9 @@ export interface DynamicModelState {
 const initialState: DynamicModelState = {
   dynamicModels: [],
   inputFields: [],
+  allFields: [],
   records: [],
+  selectedLineItem: null,
   selectedModel: null,
   selectedField: null,
   selectedRecord: null,
@@ -32,6 +36,7 @@ export function flattenModelFields(model: TDynamicModel): TField[] {
     ...(model.ModelDateInputs?.map(f => ({ ...f, type: 'date' as const })) || []),
     ...(model.ModelLongTextInputs?.map(f => ({ ...f, type: 'longText' as const })) || []),
     ...(model.ModelCheckboxInputs?.map(f => ({ ...f, type: 'checkbox' as const })) || []),
+    ...(model.ModelLookupInputs?.map(f => ({ ...f, type: 'lookup' as const })) || []),
   ]
 }
 
@@ -42,7 +47,10 @@ export const dynamicModelSlice = createSlice({
   reducers: {
     setSelectedModel(state, action: PayloadAction<TDynamicModel | null>) {
       state.selectedModel = action.payload;
-      state.inputFields = action.payload ? flattenModelFields(action.payload):[]
+      state.inputFields = action.payload ? flattenModelFields(action.payload) : []
+    },
+    setAllFields(state) {
+      state.allFields = state.dynamicModels.flatMap(model => flattenModelFields(model));
     },
     setSelectedField(state, action: PayloadAction<TField | null>) {
       const field = action.payload;
@@ -56,12 +64,14 @@ export const dynamicModelSlice = createSlice({
         ...(state.selectedModel.ModelDateInputs || []),
         ...(state.selectedModel.ModelLongTextInputs || []),
         ...(state.selectedModel.ModelCheckboxInputs || []),
+        ...(state.selectedModel.ModelLookupInputs || []),
       ];
       const matched = allFields.find(f => f.id === field.id);
-      state.selectedField = matched ? { ...matched, type: field.type } : null;
-    },  
+      state.selectedField = matched ? ({ ...matched, type: field.type } as TField) : null;
+    },
   },
   extraReducers: (builder) => {
+    editFieldBuilder(builder);
     modelBuilder(builder);
     fieldBuilder(builder);
     addFieldBuilder(builder);
@@ -69,5 +79,5 @@ export const dynamicModelSlice = createSlice({
   },
 });
 
-export const { setSelectedModel, setSelectedField } = dynamicModelSlice.actions;
+export const { setSelectedModel, setSelectedField, setAllFields } = dynamicModelSlice.actions;
 export default dynamicModelSlice.reducer;

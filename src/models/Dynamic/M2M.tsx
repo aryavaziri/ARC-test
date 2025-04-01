@@ -5,6 +5,7 @@ import { LongTextInput } from "./Fields/LongTextInput";
 import { DateInput } from "./Fields/DateInput";
 import { NumberInput } from "./Fields/NumberInput";
 import { CheckboxInput } from "./Fields/CheckboxInput";
+import { LookupInput } from "./Fields/LookupInput";
 
 @Table({
   tableName: "ModelTextInput",
@@ -121,6 +122,31 @@ export class ModelCheckboxInput extends Model {
   declare modelId: string;
 
   @ForeignKey(() => CheckboxInput)
+  @Column(DataType.UUID)
+  declare inputId: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare order: number;
+}
+
+@Table({
+  tableName: "ModelLookupInput",
+  timestamps: false,
+})
+export class ModelLookupInput extends Model {
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column({ type: DataType.UUID })
+  declare id: string;
+
+  @ForeignKey(() => DynamicModel)
+  @Column(DataType.UUID)
+  declare modelId: string;
+
+  @ForeignKey(() => LookupInput)
   @Column(DataType.UUID)
   declare inputId: string;
 

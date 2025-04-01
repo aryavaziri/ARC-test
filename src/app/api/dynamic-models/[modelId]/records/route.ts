@@ -1,72 +1,86 @@
-import { NextRequest, NextResponse } from 'next/server';
-import sequelize from '@/lib/Sequelize';
-import { handleWithTryCatch } from '@/lib/helpers';
-import { auth } from '@/auth';
+// app/api/dynamic-models/[modelId]/data/route.ts
 
-import { TextInputRecord, NumberInputRecord, DateInputRecord, LongTextInputRecord, CheckboxInputRecord } from '@/models/Dynamic/Records'
-export async function GET(_: NextRequest, { params }: { params: { modelId: string } }) {
-    await sequelize.authenticate();
+import { handleApi } from "@/lib/apiHandler";
+import sequelize from "@/lib/Sequelize";
+import { TRecord } from "@/types/dynamicModel";
+import { TextInputRecord, NumberInputRecord, DateInputRecord, LongTextInputRecord, CheckboxInputRecord, LookupInputRecord } from "@/models/Dynamic/Records";
+import { LineItem } from "@/models/Dynamic/DynamicModel";
 
-    const res = await handleWithTryCatch(async () => {
-        const { modelId } = params;
+// ✅ GET Model Records
+export const GET = handleApi(async ({ params }) => {
+  const modelId = params?.modelId;
+  if (!modelId) throw new Error("Missing modelId");
+  const lineItemList = await LineItem.findAll({ where: { modelId }, raw: true });
 
-        const [text, number, date, longText, checkbox] = await Promise.all([
-            TextInputRecord.findAll({ where: { modelId }, raw: true }),
-            NumberInputRecord.findAll({ where: { modelId }, raw: true }),
-            DateInputRecord.findAll({ where: { modelId }, raw: true }),
-            LongTextInputRecord.findAll({ where: { modelId }, raw: true }),
-            CheckboxInputRecord.findAll({ where: { modelId }, raw: true }),
-        ]);
+  if (!lineItemList.length) throw new Error("No model data found")
 
-        return { text, number, date, longText, checkbox };
-    });
-    console.log(res.data)
+  const groupedRecords = await Promise.all(
+    lineItemList.map(async (data) => {
+      const [text, number, date, longText, checkbox, lookup] = await Promise.all([
+        TextInputRecord.findAll({ where: { lineItemId: data.id }, raw: true }),
+        NumberInputRecord.findAll({ where: { lineItemId: data.id }, raw: true }),
+        DateInputRecord.findAll({ where: { lineItemId: data.id }, raw: true }),
+        LongTextInputRecord.findAll({ where: { lineItemId: data.id }, raw: true }),
+        CheckboxInputRecord.findAll({ where: { lineItemId: data.id }, raw: true }),
+        LookupInputRecord.findAll({ where: { lineItemId: data.id }, raw: true }),
+      ]);
+      return { lineItemId: data.id, text, number, date, longText, checkbox, lookup };
+    })
+  );
 
-    return NextResponse.json(res, { status: res.success ? 200 : 500 });
-}
+  return groupedRecords;
+});
 
-export async function POST(req: NextRequest, { params }: { params: { modelId: string } }) {
-    await sequelize.authenticate();
-    const session = await auth();
-    if (!session) {
-        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+// ✅ POST Model Records
+export const POST = handleApi(async ({ req, params }) => {
+  const modelId = params?.modelId;
+  if (!modelId) throw new Error("Missing modelId");
+  const records: TRecord[] = await req.json();
+  if (!Array.isArray(records)) throw new Error("Expected an array of records");
 
-    const res = await handleWithTryCatch(async () => {
-        const { modelId } = params;
-        const records = await req.json();
-
-        if (!Array.isArray(records)) {
-            throw new Error("Expected an array of records");
+  const result = await sequelize.transaction(async (t) => {
+    const lineItem = await LineItem.create({ modelId }, { transaction: t });
+    const inserted = await Promise.all(
+      records.map(async (record) => {
+        const base = {
+          lineItemId: lineItem.id,
+          fieldId: record.fieldId,
+          value: record.value,
+        };
+        let created;
+        switch (record.type) {
+          case "text":
+            created = await TextInputRecord.create(base, { transaction: t });
+            break;
+          case "number":
+            created = await NumberInputRecord.create(base, { transaction: t });
+            break;
+          case "date":
+            created = await DateInputRecord.create({ ...base, value: new Date(record.value as Date) }, { transaction: t });
+            break;
+          case "longText":
+            created = await LongTextInputRecord.create(base, { transaction: t });
+            break;
+          case "checkbox":
+            created = await CheckboxInputRecord.create(base, { transaction: t });
+            break;
+          case "lookup":
+            created = await LookupInputRecord.create(base, { transaction: t });
+            break;
+          default:
+            throw new Error(`Unsupported input type: ${record.type}`);
         }
 
-        const results = await Promise.all(
-            records.map(async (record: any) => {
-                const base = {
-                    modelId,
-                    fieldId: record.fieldId,
-                    value: record.value,
-                };
+        return {
+          ...(created.toJSON?.() || created),
+          type: record.type,
+          label: record.label ?? "",
+        };
+      })
+    );
 
-                switch (record.type) {
-                    case 'text':
-                        return await TextInputRecord.create(base);
-                    case 'number':
-                        return await NumberInputRecord.create(base);
-                    case 'date':
-                        return await DateInputRecord.create({ ...base, value: new Date(record.value) });
-                    case 'longText':
-                        return await LongTextInputRecord.create(base);
-                    case 'checkbox':
-                        return await CheckboxInputRecord.create(base);
-                    default:
-                        throw new Error(`Unsupported input type: ${record.type}`);
-                }
-            })
-        );
+    return { id: lineItem.id, fields: inserted };
+  });
 
-        return results;
-    });
-
-    return NextResponse.json(res, { status: res.success ? 200 : 500 });
-}
+  return result;
+}, { authRequired: true });

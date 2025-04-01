@@ -1,47 +1,55 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { dynamicModelSchema } from '@/types/dynamicModel'; // Adjust path if needed
-import { handleWithTryCatch } from '@/lib/helpers';
-import { DynamicModel } from '@/models/Dynamic/DynamicModel';
-import sequelize from '@/lib/Sequelize';
-import { auth } from '@/auth';
+// app/api/dynamic-models/[modelId]/route.ts
+import { handleApi } from "@/lib/apiHandler";
+import { dynamicModelSchema } from "@/types/dynamicModel";
+import { DynamicModel } from "@/models/Dynamic/DynamicModel";
+import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, NumberInput } from "@/models/Dynamic/Fields";
 
-export async function PUT(req: NextRequest, { params }: { params: { modelId: string } }) {
-  await sequelize.authenticate();
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+const getModelIncludes = () => [
+  { model: TextInput, as: "ModelTextInputs" },
+  { model: NumberInput, as: "ModelNumberInputs" },
+  { model: DateInput, as: "ModelDateInputs" },
+  { model: LongTextInput, as: "ModelLongTextInputs" },
+  { model: CheckboxInput, as: "ModelCheckboxInputs" },
+  {
+    model: LookupInput,
+    as: "ModelLookupInputs",
+    through: { attributes: [] },
+    include: [
+      { association: "searchModalColumns" },
+      { association: "recordTableColumns" },
+    ],
+  },
+];
+
+// ✏️ PUT: Update a dynamic model
+export const PUT = handleApi(async ({ req, params }) => {
+  const json = await req.json();
+  const data = dynamicModelSchema.partial().parse(json);
+
+  await DynamicModel.update(data, { where: { id: params?.modelId } });
+
+  const updatedModel = await DynamicModel.findByPk(params?.modelId, { include: getModelIncludes() });
+  if (!updatedModel) throw new Error("Model not found");
+
+  const plainModel = updatedModel.get({ plain: true });
+
+  // Flatten nested lookup fields
+  plainModel.ModelLookupInputs = plainModel.ModelLookupInputs.map((lookup: any) => ({
+    ...lookup,
+    searchModalColumns: lookup.searchModalColumns?.map((c: any) => c.fieldId) || [],
+    recordTableColumns: lookup.recordTableColumns?.map((c: any) => c.fieldId) || [],
+  }));
+
+  return plainModel
+}, { authRequired: true });
+
+// ❌ DELETE: Delete a dynamic model
+export const DELETE = handleApi(async ({ params }) => {
+  const deletedCount = await DynamicModel.destroy({ where: { id: params?.modelId } });
+
+  if (deletedCount === 0) {
+    throw new Error("DynamicModel not found or already deleted.");
   }
 
-  const res = await handleWithTryCatch(async () => {
-    const json = await req.json();
-    const parsed = dynamicModelSchema.partial().parse(json); // Validate partial update
-    await DynamicModel.update(parsed, { where: { id: params.modelId } });
-
-    const updated = await DynamicModel.findByPk(params.modelId, { raw: true });
-    return updated;
-  });
-
-  return NextResponse.json(res, { status: res.success ? 200 : 500 });
-}
-
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  await sequelize.authenticate();
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
-
-  const res = await handleWithTryCatch(async () => {
-    const deletedCount = await DynamicModel.destroy({
-      where: { id: params.id },
-    });
-
-    if (deletedCount === 0) {
-      throw new Error("DynamicModel not found or already deleted.");
-    }
-
-    return { id: params.id };
-  });
-
-  return NextResponse.json(res, { status: res.success ? 200 : 500 });
-}
+  return { id: params?.modelId };
+}, { authRequired: true });
