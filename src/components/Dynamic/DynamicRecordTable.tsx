@@ -48,18 +48,18 @@ export default function DynamicRecordTable() {
       if (field.type === 'lookup') {
         const lookupModel = models.find((m) => m.id === field.lookupModelId);
         if (!lookupModel) return;
-        const columnIds = field.recordTableColumns?.length
-          ? field.recordTableColumns
-          : field.primaryFieldId
-            ? [field.primaryFieldId]
-            : [];
+        // const columnIds = field.recordTableColumns?.length
+        //   ? field.recordTableColumns
+        //   : field.primaryFieldId
+        //     ? [field.primaryFieldId]
+        //     : [];
 
-        columnIds.forEach((colId) => {
-          const matched = allFields.find((f) => f.id === colId);
-          if (matched && !headers.some((h) => h.id === matched.id)) {
-            headers.push({ id: matched.id, label: matched.label });
-          }
-        });
+        // columnIds.forEach((colId) => {
+        //   const matched = allFields.find((f) => f.id === colId);
+        //   if (matched && !headers.some((h) => h.id === matched.id)) {
+        //     headers.push({ id: matched.id, label: matched.label });
+        //   }
+        // });
       } else {
         if (!headers.some((h) => h.id === field.id)) {
           headers.push({ id: field.id, label: field.label });
@@ -70,7 +70,9 @@ export default function DynamicRecordTable() {
     setFieldHeaders(headers);
   }, [selectedModel, inputFields, models]);
 
-  if (!selectedModel) return null;
+  if (!selectedModel) return (
+    <div className={`con`} ></div>
+  );
 
   return (
     <div className="con">
@@ -112,11 +114,12 @@ export default function DynamicRecordTable() {
                     // Check nested lookup fields
                     for (const lookupField of inputFields.filter(f => f.type === 'lookup')) {
                       const lookupValue = data.fields.find(f => f.fieldId === lookupField.id)?.value;
-
                       if (typeof lookupValue === "string") {
                         const records = lookupRecordsMap[lookupField.lookupModelId];
                         const nestedRecord = records?.find(r => r.id === lookupValue);
-                        const nestedField = nestedRecord?.fields.find(f => f.fieldId === header.id);
+                        // 🔥 NEW LOGIC: use primaryFieldId
+                        const primaryFieldId = lookupField.primaryFieldId;
+                        const nestedField = nestedRecord?.fields.find(f => f.fieldId === header.id || f.fieldId === primaryFieldId);
 
                         if (nestedField) {
                           valueToRender = String(nestedField.value);

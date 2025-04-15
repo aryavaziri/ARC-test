@@ -5,9 +5,10 @@ import { RootState } from "@/store/store";
 import { setSelectedModel, setSelectedField, setAllFields } from "@/store/slice/dynamicModelSlice";
 import { TDynamicModel, TField, TLineItem, TRecord } from "@/types/dynamicModel";
 import { } from '@/store/slice/dynamicModelSlice';
-import { addDynamicModel, addInputFieldToModel, editDynamicFieldAction, addLineItem, deleteDynamicField, deleteDynamicModel, editDynamicModel, getDynamicModels, getLineItem, removeLineItemAction } from "../slice/dynamicThunks";
+import { addDynamicModel, addInputFieldToModel, editDynamicFieldAction, addLineItem, deleteDynamicField, deleteDynamicModel, editDynamicModel, getDynamicModels, getLineItem, removeLineItemAction, addRecordLayout, addFormLayout, fetchFormLayouts, fetchRecordLayouts, deleteFormLayout, editFormLayout, fetchAllFormLayouts, editRecordLayout, deleteRecordLayout, fetchAllRecordLayouts, editLineItem } from "../slice/dynamicThunks";
 import { TResponse } from "@/lib/helpers";
 import axios from "axios";
+import { TFormLayout, TRecordLayout } from "@/types/layouts";
 
 export const useDynamicModel = () => {
   const { dispatch, useAppSelector } = useAppDispatchWithSelector();
@@ -18,6 +19,8 @@ export const useDynamicModel = () => {
   const selectedField = useAppSelector((state: RootState) => state.dynamicModel.selectedField);
   const inputFields = useAppSelector((state: RootState) => state.dynamicModel.inputFields);
   const allFields = useAppSelector((state: RootState) => state.dynamicModel.allFields);
+  const formLayouts = useAppSelector((state: RootState) => state.dynamicModel.formLayouts);
+  const recordLayouts = useAppSelector((state: RootState) => state.dynamicModel.recordLayouts);
   const loading = useAppSelector((state: RootState) => state.dynamicModel.loading);
   const error = useAppSelector((state: RootState) => state.dynamicModel.error);
 
@@ -36,6 +39,8 @@ export const useDynamicModel = () => {
   const handleFetch = useCallback(async () => {
     try {
       await fetch();
+      await getAllFormLayouts()
+      await getAllRecordLayouts()
     } catch (err) {
       console.error(err);
     }
@@ -84,6 +89,14 @@ export const useDynamicModel = () => {
     return unwrapResult(result);
   };
 
+  const updateLineItem = async ({ modelId, lineItemId, records, }: {
+    modelId: string; lineItemId: string; records: { id: string; fieldId: string; value: any; type: string; label?: string; }[];
+  }) => {
+    const result = await dispatch(editLineItem({ modelId, lineItemId, records }));
+    return unwrapResult(result);
+  };
+
+
   const removeLineItem = async (lineItemId: string) => {
     const result = await dispatch(removeLineItemAction(lineItemId));
     return unwrapResult(result);
@@ -96,11 +109,67 @@ export const useDynamicModel = () => {
     return unwrapResult(result);
   };
 
+  const getLineItems = async (id: string) => {
+    const result = await dispatch(getLineItem(id));
+    return unwrapResult(result);
+  };
+
   const getLookupLineItem = async (modelId: string) => {
     const { data: response } = await axios.get<TResponse>(
       `/api/dynamic-models/${modelId}/data`
     )
     return response.data
+  };
+
+  const getAllFormLayouts = async () => {
+    const result = await dispatch(fetchAllFormLayouts());
+    return unwrapResult(result);
+  };
+
+  const getFormLayoutsData = async (modelId: string) => {
+    const result = await dispatch(fetchFormLayouts(modelId));
+    return unwrapResult(result);
+  };
+
+  const getRecordLayoutsData = async (modelId: string) => {
+    const result = await dispatch(fetchRecordLayouts(modelId));
+    return unwrapResult(result);
+  };
+
+  const createFormLayout = async (layout: Omit<TFormLayout, "id">) => {
+    const result = await dispatch(addFormLayout(layout));
+    return unwrapResult(result);
+  };
+
+  const createRecordLayout = async (layout: Omit<TRecordLayout, "id">) => {
+    const result = await dispatch(addRecordLayout(layout));
+    return unwrapResult(result);
+  };
+
+  const removeFormLayout = async (layoutId: string) => {
+    const result = await dispatch(deleteFormLayout(layoutId));
+    return unwrapResult(result);
+  };
+
+  const removeRecordLayout = async (layoutId: string) => {
+    const result = await dispatch(deleteRecordLayout(layoutId));
+    return unwrapResult(result);
+  };
+
+  const updateFormLayout = async (layout: Partial<TFormLayout> & { id: String }) => {
+    const result = await dispatch(editFormLayout(layout));
+    return unwrapResult(result);
+  };
+
+  const updateRecordLayout = async (layout: Partial<TRecordLayout> & { id: String }) => {
+    const result = await dispatch(editRecordLayout(layout));
+    return unwrapResult(result);
+  };
+
+  const getAllRecordLayouts = async () => {
+    const result = await dispatch(fetchAllRecordLayouts());
+    console.log(result)
+    return unwrapResult(result);
   };
 
   // const addMultiRecord = async (data: TRecord[]) => {
@@ -126,6 +195,8 @@ export const useDynamicModel = () => {
     selectedField,
     lineItem,
     inputFields,
+    formLayouts,
+    recordLayouts,
     addInputField,
     editInputField,
     deleteField,
@@ -135,6 +206,17 @@ export const useDynamicModel = () => {
     removeLineItem,
     allFields,
     setFields,
+    getFormLayoutsData,
+    getRecordLayoutsData,
+    createFormLayout,
+    createRecordLayout,
+    removeFormLayout,
+    updateFormLayout,
+    removeRecordLayout,
+    updateRecordLayout,
+    getLineItems,
+    updateLineItem,
+    // getAllFormLayouts,
     // addRecord,
     // addMultiRecord,
     // records,

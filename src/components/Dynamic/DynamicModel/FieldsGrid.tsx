@@ -60,22 +60,23 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
   ];
 
   return (
-    <div className={!selectedModel?.id ? `hidden` : `flex grow`}>
-
+    // <div className={!selectedModel?.id ? `hidden` : `flex grow`}>
+    <div className="flex grow">
       <div className="flex flex-col gap-4 grow con">
         <div className="flex items-center gap-2 mb-4">
           <p className="text-2xl font-semibold mr-auto">
             {models.find(m => m.id === selectedModel?.id)?.name || "Model"} Fields
           </p>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            Add Field
+          <input type="text" placeholder='Quick find ...' className='border rounded h-full px-2' />
+          <button className="btn btn-secondary" onClick={() => setShowModal(true)}>
+            Add a Custom Field
           </button>
-          <button className="btn btn-secondary" onClick={() => setShowEditModelModal(true)}>
+          {/* <button className="btn btn-secondary" onClick={() => setShowEditModelModal(true)}>
             Edit Model
           </button>
           <button className="btn hover:bg-rose-800 hover:text-white" onClick={handleDelete}>
             Delete Model
-          </button>
+          </button> */}
         </div>
 
         <div className="overflow-x-auto">
@@ -103,7 +104,7 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
                         <MdEdit />
                       </button>
                       <button
-                        onClick={() => handleRemoveField(field.id)}
+                        onClick={async () => await handleRemoveField(field.id)}
                         className="btn-icon hover:bg-red-400 p-[5px] border-none shadow shadow-border text-md"
                       >
                         <RiDeleteBin7Fill />

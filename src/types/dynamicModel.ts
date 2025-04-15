@@ -27,8 +27,6 @@ export const lookupSchema = z.object({
   lookupModelId: z.string().uuid(),
   type: z.literal('lookup'),
   primaryFieldId: z.string().uuid(),
-  searchModalColumns: z.array(z.string().uuid()).optional(),
-  recordTableColumns: z.array(z.string().uuid()).optional(),
 });
 
 export const createLookupSchema = lookupSchema.omit({ id: true });

@@ -1,13 +1,16 @@
 // slice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TField, TDynamicModel, TRecord, TLineItem } from "@/types/dynamicModel";
-import { addFieldBuilder, editFieldBuilder, fieldBuilder, modelBuilder, recordBuilder } from "./dynamicBuilders";
+import { addFieldBuilder, editFieldBuilder, fieldBuilder, FormlayoutBuilder, modelBuilder, recordBuilder, RecordlayoutBuilder } from "./dynamicBuilders";
+import { TFormLayout, TRecordLayout } from "@/types/layouts";
 
 export interface DynamicModelState {
   dynamicModels: TDynamicModel[];
   inputFields: TField[];
   allFields: TField[];
   records: TRecord[];
+  formLayouts: TFormLayout[];
+  recordLayouts: TRecordLayout[];
   selectedLineItem: TLineItem[] | null;
   selectedModel: TDynamicModel | null;
   selectedField: TField | null;
@@ -21,6 +24,8 @@ const initialState: DynamicModelState = {
   inputFields: [],
   allFields: [],
   records: [],
+  formLayouts: [],
+  recordLayouts: [],
   selectedLineItem: null,
   selectedModel: null,
   selectedField: null,
@@ -76,6 +81,8 @@ export const dynamicModelSlice = createSlice({
     fieldBuilder(builder);
     addFieldBuilder(builder);
     recordBuilder(builder);
+    FormlayoutBuilder(builder);
+    RecordlayoutBuilder(builder);
   },
 });
 

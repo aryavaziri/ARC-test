@@ -6,12 +6,14 @@ import { UserRole } from "@/models/UserData/UserRole";
 import { setAssociations as setUserDataAssociations } from "@/models/UserData/assosiations";
 import { setAssociations as setDynamicAssociations } from "@/models/Dynamic/assosiations";
 import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, LookupInputSearchColumn, LookupInputTableColumn, NumberInput } from "@/models/Dynamic/Fields";
-import { DynamicModel, LineItem } from "@/models/Dynamic/DynamicModel";
+import { DynamicModel, FormLayout, LineItem, RecordLayout } from "@/models/Dynamic/DynamicModel";
 import { ModelTextInput, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, ModelLookupInput } from "@/models/Dynamic/M2M";
 import { CheckboxInputRecord, DateInputRecord, LongTextInputRecord, LookupInputRecord, NumberInputRecord, TextInputRecord } from "@/models/Dynamic/Records";
+import { TabModel } from "@/models/Layout/Tabs";
+import { PageLayout } from "@/models/Layout/PageLayout";
 
 const UserModels = [UserRole, User];
-const DynamicModels = [TextInput, LongTextInput, DateInput, NumberInput, DynamicModel, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, TextInputRecord, NumberInputRecord, CheckboxInput, DateInputRecord, CheckboxInputRecord, LongTextInputRecord, ModelTextInput, LineItem, LookupInput, LookupInputRecord, ModelLookupInput, LookupInputSearchColumn, LookupInputTableColumn];
+const DynamicModels = [TextInput, LongTextInput, DateInput, NumberInput, DynamicModel, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, TextInputRecord, NumberInputRecord, CheckboxInput, DateInputRecord, CheckboxInputRecord, LongTextInputRecord, ModelTextInput, LineItem, LookupInput, LookupInputRecord, ModelLookupInput, LookupInputSearchColumn, LookupInputTableColumn, FormLayout, TabModel, PageLayout, RecordLayout];
 
 
 const sequelize = new Sequelize({

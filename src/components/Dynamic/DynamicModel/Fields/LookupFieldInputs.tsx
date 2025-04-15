@@ -48,8 +48,8 @@ export default function LookupFieldInputs({ control, errors, models, setValue, w
               onChange={(option) => {
                 field.onChange(option?.value);
                 setValue("primaryFieldId", ""); // <- important: use empty string
-                setValue("searchModalColumns", []);
-                setValue("recordTableColumns", []);
+                // setValue("searchModalColumns", []);
+                // setValue("recordTableColumns", []);
               }}
               classNamePrefix="react-select"
               menuPortalTarget={typeof window !== "undefined" ? document.body : null}
@@ -88,7 +88,7 @@ export default function LookupFieldInputs({ control, errors, models, setValue, w
           </div>
 
           {/* Search Modal Columns */}
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <label>Search Modal Columns</label>
             <Controller
               name="searchModalColumns"
@@ -110,10 +110,10 @@ export default function LookupFieldInputs({ control, errors, models, setValue, w
                 />
               )}
             />
-          </div>
+          </div> */}
 
           {/* Record Table Columns */}
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <label>Record Table Columns</label>
             <Controller
               name="recordTableColumns"
@@ -135,7 +135,7 @@ export default function LookupFieldInputs({ control, errors, models, setValue, w
                 />
               )}
             />
-          </div>
+          </div> */}
         </>
       )}
     </>

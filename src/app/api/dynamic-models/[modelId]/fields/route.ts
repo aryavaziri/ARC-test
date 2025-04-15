@@ -5,6 +5,7 @@ import sequelize from "@/lib/Sequelize";
 import { createFieldSchema, TField } from "@/types/dynamicModel";
 import { TextInput, NumberInput, DateInput, LongTextInput, CheckboxInput, LookupInput, LookupInputSearchColumn, LookupInputTableColumn, } from "@/models/Dynamic/Fields";
 import { ModelTextInput, ModelNumberInput, ModelDateInput, ModelLongTextInput, ModelCheckboxInput, ModelLookupInput, } from "@/models/Dynamic/M2M";
+import { setStandardSchema } from "@/lib/schemaBuilder";
 
 export const POST = handleApi(async ({ req, params }) => {
   const modelId = params?.modelId;
@@ -36,45 +37,52 @@ export const POST = handleApi(async ({ req, params }) => {
     );
 
     // For Lookup, add M2M entries
-    if (type === "lookup") {
-      const { searchModalColumns = [], recordTableColumns = [] } = parsed;
+    // if (type === "lookup") {
+    //   const { searchModalColumns = [], recordTableColumns = [] } = parsed;
 
-      if (searchModalColumns.length) {
-        await LookupInputSearchColumn.bulkCreate(
-          searchModalColumns.map((fieldId) => ({
-            lookupInputId: field.id,
-            fieldId,
-          })),
-          { transaction: t }
-        );
-      }
+    //   if (searchModalColumns.length) {
+    //     await LookupInputSearchColumn.bulkCreate(
+    //       searchModalColumns.map((fieldId) => ({
+    //         lookupInputId: field.id,
+    //         fieldId,
+    //       })),
+    //       { transaction: t }
+    //     );
+    //   }
 
-      if (recordTableColumns.length) {
-        await LookupInputTableColumn.bulkCreate(
-          recordTableColumns.map((fieldId) => ({
-            lookupInputId: field.id,
-            fieldId,
-          })),
-          { transaction: t }
-        );
-      }
+    //   if (recordTableColumns.length) {
+    //     await LookupInputTableColumn.bulkCreate(
+    //       recordTableColumns.map((fieldId) => ({
+    //         lookupInputId: field.id,
+    //         fieldId,
+    //       })),
+    //       { transaction: t }
+    //     );
+    //   }
 
-      // Reload with associations
-      await field.reload({
-        include: [{ association: "searchModalColumns" }, { association: "recordTableColumns" }],
-        transaction: t,
-      });
+    //   // Reload with associations
+    //   await field.reload({
+    //     include: [{ association: "searchModalColumns" }, { association: "recordTableColumns" }],
+    //     transaction: t,
+    //   });
 
-      // Flatten for frontend
-      const plain = field.get({ plain: true }) as any;
-      plain.searchModalColumns = plain.searchModalColumns?.map((x: any) => x.fieldId) || [];
-      plain.recordTableColumns = plain.recordTableColumns?.map((x: any) => x.fieldId) || [];
+    //   // Flatten for frontend
+    //   const plain = field.get({ plain: true }) as any;
+    //   plain.searchModalColumns = plain.searchModalColumns?.map((x: any) => x.fieldId) || [];
+    //   plain.recordTableColumns = plain.recordTableColumns?.map((x: any) => x.fieldId) || [];
 
-      return plain;
-    }
+    //   return plain;
+    // }
 
     return field.get({ plain: true });
   });
+  // if (modelId) { const res = await setStandardSchema(modelId);console.log(res) }
+  // console.log(createdField)
+  if (modelId) {
+    const res = await setStandardSchema(modelId)
+    console.log("123", res)
+  }
+
 
   return {
     ...createdField,

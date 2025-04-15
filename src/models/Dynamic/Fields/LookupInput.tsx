@@ -30,11 +30,11 @@ export class LookupInput extends Model {
   })
   declare primaryFieldId: string;
 
-  @HasMany(() => LookupInputSearchColumn, 'lookupInputId')
-  searchModalColumns?: LookupInputSearchColumn[];
+  // @HasMany(() => LookupInputSearchColumn, 'lookupInputId')
+  // searchModalColumns?: LookupInputSearchColumn[];
 
-  @HasMany(() => LookupInputTableColumn, 'lookupInputId')
-  recordTableColumns?: LookupInputTableColumn[];
+  // @HasMany(() => LookupInputTableColumn, 'lookupInputId')
+  // recordTableColumns?: LookupInputTableColumn[];
 }
 
 @Table({ tableName: 'LookupInputSearchColumns', timestamps: false })

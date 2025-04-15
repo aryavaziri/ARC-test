@@ -5,6 +5,8 @@ import { SessionProvider } from "next-auth/react";
 import { isMobile as isM } from "react-device-detect";
 import ReduxProvider from "./ReduxProvider";
 export const themes = ['light', 'dark', 'custom1', 'custom2', 'custom3'] as const;
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 
 export type Theme = typeof themes[number];
 
@@ -42,7 +44,7 @@ export default function Provider({ children }: React.PropsWithChildren) {
 
   const [theme, setTheme] = useState<Theme>('custom1');
   const [hasMounted, setHasMounted] = useState(false);
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedTheme = window.localStorage.getItem('theme');
@@ -87,6 +89,7 @@ export default function Provider({ children }: React.PropsWithChildren) {
         <Context.Provider value={myContext} >
           <main data-theme={myContext.theme} className="min-h-screen flex flex-col text-text bg-primary-100/5 border-border">
             {children}
+            <ToastContainer className={`absolute !z-[9999]`} position="top-center" />
           </main>
         </Context.Provider>
       </ReduxProvider>

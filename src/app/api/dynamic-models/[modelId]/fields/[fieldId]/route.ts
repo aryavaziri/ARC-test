@@ -120,21 +120,21 @@ export const PUT = handleApi(async ({ params, req }) => {
         await LookupInputSearchColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
         await LookupInputTableColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
 
-        await LookupInputSearchColumn.bulkCreate(
-          parsed.searchModalColumns?.map((relatedFieldId) => ({
-            lookupInputId: fieldId,
-            fieldId: relatedFieldId,
-          })) ?? [],
-          { transaction: t }
-        );
+        // await LookupInputSearchColumn.bulkCreate(
+        //   parsed.searchModalColumns?.map((relatedFieldId) => ({
+        //     lookupInputId: fieldId,
+        //     fieldId: relatedFieldId,
+        //   })) ?? [],
+        //   { transaction: t }
+        // );
 
-        await LookupInputTableColumn.bulkCreate(
-          parsed.recordTableColumns?.map((relatedFieldId) => ({
-            lookupInputId: fieldId,
-            fieldId: relatedFieldId,
-          })) ?? [],
-          { transaction: t }
-        );
+        // await LookupInputTableColumn.bulkCreate(
+        //   parsed.recordTableColumns?.map((relatedFieldId) => ({
+        //     lookupInputId: fieldId,
+        //     fieldId: relatedFieldId,
+        //   })) ?? [],
+        //   { transaction: t }
+        // );
         updatedField = await LookupInput.findByPk(fieldId, {
           include: ['searchModalColumns', 'recordTableColumns'],
           transaction: t,

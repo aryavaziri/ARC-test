@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../../public/css/UIComponents.css";
 @import "../../public/css/TableComponents.css";
+@import "../../public/css/TableComponents2.css";
 @import "../../public/css/Colors.css";
 
 @theme {

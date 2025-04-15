@@ -11,10 +11,16 @@ import {
   getLineItem,
   removeLineItemAction,
   editDynamicFieldAction,
-  // You can later import record thunks here
+  editFormLayout,
+  addRecordLayout,
+  deleteRecordLayout,
+  editRecordLayout,
+  fetchFormLayouts, addFormLayout, deleteFormLayout, fetchRecordLayouts,// You can later import record thunks here
+  fetchAllRecordLayouts,
+  editLineItem
 } from "./dynamicThunks";
 
-import { TField, TRecord } from "@/types/dynamicModel";
+import { TField, TLineItem, TRecord } from "@/types/dynamicModel";
 import { DynamicModelState } from "./dynamicModelSlice";
 
 // ---------------------
@@ -56,7 +62,7 @@ export const modelBuilder = (builder: ActionReducerMapBuilder<DynamicModelState>
       state.loading = false;
       const index = state.dynamicModels.findIndex((m) => m.id === action.payload.id);
       if (index !== -1) {
-        Object.assign(state.dynamicModels[index], action.payload);
+        state.dynamicModels[index] = action.payload;
       }
     })
     .addCase(editDynamicModel.rejected, (state, action) => {
@@ -301,7 +307,16 @@ export const recordBuilder = (builder: ActionReducerMapBuilder<DynamicModelState
     })
     .addCase(getLineItem.fulfilled, (state, action) => {
       state.loading = false;
-      state.selectedLineItem = action.payload
+      const incoming = action.payload;
+      const existing = state.selectedLineItem ?? []
+      const mergedMap = new Map<string, TLineItem>();
+      for (const item of existing) {
+        mergedMap.set(item.id, item);
+      }
+      for (const item of incoming) {
+        mergedMap.set(item.id, item);
+      }
+      state.selectedLineItem = Array.from(mergedMap.values());
     })
     .addCase(getLineItem.rejected, (state, action) => {
       state.loading = false;
@@ -319,6 +334,129 @@ export const recordBuilder = (builder: ActionReducerMapBuilder<DynamicModelState
       state.loading = false;
       state.error = action.payload || "Failed to add record";
     })
+    .addCase(editLineItem.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(editLineItem.fulfilled, (state, action) => {
+      state.loading = false;
+      const updated = action.payload;
+      if (!updated?.id) return;
+      state.selectedLineItem = (state.selectedLineItem ?? []).map(item =>
+        item.id === updated.id ? { ...item, fields: updated.fields } : item
+      );
+    })
+    .addCase(editLineItem.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to update record";
+    })
 
 };
 
+export const FormlayoutBuilder = (builder: ActionReducerMapBuilder<DynamicModelState>) => {
+  builder
+    .addCase(fetchFormLayouts.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchFormLayouts.fulfilled, (state, action) => {
+      state.loading = false;
+      const newLayouts = action.payload;
+      const merged = [...state.formLayouts.filter(existing => !newLayouts.some(newItem => newItem.id === existing.id)), ...newLayouts];
+      state.formLayouts = merged;
+    })
+    .addCase(fetchFormLayouts.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to fetch form layouts";
+    })
+
+    // ✅ Add Form Layout
+    .addCase(addFormLayout.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(addFormLayout.fulfilled, (state, action) => {
+      state.loading = false;
+      state.formLayouts.push(action.payload);
+    })
+    .addCase(addFormLayout.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to add form layout";
+    })
+
+    // ✅ Delete Form Layout
+    .addCase(deleteFormLayout.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(deleteFormLayout.fulfilled, (state, action) => {
+      state.loading = false;
+      state.formLayouts = state.formLayouts.filter(l => l.id !== action.payload);
+    })
+    .addCase(deleteFormLayout.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to delete form layout";
+    })
+
+    .addCase(editFormLayout.fulfilled, (state, action) => {
+      const updated = action.payload;
+      const index = state.formLayouts.findIndex((l) => l.id === updated.id);
+      if (index !== -1) {
+        state.formLayouts[index] = updated;
+      }
+    });
+};
+
+
+export const RecordlayoutBuilder = (builder: ActionReducerMapBuilder<DynamicModelState>) => {
+  builder
+    .addCase(fetchAllRecordLayouts.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchAllRecordLayouts.fulfilled, (state, action) => {
+      state.loading = false;
+      const newLayouts = action.payload;
+      const merged = [...state.recordLayouts.filter(existing => !newLayouts.some(newItem => newItem.id === existing.id)), ...newLayouts];
+      state.recordLayouts = merged;
+    })
+    .addCase(fetchAllRecordLayouts.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to fetch record layouts";
+    })
+
+    .addCase(addRecordLayout.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(addRecordLayout.fulfilled, (state, action) => {
+      state.loading = false;
+      state.recordLayouts.push(action.payload);
+    })
+    .addCase(addRecordLayout.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to add record layout";
+    })
+
+    .addCase(deleteRecordLayout.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(deleteRecordLayout.fulfilled, (state, action) => {
+      state.loading = false;
+      state.recordLayouts = state.recordLayouts.filter(l => l.id !== action.payload);
+    })
+    .addCase(deleteRecordLayout.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to delete record layout";
+    })
+
+    .addCase(editRecordLayout.fulfilled, (state, action) => {
+      const updated = action.payload;
+      const index = state.recordLayouts.findIndex((l) => l.id === updated.id);
+      if (index !== -1) {
+        state.recordLayouts[index] = updated;
+      }
+    })
+
+};

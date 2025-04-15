@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StylesConfig } from 'react-select';
 import { FieldError, UseFormRegister, FieldValues, Path } from "react-hook-form";
 
@@ -33,7 +33,7 @@ const Input = <T extends FieldValues>({
   const capitalize = (text: string) => (!text ? "" : text.charAt(0).toUpperCase() + text.slice(1));
 
   const baseClass =
-    `${error ? "bg-pink-500/30" : "bg-light"} w-full rounded px-2 py-1 border border-gray-400/70 text-dark focus:outline-none focus:ring-2 focus:ring-blue-400`;
+    `${error ? "bg-pink-500/30" : "bg-light"} w-full rounded px-2 py-[6px] border border-gray-400/70 text-dark focus:outline-none focus:ring-2 focus:ring-blue-400`;
 
   const renderInput = () => (
     <Component
@@ -79,7 +79,7 @@ const Input = <T extends FieldValues>({
         <>
           {style === 1 && (
             <label
-              className={`absolute z-10 left-4 transition-all duration-200 bg-light px-1 cursor-text ${isFocused || hasValue ? "top-[-8px] text-sm text-gray-500 scale-90" : "top-3 text-gray-600"}`}
+              className={`absolute z-10 left-4 transition-all duration-200 bg-light px-1 cursor-text ${isFocused || hasValue ? "-top-3 text-sm text-gray-500 scale-90" : "top-2 text-gray-600"}`}
               htmlFor={name}
             >
               {capitalize(label ?? name)} {rest?.required && <span className="text-rose-600">*</span>}

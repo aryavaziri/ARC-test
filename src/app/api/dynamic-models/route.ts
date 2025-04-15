@@ -12,10 +12,10 @@ const getModelIncludes = () => [
   {
     model: LookupInput,
     as: "ModelLookupInputs",
-    through: { attributes: [] },
-    include: [
-      { association: 'searchModalColumns' },
-      { association: 'recordTableColumns' }]
+    // through: { attributes: [] },
+    // include: [
+    //   { association: 'searchModalColumns' },
+    //   { association: 'recordTableColumns' }]
   },
 ];
 

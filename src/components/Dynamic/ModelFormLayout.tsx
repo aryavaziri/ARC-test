@@ -39,40 +39,38 @@ const ModelFormLayout = () => {
   if (!selectedModel?.id) return
 
   return (
-    <div className={`flex flex-col gap-8`}>
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)} className="con">
-          <h2 className="text-xl font-semibold">{selectedModel?.name ?? 'Dynamic Form'}</h2>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="con">
+        <h2 className="text-xl font-semibold">{selectedModel?.name ?? 'Dynamic Form'}</h2>
 
-          {fields.map((field) =>
-            field.type === `lookup` ? <Lookup
+        {fields.map((field) =>
+          field.type === `lookup` ? <Lookup
+            key={field.id}
+            field={{
+              id: field.id,
+              label: field.label,
+              type: field.type,
+            }}
+            control={control} // if you're using `react-hook-form` Controller
+            error={formState.errors[field.id] as FieldError}
+          /> :
+            <DynamicItem<FieldValues>
               key={field.id}
-              field={{
-                id: field.id,
-                label: field.label,
-                type: field.type,
-              }}
-              control={control} // if you're using `react-hook-form` Controller
+              name={field.id || field.label}
+              label={field.label}
+              type={field.type}
+              register={register}
               error={formState.errors[field.id] as FieldError}
-            /> :
-              <DynamicItem<FieldValues>
-                key={field.id}
-                name={field.id || field.label}
-                label={field.label}
-                type={field.type}
-                register={register}
-                error={formState.errors[field.id] as FieldError}
-                required={field.isRequired!!}
-                style={3}
-              />
-          )}
+              required={field.isRequired!!}
+              style={3}
+            />
+        )}
 
-          <button type="submit" className="btn btn-primary w-full">
-            Add Line Item
-          </button>
-        </form>
-      </FormProvider>
-    </div>
+        <button type="submit" className="btn btn-primary w-full">
+          Add Line Item Record
+        </button>
+      </form>
+    </FormProvider>
 
   )
 }

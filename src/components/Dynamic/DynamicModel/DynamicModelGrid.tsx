@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useEffect } from "react"
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 
 const schema = dynamicModelSchema.partial({ id: true });
@@ -14,8 +16,12 @@ type FormValues = z.infer<typeof schema>;
 
 const DynamicModelGrid: React.FC = () => {
   const { refetch, models, addNewItem, setSelectedModel, selectedModel, getData } = useDynamicModel();
+
+  const router = useRouter();
+
   const handleClick = async (model: TDynamicModel) => {
     setSelectedModel(model)
+    router.push(`/settings/objectManager/objects`)
   }
   useEffect(() => {
     selectedModel && getData()
@@ -39,55 +45,65 @@ const DynamicModelGrid: React.FC = () => {
   }, [errors]);
 
   const onSubmit = async (data: FormValues) => {
-    try {
-      const result = await addNewItem(data);
-      reset({name:""}); 
-    } catch (err) {
-      console.error("Add model failed:", err);
-    }
+    await toast.promise(
+      addNewItem(data),
+      {
+        pending: "Creating object...",
+        success: "Object created successfully!",
+        error: "Error creating object.",
+      }
+    );
+
+    reset({ name: "" });
   };
 
-  return (
-    <div className="w-[400px] con overflow-x-auto">
-      <table className="my-table whitespace-nowrap">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {models.map(model => (
-            <tr
-              key={model.id}
-              className={`cursor-pointer ${selectedModel?.id === model.id ? 'row-selected' : ''}`}
-              onClick={() => handleClick(model)}
-            >
-              <td>{model.id.slice(0, 8)}...</td>
-              <td>{model.name}</td>
-            </tr>
-          ))}
-          <tr className="after:border-none">
-            <td className="p-0">
-              <button
-                className="my-1 btn btn-primary py-1 rounded w-full"
-                onClick={handleSubmit(onSubmit)}
-              >
-                Add New
-              </button>
-            </td>
-            <td className={`p-0 ${errors.name?`after:bg-rose-200`:`after:bg-lime-200`}`}>
-              <Input
-              className={`ml-2 mr-1 rounded`}
-                register={register}
-                name="name"
-                label=""
 
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  return (
+    <div className={`con`} >
+      <div className={`flex justify-between items-center`}>
+        <p className="text-xl font-semibold mb-2">Objects</p>
+        <p className="btn">Add New Object</p>
+      </div>
+      <div className="con !w-full">
+        <table className="my-table whitespace-nowrap">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {models.map(model => (
+              <tr
+                key={model.id}
+                className={`cursor-pointer ${selectedModel?.id === model.id ? 'row-selected' : ''}`}
+                onClick={() => handleClick(model)}
+              >
+                <td>{model.id.slice(0, 8)}...</td>
+                <td>{model.name}</td>
+              </tr>
+            ))}
+            <tr className="after:border-none">
+              <td className="p-0">
+                <button
+                  className="my-1 btn btn-primary py-1 rounded w-full"
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  Add New
+                </button>
+              </td>
+              <td className={`p-0 ${errors.name ? `after:bg-rose-200` : `after:bg-lime-200`}`}>
+                <Input
+                  className={`ml-2 mr-1 rounded`}
+                  register={register}
+                  name="name"
+                  label=""
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

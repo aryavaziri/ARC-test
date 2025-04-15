@@ -5,6 +5,7 @@ import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'react-toastify';
 
 const dynamicModelEditSchema = z.object({
   id: z.string().uuid(),
@@ -42,7 +43,15 @@ const EditDynamicModel: React.FC<Props> = ({ onClose }) => {
 
   const onSubmit = async (formData: TDynamicModel) => {
     console.log(formData)
-    await editItem(formData);
+    await toast.promise(
+      editItem(formData),
+      {
+        pending: "Editing object...",
+        success: "Object edited successfully!",
+        error: "Error editing object.",
+      }
+    );
+
     onClose();
   };
 

@@ -1,11 +1,12 @@
-import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, BelongsTo, Default } from "sequelize-typescript";
-import { DynamicModel } from "./DynamicModel";
+import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, BelongsTo, Default, AfterCreate } from "sequelize-typescript";
+import { DynamicModel, FormLayout } from "./DynamicModel";
 import { TextInput } from "./Fields/TextInput";
 import { LongTextInput } from "./Fields/LongTextInput";
 import { DateInput } from "./Fields/DateInput";
 import { NumberInput } from "./Fields/NumberInput";
 import { CheckboxInput } from "./Fields/CheckboxInput";
 import { LookupInput } from "./Fields/LookupInput";
+import sequelize from "@/lib/Sequelize";
 
 @Table({
   tableName: "ModelTextInput",
@@ -30,6 +31,26 @@ export class ModelTextInput extends Model {
     allowNull: true,
   })
   declare order: number;
+
+  // @AfterCreate
+  // static async updateFormLayout(instance: ModelTextInput) {
+  //   await sequelize.authenticate();
+  //   const layout = await FormLayout.findOne({ where: { modelId: instance.modelId, label: 'Standard' } });
+  //   console.log(layout?.label)
+  //   const input = await TextInput.findByPk(instance.inputId);
+  //   console.log(input?.label)
+  //   console.log("TEST")
+
+  //   if (layout && input) {
+  //     const schema = layout.contentSchema ?? [];
+  //     schema.push({
+  //       fieldId: input.id,
+  //       type: 'text',
+  //       order: schema.length,
+  //     });
+  //     await layout.update({ contentSchema: schema });
+  //   }
+  // }
 }
 
 @Table({
@@ -55,6 +76,23 @@ export class ModelLongTextInput extends Model {
     allowNull: true,
   })
   declare order: number;
+
+  // @AfterCreate
+  // static async updateFormLayout(instance: ModelLongTextInput) {
+  //   await sequelize.authenticate();
+  //   const layout = await FormLayout.findOne({ where: { modelId: instance.modelId, label: 'Standard' } });
+  //   const input = await LongTextInput.findByPk(instance.inputId);
+
+  //   if (layout && input) {
+  //     const schema = layout.contentSchema ?? [];
+  //     schema.push({
+  //       fieldId: input.id,
+  //       type: 'text',
+  //       order: schema.length,
+  //     });
+  //     await layout.update({ contentSchema: schema });
+  //   }
+  // }
 }
 
 @Table({
@@ -80,6 +118,23 @@ export class ModelDateInput extends Model {
     allowNull: true,
   })
   declare order: number;
+
+  // @AfterCreate
+  // static async updateFormLayout(instance: ModelDateInput) {
+  //   await sequelize.authenticate();
+  //   const layout = await FormLayout.findOne({ where: { modelId: instance.modelId, label: 'Standard' } });
+  //   const input = await DateInput.findByPk(instance.inputId);
+
+  //   if (layout && input) {
+  //     const schema = layout.contentSchema ?? [];
+  //     schema.push({
+  //       fieldId: input.id,
+  //       type: 'text',
+  //       order: schema.length,
+  //     });
+  //     await layout.update({ contentSchema: schema });
+  //   }
+  // }
 }
 
 @Table({
@@ -105,6 +160,23 @@ export class ModelNumberInput extends Model {
     allowNull: true,
   })
   declare order: number;
+
+  // @AfterCreate
+  // static async updateFormLayout(instance: ModelNumberInput) {
+  //   await sequelize.authenticate();
+  //   const layout = await FormLayout.findOne({ where: { modelId: instance.modelId, label: 'Standard' } });
+  //   const input = await NumberInput.findByPk(instance.inputId);
+
+  //   if (layout && input) {
+  //     const schema = layout.contentSchema ?? [];
+  //     schema.push({
+  //       fieldId: input.id,
+  //       type: 'text',
+  //       order: schema.length,
+  //     });
+  //     await layout.update({ contentSchema: schema });
+  //   }
+  // }
 }
 
 @Table({
@@ -130,6 +202,23 @@ export class ModelCheckboxInput extends Model {
     allowNull: true,
   })
   declare order: number;
+
+  // @AfterCreate
+  // static async updateFormLayout(instance: ModelCheckboxInput) {
+  //   await sequelize.authenticate();
+  //   const layout = await FormLayout.findOne({ where: { modelId: instance.modelId, label: 'Standard' } });
+  //   const input = await CheckboxInput.findByPk(instance.inputId);
+
+  //   if (layout && input) {
+  //     const schema = layout.contentSchema ?? [];
+  //     schema.push({
+  //       fieldId: input.id,
+  //       type: 'text',
+  //       order: schema.length,
+  //     });
+  //     await layout.update({ contentSchema: schema });
+  //   }
+  // }
 }
 
 @Table({
@@ -155,5 +244,22 @@ export class ModelLookupInput extends Model {
     allowNull: true,
   })
   declare order: number;
+
+  // @AfterCreate
+  // static async updateFormLayout(instance: ModelLookupInput) {
+  //   await sequelize.authenticate();
+  //   const layout = await FormLayout.findOne({ where: { modelId: instance.modelId, label: 'Standard' } });
+  //   const input = await LookupInput.findByPk(instance.inputId);
+
+  //   if (layout && input) {
+  //     const schema = layout.contentSchema ?? [];
+  //     // schema.push({
+  //     //   fieldId: input.id,
+  //     //   type: 'text',
+  //     //   order: schema.length,
+  //     // });
+  //     await layout.update({ contentSchema: schema });
+  //   }
+  // }
 }
 

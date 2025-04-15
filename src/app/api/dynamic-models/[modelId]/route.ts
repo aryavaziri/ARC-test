@@ -13,11 +13,11 @@ const getModelIncludes = () => [
   {
     model: LookupInput,
     as: "ModelLookupInputs",
-    through: { attributes: [] },
-    include: [
-      { association: "searchModalColumns" },
-      { association: "recordTableColumns" },
-    ],
+    // through: { attributes: [] },
+    // include: [
+    //   { association: "searchModalColumns" },
+    //   { association: "recordTableColumns" },
+    // ],
   },
 ];
 
@@ -34,11 +34,11 @@ export const PUT = handleApi(async ({ req, params }) => {
   const plainModel = updatedModel.get({ plain: true });
 
   // Flatten nested lookup fields
-  plainModel.ModelLookupInputs = plainModel.ModelLookupInputs.map((lookup: any) => ({
-    ...lookup,
-    searchModalColumns: lookup.searchModalColumns?.map((c: any) => c.fieldId) || [],
-    recordTableColumns: lookup.recordTableColumns?.map((c: any) => c.fieldId) || [],
-  }));
+  // plainModel.ModelLookupInputs = plainModel.ModelLookupInputs.map((lookup: any) => ({
+  //   ...lookup,
+  //   searchModalColumns: lookup.searchModalColumns?.map((c: any) => c.fieldId) || [],
+  //   recordTableColumns: lookup.recordTableColumns?.map((c: any) => c.fieldId) || [],
+  // }));
 
   return plainModel
 }, { authRequired: true });

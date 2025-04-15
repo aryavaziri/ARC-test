@@ -8,8 +8,10 @@ import { User } from "@/models/UserData/User";
 import { UserRole } from "@/models/UserData/UserRole";
 import { ModelTextInput, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, ModelLookupInput } from "@/models/Dynamic/M2M";
 import { CheckboxInputRecord, DateInputRecord, LongTextInputRecord, LookupInputRecord, NumberInputRecord, TextInputRecord } from "@/models/Dynamic/Records";
-import { DynamicModel, LineItem } from "@/models/Dynamic/DynamicModel";
+import { DynamicModel, FormLayout, LineItem, RecordLayout } from "@/models/Dynamic/DynamicModel";
 import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, LookupInputSearchColumn, LookupInputTableColumn, NumberInput } from "@/models/Dynamic/Fields";
+import { TabModel } from "@/models/Layout/Tabs";
+import { PageLayout } from "@/models/Layout/PageLayout";
 
 
 export const dropDatabase = async (db: string) => {
@@ -49,6 +51,7 @@ const sequelizeWithoutDb = new Sequelize({
 export const syncTables = async () => {
   await dropDatabase(process.env.CentralizedDB ?? "")
   await sequelize.authenticate();
+  // await RecordLayout.sync({ alter: true });
   await syncUserModels();
   await syncDynamicModels();
   await importUserBac('arcerp_dev1')
@@ -66,6 +69,9 @@ const syncDynamicModels = async () => {
 
     await DynamicModel.sync({ alter: true });
     await LineItem.sync({ alter: true });
+    await FormLayout.sync({ alter: true });
+    await RecordLayout.sync({ alter: true });
+    await PageLayout.sync({ alter: true });
 
     await ModelTextInput.sync({ alter: true });
     await ModelLongTextInput.sync({ alter: true });
@@ -92,6 +98,7 @@ const syncUserModels = async () => {
   return handleWithTryCatch(async () => {
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
+    await TabModel.sync({ alter: true });
     await UserRole.sync({ alter: true });
     await User.sync({ alter: true });
     console.log("User Models has been synced");

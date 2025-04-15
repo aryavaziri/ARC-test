@@ -177,6 +177,35 @@ export const getLineItem = createAsyncThunk<
   }
 })
 
+export const editLineItem = createAsyncThunk<
+{ id: string; fields: TRecord[] },
+  {
+    modelId: string;
+    lineItemId: string;
+    records: {
+      id: string;        // record ID
+      fieldId: string;
+      value: any;
+      type: string;
+      label?: string;
+    }[];
+  },
+  { rejectValue: string }
+>('dynamicModels/editLineItem', async ({ modelId, lineItemId, records }, thunkAPI) => {
+  try {
+    const { data: response } = await axios.put<TResponse>(
+      `/api/dynamic-models/${modelId}/records/${lineItemId}`,
+      records
+    );
+
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to update record");
+  } catch (err) {
+    return thunkAPI.rejectWithValue("Unexpected error while updating records");
+  }
+});
+
+
 export const removeLineItemAction = createAsyncThunk<
   String,
   String,
@@ -225,3 +254,168 @@ export const removeLineItemAction = createAsyncThunk<
 //   }
 // })
 
+
+import { TFormLayout, TRecordLayout } from "@/types/layouts";
+
+export const fetchFormLayouts = createAsyncThunk<
+  TFormLayout[],
+  string,
+  { rejectValue: string }
+>("dynamicModels/fetchFormLayouts", async (modelId, thunkAPI) => {
+  try {
+    const { data: response } = await axios.get<TResponse>(
+      `/api/dynamic-models/${modelId}/form-layouts`
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to fetch form layouts");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error while fetching form layouts");
+  }
+});
+
+export const fetchAllFormLayouts = createAsyncThunk<
+  TFormLayout[],
+  void,
+  { rejectValue: string }
+>("dynamicModels/fetchFormLayouts", async (_, thunkAPI) => {
+  try {
+    const { data: response } = await axios.get<TResponse>(
+      `/api/dynamic-models/all/form-layouts`
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to fetch form layouts");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error while fetching form layouts");
+  }
+});
+
+export const addFormLayout = createAsyncThunk<
+  TFormLayout,
+  Omit<TFormLayout, "id">,
+  { rejectValue: string }
+>("dynamicModels/addFormLayout", async (layout, thunkAPI) => {
+  try {
+    const { data: response } = await axios.post<TResponse>(
+      `/api/dynamic-models/${layout.modelId}/form-layouts`, layout
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to create form layout");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error");
+  }
+});
+
+
+export const deleteFormLayout = createAsyncThunk<
+  string, // returned layout ID
+  string, // layoutId
+  { rejectValue: string }
+>("dynamicModels/deleteFormLayout", async (layoutId, thunkAPI) => {
+  try {
+    const { data: response } = await axios.delete<TResponse>(
+      `/api/dynamic-models/_/form-layouts/${layoutId}`
+    );
+    if (response.success && response.data) return layoutId;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to delete form layout");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error");
+  }
+});
+
+export const editFormLayout = createAsyncThunk<
+  TFormLayout,
+  Partial<TFormLayout> & { id: String },
+  { rejectValue: string }
+>("dynamicModels/editFormLayout", async (layout, thunkAPI) => {
+  try {
+    const { data: response } = await axios.put<TResponse>(
+      `/api/dynamic-models/-/form-layouts/${layout.id}`,
+      layout
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to update form layout");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error");
+  }
+});
+
+export const addRecordLayout = createAsyncThunk<
+  TRecordLayout,
+  Omit<TRecordLayout, "id">,
+  { rejectValue: string }
+>("dynamicModels/addRecordLayout", async (layout, thunkAPI) => {
+  try {
+    const { data: response } = await axios.post<TResponse>(
+      `/api/dynamic-models/${layout.modelId}/record-layouts`, layout
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to create record layout");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error");
+  }
+});
+
+export const fetchRecordLayouts = createAsyncThunk<
+  TRecordLayout[],
+  string,
+  { rejectValue: string }
+>("dynamicModels/fetchRecordLayouts", async (modelId, thunkAPI) => {
+  try {
+    const { data: response } = await axios.get<TResponse>(
+      `/api/dynamic-models/${modelId}/record-layouts`
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to fetch record layouts");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error while fetching record layouts");
+  }
+});
+
+export const editRecordLayout = createAsyncThunk<
+  TRecordLayout,
+  Partial<TRecordLayout> & { id: string },
+  { rejectValue: string }
+>("dynamicModels/editRecordLayout", async (layout, thunkAPI) => {
+  try {
+    const { data: response } = await axios.put<TResponse>(
+      `/api/dynamic-models/-/record-layouts/${layout.id}`,
+      layout
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to update record layout");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error");
+  }
+});
+
+export const fetchAllRecordLayouts = createAsyncThunk<
+  TRecordLayout[],
+  void,
+  { rejectValue: string }
+>("dynamicModels/fetchAllRecordLayouts", async (_, thunkAPI) => {
+  try {
+    const { data: response } = await axios.get<TResponse>(
+      `/api/dynamic-models/all/record-layouts`
+    );
+    if (response.success && response.data) return response.data;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to fetch record layouts");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error while fetching record layouts");
+  }
+});
+
+export const deleteRecordLayout = createAsyncThunk<
+  string, // returned layoutId
+  string, // input layoutId
+  { rejectValue: string }
+>("dynamicModels/deleteRecordLayout", async (layoutId, thunkAPI) => {
+  try {
+    const { data: response } = await axios.delete<TResponse>(
+      `/api/dynamic-models/_/record-layouts/${layoutId}`
+    );
+    if (response.success && response.data) return layoutId;
+    return thunkAPI.rejectWithValue(response.error ?? "Failed to delete record layout");
+  } catch {
+    return thunkAPI.rejectWithValue("Unexpected error");
+  }
+});

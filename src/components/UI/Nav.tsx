@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useMyContext } from "@/app/Provider";
 import NavItem from "./NavItem";
 import { FaHome, FaShoppingCart, FaTools } from "react-icons/fa";
@@ -13,13 +13,22 @@ import { signOut } from "next-auth/react";
 import { IoClose } from "react-icons/io5";
 import { MdMenu } from "react-icons/md";
 import { syncTables } from "@/actions/db/sync";
+import { GrDatabase } from "react-icons/gr";
+import { useTab } from "@/store/hooks/tabsHooks"; // already there
+import { iconMap } from "@/store/slice/iconMap"; // for rendering icons
 
 const Nav = () => {
   const { userData } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { getTabs, tabs } = useTab()
   const { isAuth } = useMyContext();
   const pathname = usePathname();
+  const params = useSearchParams()
   const dropdownRef = useRef<HTMLDivElement>(null); // 🔹 Create ref for dropdown
+
+  useEffect(() => {
+    getTabs();
+  }, []);
 
   const handleLogOut = async () => {
     await signOut({ redirectTo: `/login` });
@@ -53,10 +62,29 @@ const Nav = () => {
 
       <ul className={`flex grow h-20`}>
         <NavItem Icon={FaHome} label="Home" directUrl="/" />
-        <NavItem Icon={FaShoppingCart} label="Sales" menuItems={[{ label: "Dynamic form", url: "/dynamic" }, { label: "Customers", url: "/customers" }, { label: "Sales Orders", url: "/sales" }, { label: "New Sales Order", url: "/sales/newSales" }]} />
-        <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Database", url: "/setting/database" }, { label: "Theme", url: "/setting/theme" }, { label: "API Test", url: "/setting/test" }]} />
+        <NavItem Icon={FaShoppingCart} label="Sales" menuItems={[{ label: "Sales Orders", url: "/sales" }, { label: "New Sales Order", url: "/sales/newSales" }]} />
+        {tabs.map((tab) => {
+          const Icon = iconMap[tab.iconName];
+          const hasLinks = tab.layouts.length > 0;
+          return (
+            <NavItem
+              key={tab.id}
+              Icon={Icon}
+              label={tab.label}
+              directUrl={hasLinks && tab.layouts.length === 1 ? `/${tab.label}/${tab.layouts[0].route}` : undefined}
+              menuItems={hasLinks && tab.layouts.length > 1
+                ? tab.layouts.map(layout => ({ label: layout.label, url: `/${tab.label}/${layout.route}` }))
+                : []}
+            />
+          );
+        })}
+        <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Object Manager", url: "/settings/objectManager" }, { label: "Layout Manager", url: "/settings/layoutManager" }, { label: "Theme", url: "/settings/theme" }]} />
       </ul>
-      <button className={`btn btn-primary w-min`} onClick={async () => await syncTables()} >SYNC DB</button>
+      <div className="flex gap-2">
+        {pathname == "/render" && <Link href={`${pathname.replace('/render', '/design')}?${params.toString()}`} className={`btn btn-primary w-min`} >Design</Link>}
+        {pathname == "/design" && <Link href={`${pathname.replace('/design', '/render')}?${params.toString()}`} className={`btn btn-primary w-min`} >Render</Link>}
+        <button className={`btn btn-primary w-min`} onClick={async () => await syncTables()} >SYNC DB</button>
+      </div>
       {isAuth ? (
         <div className="relative" ref={dropdownRef}> {/* 🔹 Wrap dropdown in ref */}
           {/* <button className="btn" onClick={() => setDropdownOpen(prev => !prev)}>User</button> */}
