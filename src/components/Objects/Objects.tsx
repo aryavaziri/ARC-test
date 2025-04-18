@@ -1,8 +1,9 @@
+// /components/Objects/Objects.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
 import FieldsGrid from "@/components/Dynamic/DynamicModel/FieldsGrid";
-// import other components when needed
 import Details from "@/components/Objects/Details";
 import FormLayouts from "@/components/Objects/FormLayouts/FormLayout";
 import { useDynamicModel } from "@/store/hooks/dynamicModelsHooks";
@@ -20,16 +21,26 @@ const tabOptions = [
   { label: "Dependency", value: "Dependency" },
 ];
 
-const ObjectsLayout = () => {
+const ObjectsLayout = ({ objectId }: { objectId: string }) => {
   const [selected, setSelected] = useState("Fields");
-  const { selectedModel } = useDynamicModel()
+  const { models, setSelectedModel, selectedModel, getData } = useDynamicModel();
   const router = useRouter();
 
+  // Load the model based on objectId
   useEffect(() => {
-    if (!selectedModel) {
+    if (!models.length) return;
+    
+    console.log(objectId)
+    const foundModel = models.find((m) => m.id === objectId);
+    if (foundModel) {
+      setSelectedModel(foundModel);
+      getData();
+    } else {
       router.push(`/settings/objectManager`);
     }
-  }, [selectedModel, router]);
+  }, [models, objectId]);
+  useEffect(() => {
+  }, []);
 
   const renderSelectedTab = () => {
     switch (selected) {
@@ -38,7 +49,7 @@ const ObjectsLayout = () => {
       case "Fields":
         return <FieldsGrid />;
       case "FormLayouts":
-        return <FormLayouts />
+        return <FormLayouts />;
       case "RecordLayouts":
         return <RecordLayouts />;
       case "Dependency":
@@ -49,13 +60,14 @@ const ObjectsLayout = () => {
   };
 
   if (!selectedModel) return null;
-  // if (!selectedModel) router.push(`/settings/objectManager`)
 
   return (
-    <div className="bg-primary-100/5 gap-8 grow con ">
+    <div className="bg-primary-100/5 gap-8 grow con">
       <div className={`flex gap-4 items-center`}>
-        <Link className="btn-icon" href={`/settings/objectManager`} ><IoChevronBackSharp /></Link>
-        <div className={`text-xl font-semibold uppercase`}>{selectedModel?.name} Object</div>
+        <Link className="btn-icon" href={`/settings/objectManager`}><IoChevronBackSharp /></Link>
+        <div className={`text-xl font-semibold uppercase`}>
+          {selectedModel?.name} Object
+        </div>
       </div>
       <div className="flex gap-4 items-center">
         {tabOptions.map((tab) => (

@@ -36,3 +36,12 @@ export const barlowCondensed = Barlow_Condensed({
   style: ["normal", "italic"],
   display: "swap",
 });
+
+export function slugify(str: string) {
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with dashes
+    .replace(/[^\w\-]+/g, '')       // Remove non-word chars
+    .replace(/\-\-+/g, '-')         // Collapse multiple dashes
+}

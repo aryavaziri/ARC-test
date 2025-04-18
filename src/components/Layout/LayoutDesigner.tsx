@@ -16,6 +16,7 @@ import { createPageLayoutSchema, pageLayoutSchema, TCreatePageLayout, TDroppedFi
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '../UI/Input';
+import { toast } from 'react-toastify';
 
 const LayoutDesigner = () => {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ const LayoutDesigner = () => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<TCreatePageLayout | TPageLayout>({ resolver: zodResolver(isEditMode ? pageLayoutSchema : createPageLayoutSchema) });
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(layoutTemplates[0].id);
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
-  const { models, refetch, formLayouts, recordLayouts } = useDynamicModel()
+  const { models, formLayouts, recordLayouts } = useDynamicModel()
   const [droppedFields, setDroppedFields] = useState<TDroppedField[]>([]);
   const [showSaveAsModal, setShowSaveAsModal] = useState(false);
   useEffect(() => { setValue("templateId", selectedTemplateId) }, [selectedTemplateId]);
@@ -33,9 +34,6 @@ const LayoutDesigner = () => {
 
   const { push } = useRouter()
   const [expandedModelId, setExpandedModelId] = useState<string | null>(null);
-
-  useEffect(() => { refetch() }, [])
-
 
   useEffect(() => {
     const fetchLayout = async () => {
@@ -62,52 +60,67 @@ const LayoutDesigner = () => {
       contentSchema: droppedFields,
     };
 
-    if (isEditMode) {
-      const res = await saveSchema(payload as TPageLayout);
-      if (res.success) {
-        push(`/design?layoutId=${res.data}`); // <-- Ensure URL updates after save
+    const action = isEditMode
+      ? () => saveSchema(payload as TPageLayout)
+      : () => saveSchema(payload as TCreatePageLayout);
+
+    await toast.promise(
+      action(),
+      {
+        pending: isEditMode ? "Saving changes..." : "Creating layout...",
+        success: "Layout saved successfully!",
+        error: "Failed to save layout.",
+      }
+    ).then((res) => {
+      if (res?.success) {
+        push(`/design?layoutId=${res.data}`);
       }
       console.log(res);
-    } else {
-      const res = await saveSchema(payload as TCreatePageLayout);
-      if (res.success) {
-        push(`/design?layoutId=${res.data}`); // <-- Update URL after initial save
-      }
-      console.log(res);
-    }
+    });
   };
+
 
   const onSaveAs = async (formData: TCreatePageLayout) => {
     const payload = {
       ...formData,
-      id: undefined, // <-- Force new layout creation
+      id: undefined, // Force new layout creation
       templateId: selectedTemplateId,
       contentSchema: droppedFields,
     };
-    const res = await saveSchema(payload as TCreatePageLayout);
-    console.log(res);
-    if (res.success) {
-      setShowSaveAsModal(false);
-      push(`/design?layoutId=${res.data}`); // <-- Navigate to new layout
-    }
+
+    await toast.promise(
+      saveSchema(payload as TCreatePageLayout),
+      {
+        pending: "Saving layout as new...",
+        success: "Layout duplicated successfully!",
+        error: "Failed to duplicate layout.",
+      }
+    ).then((res) => {
+      if (res?.success) {
+        setShowSaveAsModal(false);
+        push(`/design?layoutId=${res.data}`);
+      }
+      console.log(res);
+    });
   };
+
 
   const handleTemplateChange = (newTemplateId: string) => {
     const newTemplate = layoutTemplates.find(t => t.id === newTemplateId);
     if (!newTemplate) return;
-  
+
     const newRegionCount = newTemplate.regions;
-  
+
     const updatedFields = droppedFields.map(field =>
       field.region >= newRegionCount
         ? { ...field, region: 0 } // move to first available region
         : field
     );
-  
+
     setDroppedFields(updatedFields); // update layout content
     setSelectedTemplateId(newTemplateId); // update selected template
   };
-  
+
   const modelsMap = models.reduce((acc, model) => {
     const forms = formLayouts.filter(l => l.modelId === model.id);
     const records = recordLayouts.filter(l => l.modelId === model.id);

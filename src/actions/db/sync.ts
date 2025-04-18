@@ -12,6 +12,7 @@ import { DynamicModel, FormLayout, LineItem, RecordLayout } from "@/models/Dynam
 import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, LookupInputSearchColumn, LookupInputTableColumn, NumberInput } from "@/models/Dynamic/Fields";
 import { TabModel } from "@/models/Layout/Tabs";
 import { PageLayout } from "@/models/Layout/PageLayout";
+import { Flow } from "@/models/Flow/Flow";
 
 
 export const dropDatabase = async (db: string) => {
@@ -49,12 +50,12 @@ const sequelizeWithoutDb = new Sequelize({
 });
 
 export const syncTables = async () => {
-  await dropDatabase(process.env.CentralizedDB ?? "")
+  // await dropDatabase(process.env.CentralizedDB ?? "")
   await sequelize.authenticate();
-  // await RecordLayout.sync({ alter: true });
-  await syncUserModels();
-  await syncDynamicModels();
-  await importUserBac('arcerp_dev1')
+  await Flow.sync({ alter: true });
+  // await syncUserModels();
+  // await syncDynamicModels();
+  // await importUserBac('arcerp_dev1')
   console.log("Models synchronized successfully.");
 };
 
@@ -87,8 +88,8 @@ const syncDynamicModels = async () => {
     await CheckboxInputRecord.sync({ alter: true });
     await LookupInputRecord.sync({ alter: true });
 
-    await LookupInputSearchColumn.sync({ alter: true });
-    await LookupInputTableColumn.sync({ alter: true });
+    // await LookupInputSearchColumn.sync({ alter: true });
+    // await LookupInputTableColumn.sync({ alter: true });
 
     console.log("Dynamic Models has been synced");
   });
@@ -99,6 +100,7 @@ const syncUserModels = async () => {
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
     await TabModel.sync({ alter: true });
+    await Flow.sync({ alter: true });
     await UserRole.sync({ alter: true });
     await User.sync({ alter: true });
     console.log("User Models has been synced");

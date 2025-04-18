@@ -10,6 +10,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import SortableFieldItem from './SortableFieldItem';
+import FlowOptionsModal from './FlowOptionsModal';
 import { isEqual } from 'lodash';
 import { useRef } from 'react';
 
@@ -27,10 +28,11 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
 
   const [availableFields, setAvailableFields] = useState<TField[]>([]);
   const [selectedLookup, setSelectedLookup] = useState<string | null>(null);
+  const [selectedFlowFieldId, setSelectedFlowFieldId] = useState<string | null>(null);
 
   const selectedLayout = formLayouts.find((l) => l.id === selectedLayoutId);
 
-  const { control, handleSubmit, reset, getValues, setValue, watch } = useForm<LayoutFormData>({
+  const { control, handleSubmit, reset, getValues, setValue, watch, formState } = useForm<LayoutFormData>({
     defaultValues: { contentSchema: [] },
     resolver: zodResolver(schema),
   });
@@ -56,10 +58,13 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
   }, [selectedLayoutId, inputFields]);
 
   useEffect(() => {
+    console.log(formState.errors)
+  }, [formState]);
+
+  useEffect(() => {
     if (inputFields.length) {
       setAvailableFields(inputFields);
     }
-
     if (selectedLayout?.contentSchema?.length) {
       setValue('contentSchema', selectedLayout.contentSchema);
     } else {
@@ -78,27 +83,24 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
       lookupDetails: field.type === 'lookup'
         ? {
           lookupModelId: field.lookupModelId!,
-          primaryField: field.primaryFieldId!,
+          isCustomStyle: false,
           fields: [],
         }
         : undefined,
     });
   };
-  const resetForm = () => {
-    // setValue('contentSchema', initialSchemaRef.current);
-    reset({ contentSchema: initialSchemaRef.current });
-  };
+  const resetForm = () => { reset({ contentSchema: initialSchemaRef.current }) };
 
   const onSave = async (data: LayoutFormData) => {
     if (!selectedLayout || !selectedModel) return;
 
+    const cleanedSchema = data.contentSchema.map(item => ({ ...item, flowId: item.flowId || undefined }));
     const fullLayout = {
       id: selectedLayout.id,
       label: selectedLayout.label,
       modelId: selectedModel.id,
-      contentSchema: data.contentSchema,
+      contentSchema: cleanedSchema,
     };
-    // console.log("✅ Final contentSchema to save:", data.contentSchema);
     console.log("✅ Final contentSchema to save:", fullLayout);
     const res = await updateFormLayout(fullLayout)
     updateInitialSchema(data.contentSchema);
@@ -107,14 +109,14 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
   const contentSchema = watch('contentSchema');
   const hasChanged = !isEqual(initialSchemaRef.current, contentSchema);
 
-  const isStandardLayout = selectedLayout?.label.toLowerCase() === 'standard';
+  // const isStandardLayout = selectedLayout?.label.toLowerCase() === 'standard';
   const hasNoFields = contentSchema.length === 0;
 
   const requiredFieldIds = availableFields.filter(f => f.isRequired).map(f => f.id);
   const addedFieldIds = contentSchema.map(f => f.fieldId);
   const allRequiredFieldsAdded = requiredFieldIds.every(id => addedFieldIds.includes(id));
 
-  const disableSave = isStandardLayout || hasNoFields || !hasChanged || !allRequiredFieldsAdded;
+  const disableSave = hasNoFields || !hasChanged || !allRequiredFieldsAdded;
 
   const moveItem = (dragIndex: number, hoverIndex: number) => {
     const items = [...getValues("contentSchema")];
@@ -125,7 +127,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
 
   return (
     <>
-      <div className="w-2/3 min-w-fit flex flex-col gap-4 py-4">
+      <div className="w-2/3 flex flex-col gap-4 py-4">
         {/* Legend */}
         <div className="text-sm text-gray-500 flex gap-4 mb-2">
           <span>
@@ -195,6 +197,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
                   moveItem={moveItem}
                   onRemove={() => remove(index)}
                   onOptionsClick={() => setSelectedLookup(item.lookupDetails?.lookupModelId ?? "")}
+                  onFlowClick={() => setSelectedFlowFieldId(item.fieldId)}
                 />
               );
             })}
@@ -202,7 +205,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
         )}
         {disableSave && (
           <p className="text-xs text-gray-500 mt-2">
-            {isStandardLayout && 'Standard layout cannot be changed.'}<br />
+            {/* {isStandardLayout && 'Standard layout cannot be changed.'}<br /> */}
             {hasNoFields && ' Please add at least one field.'}<br />
             {!allRequiredFieldsAdded && ' Make sure all required fields are added.'}<br />
             {!hasChanged && ' No changes detected.'}
@@ -222,16 +225,13 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
             onClick={handleSubmit(onSave)}
             className={`btn ${!disableSave ? 'btn-primary' : 'btn-disabled'}`}
             disabled={disableSave}
-            title={
-              isStandardLayout
-                ? 'Standard layout cannot be edited'
-                : hasNoFields
-                  ? 'Add at least one field'
-                  : !allRequiredFieldsAdded
-                    ? 'All required fields must be included'
-                    : !hasChanged
-                      ? 'No changes to save'
-                      : ''
+            title={hasNoFields
+              ? 'Add at least one field'
+              : !allRequiredFieldsAdded
+                ? 'All required fields must be included'
+                : !hasChanged
+                  ? 'No changes to save'
+                  : ''
             }
           >
             Save Layout Schema
@@ -240,47 +240,63 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
       </div>
 
       <CustomModal
-        className=""
+        isOpen={!!selectedLookup}
+        onClose={() => setSelectedLookup(null)}
+        header="Lookup Options"
         Component={() => {
-          const field = contentSchema.find(
-            (f) => f.lookupDetails?.lookupModelId === selectedLookup
-          );
-
+          const field = contentSchema.find((f) => f.lookupDetails?.lookupModelId === selectedLookup);
           return (
             selectedLookup && (
               <LookupOptions
                 lookupId={selectedLookup}
-                initialValues={{
-                  primaryFieldId: field?.lookupDetails?.primaryField,
-                  searchModalColumns: field?.lookupDetails?.fields || [],
-                }}
-                onSave={({ primaryFieldId, searchModalColumns }) => {
+                initialFields={field?.lookupDetails?.fields ?? [[]]}
+                initialSearchFields={field?.lookupDetails?.searchFields ?? []}
+                initialIsCustomStyle={field?.lookupDetails?.isCustomStyle ?? false}
+                onChange={({ fields, searchFields, isCustomStyle }) => {
                   const updated = getValues('contentSchema').map((item) => {
                     if (item.lookupDetails?.lookupModelId === selectedLookup) {
                       return {
                         ...item,
                         lookupDetails: {
                           ...item.lookupDetails,
-                          primaryField: primaryFieldId,
-                          fields: searchModalColumns,
+                          fields,
+                          searchFields,
+                          isCustomStyle,
                         },
                       };
                     }
                     return item;
                   });
+                  // console.log(updated)
                   setValue('contentSchema', updated);
                   setSelectedLookup(null);
                 }}
-                onClose={() => setSelectedLookup(null)}
               />
             )
           );
         }}
-        isOpen={!!selectedLookup}
-        onClose={() => setSelectedLookup(null)}
-        header="Lookup Options"
       />
 
+      <CustomModal
+        isOpen={!!selectedFlowFieldId}
+        onClose={() => setSelectedFlowFieldId(null)}
+        header="Select Flow"
+        Component={() => {
+          const field = contentSchema.find(f => f.fieldId === selectedFlowFieldId);
+          return (
+            <FlowOptionsModal
+              initialFlowId={field?.flowId ?? undefined}
+              onSelect={(flowId) => {
+                const updated = getValues('contentSchema').map(item =>
+                  item.fieldId === selectedFlowFieldId ? { ...item, flowId: flowId ?? undefined } : item
+                );
+                setValue('contentSchema', updated);
+                setSelectedFlowFieldId(null);
+              }}
+            />
+          );
+        }}
+      />
 
     </>
   );

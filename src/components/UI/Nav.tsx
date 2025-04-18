@@ -16,11 +16,16 @@ import { syncTables } from "@/actions/db/sync";
 import { GrDatabase } from "react-icons/gr";
 import { useTab } from "@/store/hooks/tabsHooks"; // already there
 import { iconMap } from "@/store/slice/iconMap"; // for rendering icons
+import { slugify } from "@/lib/helpers";
+import { useDynamicModel } from "@/store/hooks/dynamicModelsHooks";
+import { useFlow } from "@/store/hooks/flowsHooks";
 
 const Nav = () => {
   const { userData } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { getTabs, tabs } = useTab()
+  const { refetch } = useDynamicModel();
+  const { getFlows } = useFlow();
   const { isAuth } = useMyContext();
   const pathname = usePathname();
   const params = useSearchParams()
@@ -28,6 +33,8 @@ const Nav = () => {
 
   useEffect(() => {
     getTabs();
+    refetch();
+    getFlows()
   }, []);
 
   const handleLogOut = async () => {
@@ -70,15 +77,24 @@ const Nav = () => {
             <NavItem
               key={tab.id}
               Icon={Icon}
-              label={tab.label}
-              directUrl={hasLinks && tab.layouts.length === 1 ? `/${tab.label}/${tab.layouts[0].route}` : undefined}
-              menuItems={hasLinks && tab.layouts.length > 1
-                ? tab.layouts.map(layout => ({ label: layout.label, url: `/${tab.label}/${layout.route}` }))
-                : []}
+              label={tab.label} // this remains original for display
+              directUrl={
+                hasLinks && tab.layouts.length === 1
+                  ? `/${slugify(tab.label)}/${slugify(tab.layouts[0].route)}`
+                  : undefined
+              }
+              menuItems={
+                hasLinks && tab.layouts.length > 1
+                  ? tab.layouts.map(layout => ({
+                    label: layout.label,
+                    url: `/${slugify(tab.label)}/${slugify(layout.route)}`
+                  }))
+                  : []
+              }
             />
           );
         })}
-        <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Object Manager", url: "/settings/objectManager" }, { label: "Layout Manager", url: "/settings/layoutManager" }, { label: "Theme", url: "/settings/theme" }]} />
+        <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Object Manager", url: "/settings/objectManager" }, { label: "Layout Manager", url: "/settings/layoutManager" }, { label: "Flow Manager", url: "/settings/flowManager" }, { label: "Theme", url: "/settings/theme" }]} />
       </ul>
       <div className="flex gap-2">
         {pathname == "/render" && <Link href={`${pathname.replace('/render', '/design')}?${params.toString()}`} className={`btn btn-primary w-min`} >Design</Link>}

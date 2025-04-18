@@ -31,8 +31,8 @@ export function handleApi<T = any>(
 
             return NextResponse.json({ success: true, data }, { status: 200 });
         } catch (error) {
-            // console.error("API Error:", (error as Error).message);
-            console.error("API Error:", (error as Error));
+            console.error("API Error:", (error as Error).message);
+            // console.error("API Error:", (error as Error));
 
             if (error instanceof ZodError) {
                 return NextResponse.json(

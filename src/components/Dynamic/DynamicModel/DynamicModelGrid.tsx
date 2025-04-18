@@ -15,19 +15,19 @@ const schema = dynamicModelSchema.partial({ id: true });
 type FormValues = z.infer<typeof schema>;
 
 const DynamicModelGrid: React.FC = () => {
-  const { refetch, models, addNewItem, setSelectedModel, selectedModel, getData } = useDynamicModel();
+  const { models, addNewItem, setSelectedModel, selectedModel, getData } = useDynamicModel();
 
   const router = useRouter();
 
   const handleClick = async (model: TDynamicModel) => {
     setSelectedModel(model)
-    router.push(`/settings/objectManager/objects`)
+    // router.push(`/settings/objectManager/objects`)
+    router.push(`/settings/objectManager/${model.id}`)
+
   }
   useEffect(() => {
     selectedModel && getData()
   }, [selectedModel]);
-
-  useEffect(() => { refetch() }, []);
 
   const {
     register,
@@ -68,8 +68,9 @@ const DynamicModelGrid: React.FC = () => {
         <table className="my-table whitespace-nowrap">
           <thead>
             <tr>
-              <th>ID</th>
+              <th className="w-[400px]">ID</th>
               <th>Name</th>
+              <th>Type</th>
             </tr>
           </thead>
           <tbody>
@@ -79,8 +80,9 @@ const DynamicModelGrid: React.FC = () => {
                 className={`cursor-pointer ${selectedModel?.id === model.id ? 'row-selected' : ''}`}
                 onClick={() => handleClick(model)}
               >
-                <td>{model.id.slice(0, 8)}...</td>
+                <td>{model.id}</td>
                 <td>{model.name}</td>
+                <td>{model.layoutType ?? "-"}</td>
               </tr>
             ))}
             <tr className="after:border-none">

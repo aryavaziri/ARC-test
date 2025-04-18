@@ -14,19 +14,19 @@ const PageRenderer = () => {
   const layoutId = searchParams.get('layoutId');
   const [pageLayout, setPageLayout] = useState<TPageLayout | null>(null);
   const [loading, setIsLoading] = useState<boolean>(true);
-  const { refetch } = useDynamicModel();
+  const { models } = useDynamicModel();
 
   useEffect(() => {
+    if (!models.length) return;
     const fetchLayout = async () => {
       const { data: layout } = await getSchema(layoutId ?? "");
       if (layout) {
-        await refetch();
         setPageLayout(layout);
       }
       setIsLoading(false);
     };
     fetchLayout();
-  }, []);
+  }, [models]);
 
   if (loading) return <div>LOADING</div>;
   if (!pageLayout || !layoutId) return <div>⚠️ Invalid layout Id</div>;

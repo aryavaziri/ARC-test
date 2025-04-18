@@ -1,135 +1,162 @@
-'use client';
-
-import React, { useEffect, useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import React, { useEffect, useMemo, useState } from 'react';
 import Select from 'react-select';
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
 import { flattenModelFields } from '@/store/slice/dynamicModelSlice';
-
-type LookupFormValues = {
-  lookupModelId: string;
-  primaryFieldId: string;
-  searchModalColumns: string[];
-};
+import CustomGridBuilder from './CustomGridBuilder'; // Not a form!
 
 type LookupOptionsProps = {
   lookupId: string;
-  initialValues?: {
-    primaryFieldId?: string;
-    searchModalColumns?: string[];
-  };
-  onSave: (data: {
-    primaryFieldId: string;
-    searchModalColumns: string[];
+  initialFields: string[][];
+  initialSearchFields?: string[];
+  initialIsCustomStyle: boolean;
+  onChange: (data: {
+    fields: string[][];
+    searchFields?: string[];
+    isCustomStyle: boolean;
   }) => void;
-  onClose?: () => void;
 };
 
-const LookupOptions: React.FC<LookupOptionsProps> = ({ lookupId, onSave, onClose, initialValues }) => {
+const LookupOptions: React.FC<LookupOptionsProps> = ({
+  lookupId,
+  initialSearchFields = [],
+  initialFields,
+  initialIsCustomStyle,
+  onChange
+}) => {
   const { models } = useDynamicModel();
+  const [styleType, setStyleType] = useState<'dropdown' | 'custom'>(
+    initialIsCustomStyle ? 'custom' : 'dropdown'
+  );
+  const [localFields, setLocalFields] = useState<string[][]>(initialFields || [[]]);
+  const [searchFields, setSearchFields] = useState<string[]>(initialSearchFields || []);
+  const [useSameFields, setUseSameFields] = useState(() =>
+    arraysEqual(initialSearchFields ?? [], initialFields.flat())
+  );
+    
+  function arraysEqual(a: string[], b: string[]) {
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return sortedA.every((val, idx) => val === sortedB[idx]);
+  }
 
-  const { handleSubmit, control, setValue } = useForm<LookupFormValues>({
-    defaultValues: {
-      lookupModelId: lookupId,
-      primaryFieldId: '',
-      searchModalColumns: [],
-    },
-  });
+  
   useEffect(() => {
-    if (initialValues?.primaryFieldId) {
-      setValue('primaryFieldId', initialValues.primaryFieldId);
+    if (useSameFields) {
+      setSearchFields(localFields.flat());
     }
-    if (initialValues?.searchModalColumns) {
-      setValue('searchModalColumns', initialValues.searchModalColumns);
+  }, [localFields, useSameFields]);
+
+  const selectedModel = useMemo(() => models.find(m => m.id === lookupId), [lookupId, models]);
+  const fieldOptions = useMemo(() => flattenModelFields(selectedModel || {} as any).map(f => ({
+    label: f.label,
+    value: f.id,
+    id: f.id,
+  })), [selectedModel]);
+
+  const handleStyleChange = (option: { value: 'dropdown' | 'custom' } | null) => {
+    if (!option) return;
+    setStyleType(option.value);
+    if (option.value === 'dropdown') {
+      const flat = [localFields.flat()];
+      setLocalFields(flat);
     }
-  }, [initialValues, setValue]);
+  };
 
-  const handleSave = handleSubmit((values) => {
-    onSave({
-      primaryFieldId: values.primaryFieldId,
-      searchModalColumns: values.searchModalColumns,
-    });
-    if (onClose) onClose();
-  });
+  const handleSearchFieldChange = (selected: any) => {
+    const selectedIds = selected.map((opt: any) => opt?.value);
+    setSearchFields(selectedIds);
+  };
 
-  // Automatically set the lookup model ID on mount
-  useEffect(() => {
-    setValue('lookupModelId', lookupId);
-  }, [lookupId, setValue]);
-
-  // const lookupModelId = watch('lookupModelId');
-
-  const selectedModel = useMemo(() => {
-    const model = models.find((m) => m.id === lookupId);
-    console.log(model)
-    console.log(lookupId)
-    return model
-  }, [lookupId, models]);
-
-  const fieldOptions = useMemo(() => {
-    if (!selectedModel) return [];
-    return flattenModelFields(selectedModel).map((f) => ({
-      label: f.label,
-      value: f.id,
-    }));
-  }, [selectedModel]);
+  const handleDropdownChange = (selected: any) => {
+    const updated = [selected.map((opt: any) => opt?.value)];
+    setLocalFields(updated);
+  };
 
   return (
-    <div className="flex flex-col gap-4 p-8 min-w-[400px]">
-
-      <div className="flex flex-col gap-1">
-        <label>Primary Field</label>
-        <Controller
-          name="primaryFieldId"
-          control={control}
-          render={({ field }) => (
-            <Select
-              {...field}
-              options={fieldOptions}
-              value={fieldOptions.find((opt) => opt.value === field.value) || null}
-              onChange={(option) => field.onChange(option?.value || '')}
-              classNamePrefix="react-select"
-              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-              styles={{
-                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                menu: (base) => ({ ...base, position: 'absolute' }),
-              }}
-            />
-          )}
+    <div className="flex flex-col gap-4 p-6 min-w-[400px]">
+      <div className="flex flex-col gap-1 ">
+        <label className="text-sm font-medium">Display Style</label>
+        <Select
+          value={{ label: styleType === 'custom' ? 'Custom Layout' : 'Dropdown', value: styleType }}
+          options={[
+            { label: 'Dropdown', value: 'dropdown' },
+            { label: 'Custom Layout', value: 'custom' },
+          ]}
+          onChange={handleStyleChange}
+          classNamePrefix="react-select"
         />
       </div>
 
+      {styleType === 'custom' ? (
+        <CustomGridBuilder
+          fields={localFields}
+          allOptions={fieldOptions}
+          onChange={setLocalFields}
+        />
+      ) : (
+        <Select
+          isMulti
+          options={fieldOptions}
+          value={(localFields[0] || []).map(id => fieldOptions.find(opt => opt.value === id)).filter(Boolean)}
+          onChange={handleDropdownChange}
+          classNamePrefix="react-select"
+          menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+          styles={{
+            menuPortal: base => ({ ...base, zIndex: 9999 }),
+            menu: base => ({ ...base, position: 'absolute' }),
+          }}
+        />
+      )}
+
       <div className="flex flex-col gap-1">
-        <label>Search Modal Columns</label>
-        <Controller
-          name="searchModalColumns"
-          control={control}
-          render={({ field }) => (
-            <Select
-              {...field}
-              isMulti
-              options={fieldOptions}
-              value={field.value?.map((id) =>
-                fieldOptions.find((opt) => opt.value === id)
-              ).filter(Boolean)}
-              onChange={(options) =>
-                field.onChange(options.map((opt) => opt?.value))
+        <label className="text-sm font-medium">Search Fields</label>
+        <label className="inline-flex items-center gap-2 text-sm mb-2">
+          <input
+            type="checkbox"
+            checked={useSameFields}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setUseSameFields(checked);
+              if (checked) {
+                setSearchFields(localFields.flat());
               }
-              classNamePrefix="react-select"
-              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-              styles={{
-                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                menu: (base) => ({ ...base, position: 'absolute' }),
-              }}
-            />
-          )}
-        />
+            }}
+          />
+          Same as display fields
+        </label>
+
+        {!useSameFields && (
+          <Select
+            isMulti
+            options={fieldOptions}
+            value={searchFields.map(id => fieldOptions.find(opt => opt.id === id)).filter(Boolean)}
+            onChange={handleSearchFieldChange}
+            classNamePrefix="react-select"
+            menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+            styles={{
+              menuPortal: base => ({ ...base, zIndex: 9999 }),
+              menu: base => ({ ...base, position: 'absolute' }),
+            }}
+          />
+        )}
       </div>
-      <div className="flex justify-end mt-4">
-        <button onClick={handleSave} className="btn btn-primary">Save Options</button>
+
+      <div className="flex justify-end pt-4">
+        <button
+          className="btn btn-primary"
+          onClick={() => onChange({
+            fields: localFields,
+            searchFields,
+            isCustomStyle: styleType === 'custom',
+          })}
+        >
+          Save
+        </button>
       </div>
     </div>
   );
 };
+
 
 export default LookupOptions;

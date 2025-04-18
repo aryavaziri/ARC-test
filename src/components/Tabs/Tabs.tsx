@@ -13,18 +13,10 @@ import { RiDeleteBin7Fill } from "react-icons/ri";
 import { FiLayout } from "react-icons/fi";
 
 const Tabs = () => {
-  const router = useRouter();
   const { tabs, activeTab, activeLayout, pageLayouts, selectTab, deleteTab } = useTab();
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedTabForEdit, setSelectedTabForEdit] = useState<TabFormType | null>(null);
-
-  // const handleLayoutClick = (tabLabel: string, layoutLabel: string, route: string) => {
-  //   selectTab(tabLabel);
-  //   selectLayout(layoutLabel);
-  //   console.log(route)
-  //   router.push(`/design/${tabLabel}/${route}`);
-  // };
 
   const handleEdit = (tab: TabFormType) => {
     setSelectedTabForEdit(tab);

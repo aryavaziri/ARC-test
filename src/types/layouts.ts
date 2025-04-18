@@ -21,10 +21,12 @@ export const formItemSchema = z.object({
   fieldId: z.string().uuid(),
   type: z.string(),
   order: z.number(),
+  flowId: z.string().optional().nullable(),
   lookupDetails: z.object({
     lookupModelId: z.string().uuid(),
-    primaryField: z.string().uuid(),
-    fields: z.array(z.string()).optional(),
+    searchFields: z.array(z.string()).optional(),
+    fields: z.array(z.array(z.string())),
+    isCustomStyle: z.boolean(),
   }).optional()
 })
 

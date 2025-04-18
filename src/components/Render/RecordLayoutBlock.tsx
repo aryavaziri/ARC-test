@@ -68,6 +68,8 @@ const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
     }
   }, [layout?.modelId]);
 
+
+
   // ✅ Fetch lookup records for display
   useEffect(() => {
     const fetchLookupRecords = async () => {
@@ -130,9 +132,6 @@ const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
     await removeLineItem(id);
   };
 
-  if (!layout) {
-    return <div className="text-muted text-sm italic">⚠️ Layout not found</div>;
-  }
   const layoutFieldIds = useMemo(() => {
     return layout?.contentSchema?.map(item => item.fieldId) ?? [];
   }, [layout]);
@@ -143,8 +142,16 @@ const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
       item.fields.some(f => layoutFieldIds.includes(f.fieldId))
     );
   }, [lineItem, layoutFieldIds]);
+  useEffect(() => {
+    console.log("✅ records", records);
+    console.log("✅ lineItem", lineItem);
+    console.log("✅ layoutFieldIds", layoutFieldIds);
 
+  }, [records, lineItem, layoutFieldIds]);
 
+  if (!layout) {
+    return <div className="text-muted text-sm italic">⚠️ Layout not found</div>;
+  }
   return (
     <div className="con">
       <div className="text-sm font-semibold text-muted-foreground mb-2 flex items-start justify-between">

@@ -136,7 +136,7 @@ export const PUT = handleApi(async ({ params, req }) => {
         //   { transaction: t }
         // );
         updatedField = await LookupInput.findByPk(fieldId, {
-          include: ['searchModalColumns', 'recordTableColumns'],
+          // include: ['searchModalColumns', 'recordTableColumns'],
           transaction: t,
         });
         if (updatedField) {

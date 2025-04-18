@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import user from "./slice/userSlice";
 import dynamicModel from "./slice/dynamicModelSlice";
 import tabs from "./slice/tabSlice";
+import flows from "./slice/flowSlice";
 
 export const makeStore = () => {
   return configureStore({
@@ -9,6 +10,7 @@ export const makeStore = () => {
       dynamicModel,
       tabs,
       user,
+      flows
     },
   });
 };
