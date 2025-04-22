@@ -17,6 +17,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '../UI/Input';
 import { toast } from 'react-toastify';
+import DraggableField2 from './CustomItems/DraggableField2';
+
+export const CUSTOM_FIELD_ITEMS = [
+  { label: 'Button', customKey: 'button' },
+  { label: 'Input', customKey: 'input' },
+  { label: 'Divider', customKey: 'divider' },
+  { label: 'Empty Container', customKey: 'empty' },
+  { label: 'Note', customKey: 'note' },
+  { label: 'Spacer', customKey: 'spacer' },
+];
 
 const LayoutDesigner = () => {
   const searchParams = useSearchParams();
@@ -60,6 +70,7 @@ const LayoutDesigner = () => {
       contentSchema: droppedFields,
     };
 
+    console.log(payload);
     const action = isEditMode
       ? () => saveSchema(payload as TPageLayout)
       : () => saveSchema(payload as TCreatePageLayout);
@@ -139,6 +150,10 @@ const LayoutDesigner = () => {
             <Input name='name' register={register} error={errors.name} label='Layout Name' style={2} />
           </div>
           <div className="flex items-center gap-4">
+
+            <button className="btn" onClick={() => console.log(droppedFields)}>
+              Log fields
+            </button>
             <button className="btn" onClick={() => setShowTemplateModal(true)}>
               Change Layout Template
             </button>
@@ -151,38 +166,70 @@ const LayoutDesigner = () => {
           </div>
         </div>
         <div className="flex grow">
-          <div className="w-[400px] p-4 pl-0 overflow-auto">
-            <p className="text-lg font-semibold mb-4">Objects</p>
+          <div className="w-[400px] p-4 pl-0 overflow-auto flex flex-col gap-8">
+            <div className='flex flex-col gap-2'>
+              <p className="text-lg font-semibold">Objects</p>
+              <ul className="text-sm">
+                {Object.entries(modelsMap).map(([modelId, layouts]) => (
+                  <li key={modelId}>
+                    <button onClick={() => setExpandedModelId((prev) => (prev === modelId ? null : modelId))} className={`w-full flex gap-2 text-left font-medium py-2 items-center hover:bg-primary-50 hover:shadow rounded shadow-border/50 pl-2  ${expandedModelId === modelId ? `!bg-primary-100` : ``}`}>
+                      <div className={`duration-200 ${expandedModelId === modelId ? `rotate-90` : ``}`}>
+                        <FaChevronRight />
+                      </div>
+                      <p className={``}>{models.find(m => m.id == modelId)?.name}</p>
+                    </button>
 
-            <ul className="text-sm">
-              {Object.entries(modelsMap).map(([modelId, layouts]) => (
-                <li key={modelId}>
-                  <button onClick={() => setExpandedModelId((prev) => (prev === modelId ? null : modelId))} className={`w-full flex gap-2 text-left font-medium py-2 items-center hover:bg-primary-50 hover:shadow rounded shadow-border/50 pl-2  ${expandedModelId === modelId ? `!bg-primary-100` : ``}`}>
-                    <div className={`duration-200 ${expandedModelId === modelId ? `rotate-90` : ``}`}>
-                      <FaChevronRight />
-                    </div>
-                    <p className={``}>{models.find(m => m.id == modelId)?.name}</p>
-                  </button>
+                    {expandedModelId === modelId && (
+                      <ul className="ml-6 mt-1 space-y-1">
+                        {layouts.map((layout) => (
+                          <li key={layout.id}>
+                            {layout.type === 'form' ? (
+                              <DraggableField
+                                field={{
+                                  type: 'form',
+                                  label: `${models.find(m => m.id === modelId)?.name || 'Model'} - ${layout.label}`,
+                                  formLayoutId: layout.id,
+                                  index: 0, // dummy
+                                  region: 0, // dummy
+                                }}
+                              />
 
-                  {expandedModelId === modelId && (
-                    <ul className="ml-6 mt-1 space-y-1">
-                      {layouts.map((layout) => (
-                        <li key={layout.id}>
-                          <DraggableField
-                            field={{
-                              type: layout.type === 'form' ? 'form' as const : 'record' as const,
-                              label: `${models.find(m => m.id === modelId)?.name || 'Model'} - ${layout.label}`,
-                              formLayoutId: layout.type === 'form' ? layout.id : undefined,
-                              recordLayoutId: layout.type === 'record' ? layout.id : undefined,
-                            }}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
+                            ) : (
+                              <DraggableField
+                                field={{
+                                  type: 'record',
+                                  label: `${models.find(m => m.id === modelId)?.name || 'Model'} - ${layout.label}`,
+                                  recordLayoutId: layout.id,
+                                  index: 0,
+                                  region: 0,
+                                }}
+                              />
+
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <p className="text-lg font-semibold">Custom Items</p>
+              <ul className="text-sm space-y-1 ml-2">
+                {CUSTOM_FIELD_ITEMS.map((item) => (
+                  <li key={item.customKey}>
+                    <DraggableField2
+                      field={{
+                        type: 'custom',
+                        label: item.label,
+                        customKey: item.customKey,
+                      }}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="grow ">

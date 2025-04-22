@@ -142,12 +142,12 @@ const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
       item.fields.some(f => layoutFieldIds.includes(f.fieldId))
     );
   }, [lineItem, layoutFieldIds]);
-  useEffect(() => {
-    console.log("✅ records", records);
-    console.log("✅ lineItem", lineItem);
-    console.log("✅ layoutFieldIds", layoutFieldIds);
+  // useEffect(() => {
+  //   console.log("✅ records", records);
+  //   console.log("✅ lineItem", lineItem);
+  //   console.log("✅ layoutFieldIds", layoutFieldIds);
 
-  }, [records, lineItem, layoutFieldIds]);
+  // }, [records, lineItem, layoutFieldIds]);
 
   if (!layout) {
     return <div className="text-muted text-sm italic">⚠️ Layout not found</div>;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import DroppableRegion from './DroppableRegion';
+import DroppableRegion, { NewDroppedField } from './DroppableRegion';
 import { layoutTemplates } from './LayoutTemplates';
 import { TDroppedField } from '@/types/layouts';
 
@@ -25,30 +25,13 @@ const LayoutBuilder = ({ selectedTemplateId, droppedFields, setDroppedFields }: 
 
   if (!template) return null;
 
-  const handleDrop = (region: number, item: Omit<TDroppedField, 'index' | 'region'>) => {
+  const handleDrop = (region: number, item: NewDroppedField) => {
     const regionFields = droppedFields.filter(f => f.region === region);
+    const newItem = buildDroppedField(item, region, regionFields.length);
 
-    let newItem: TDroppedField;
-
-    if (item.type === 'form') {
-      newItem = {
-        label: item.label,
-        type: 'form',
-        formLayoutId: item.formLayoutId!, // non-null because of type guard
-        index: regionFields.length,
-        region,
-      };
-    } else {
-      newItem = {
-        label: item.label,
-        type: 'record',
-        recordLayoutId: item.recordLayoutId!,
-        index: regionFields.length,
-        region,
-      };
+    if (newItem) {
+      setDroppedFields([...droppedFields, newItem]);
     }
-
-    setDroppedFields([...droppedFields, newItem]);
   };
 
 
@@ -101,6 +84,7 @@ const LayoutBuilder = ({ selectedTemplateId, droppedFields, setDroppedFields }: 
         region={regionIndex}
         label={`Region ${regionIndex + 1}`}
         droppedFields={regionFields}
+        setDroppedFields={setDroppedFields}
         onDrop={handleDrop}
         onMove={handleMove}
         onRemove={handleRemove}
@@ -117,3 +101,38 @@ const LayoutBuilder = ({ selectedTemplateId, droppedFields, setDroppedFields }: 
 };
 
 export default LayoutBuilder;
+
+
+const buildDroppedField = (
+  item: NewDroppedField,
+  region: number,
+  index: number
+): TDroppedField => {
+  if (item.type === 'form') {
+    return {
+      label: item.label,
+      type: 'form',
+      formLayoutId: item.formLayoutId,
+      region,
+      index,
+    };
+  } else if (item.type === 'record') {
+    return {
+      label: item.label,
+      type: 'record',
+      recordLayoutId: item.recordLayoutId,
+      region,
+      index,
+    };
+  } else if (item.type === 'custom') {
+    return {
+      label: item.label,
+      type: 'custom',
+      customKey: item.customKey,
+      region,
+      index,
+    };
+  }
+
+  throw new Error('Unsupported field type');
+};

@@ -19,17 +19,9 @@ interface Props {
 }
 
 const triggerTypeOptions = [
-  { label: "Before Submit", value: "beforeSubmit" },
-  { label: "After Submit", value: "afterSubmit" },
-  { label: "Custom", value: "custom" },
-];
-
-const targetTypeOptions = [
-  { label: "Model", value: "model" },
-  { label: "Layout", value: "layout" },
-  { label: "Form", value: "form" },
-  { label: "Field", value: "field" },
-  { label: "Button", value: "button" },
+  { label: "Form Event", value: "formEvent" },
+  { label: "Field Interaction", value: "fieldEvent" },
+  { label: "Manual Trigger", value: "manual" },
 ];
 
 const AddEditFlowForm = ({ onClose, defaultValues }: Props) => {
@@ -48,7 +40,7 @@ const AddEditFlowForm = ({ onClose, defaultValues }: Props) => {
     resolver: zodResolver(isEditMode ? flowSchema : flowSchemaCreate),
     defaultValues: defaultValues ?? {
       name: "",
-      script: "",
+      script: flowScriptPlaceholder,
       isActive: true,
     },
   });
@@ -75,21 +67,19 @@ const AddEditFlowForm = ({ onClose, defaultValues }: Props) => {
   }, [errors]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 min-w-[800px] p-8">
-      <Input
-        name="name"
-        label="Flow Name"
-        register={register}
-        error={errors.name}
-        required
-        style={3}
-      />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 p-8">
+      <div className="grid grid-cols-1 gap-4">
+        <Input
+          name="name"
+          label="Flow Name"
+          register={register}
+          error={errors.name}
+          required
+          style={3}
+        />
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-
+        {/* <div>
           <label className="label">Trigger Type</label>
-
           <Controller
             name="triggerType"
             control={control}
@@ -102,58 +92,21 @@ const AddEditFlowForm = ({ onClose, defaultValues }: Props) => {
               />
             )}
           />
-        </div>
-
-        <div>
-          <label className="label">Target Type</label>
-          <Controller
-            name="targetType"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={targetTypeOptions}
-                value={targetTypeOptions.find(opt => opt.value === field.value)}
-                onChange={(option) => field.onChange(option?.value)}
-              />
-            )}
-          />
-        </div>
+        </div> */}
       </div>
 
-      <Input
-        name="targetId"
-        label="Target ID"
-        register={register}
-        error={errors.targetId}
-        style={3}
-      />
-
-      {/* <Input
-        name="script"
-        label="Script"
-        register={register}
-        error={errors.script}
-        required
-        as="textarea"
-        rows={5}
-        style={3}
-        placeholder={`e.g., if (record.total > 10000) return "Notify Admin";`}
-      />
- */}
-
-<div>
-  <label className="label">Script</label>
-  <textarea
-    {...register("script")}
-    rows={10}
-    className="input w-full font-mono text-sm bg-neutral-900 text-green-200 border border-neutral-700 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-primary-400"
-    placeholder={`e.g.,\nconst model = await _model.findByPk("id");\nreturn model.get({ plain: true });`}
-  />
-  {errors.script && (
-    <p className="text-sm text-red-500 mt-1">{errors.script.message}</p>
-  )}
-</div>
+      <div>
+        <label className="label">Script</label>
+        <textarea
+          {...register("script")}
+          rows={20}
+          className="input w-full font-mono text-sm bg-neutral-900 text-green-200 border border-neutral-700 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-primary-400"
+          placeholder={`e.g.,\nconst model = await _model.findByPk("id");\nreturn model.get({ plain: true });`}
+        />
+        {errors.script && (
+          <p className="text-sm text-red-500 mt-1">{errors.script.message}</p>
+        )}
+      </div>
       <Input
         name="isActive"
         label="Active"
@@ -175,3 +128,30 @@ const AddEditFlowForm = ({ onClose, defaultValues }: Props) => {
 };
 
 export default AddEditFlowForm;
+
+
+const flowScriptPlaceholder = `
+// You have access to:
+// - formValues: an object containing current form values (e.g. formValues.find(item => item.name === 'email').value)
+// - params: query parameters from the URL (?userId=123)
+
+// Example 1: Set a new value for a field
+// return {
+//   action: "setValue",
+//   targetFieldId: "your-field-id-here", \\(e.g. formValues.find(item => item.name === 'email').id)
+//   value: "Updated Value"
+// };
+
+// Example 2: Show a toast message
+// return {
+//   action: "toast",
+//   message: \`Hello \${formValues["Name"] || "there"}!\`
+// };
+
+// Example 3: Redirect to another page
+// return {
+//   action: "redirect",
+//   url: "/thank-you",
+//   queryParams: { ref: params["userId"] ?? "guest" }
+// };
+`.trim();

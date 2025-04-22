@@ -1,11 +1,11 @@
 import { ZodError } from "zod";
 import { Barlow_Condensed } from "next/font/google";
 
-export type TResponse = {
-  data?: any;
+export type TResponse<T = any> = {
+  data?: T;
   error?: string;
   success: boolean;
-}
+};
 export async function handleWithTryCatch<T>(fn: () => Promise<T>): Promise<{ data?: T; error?: string; success: boolean }> {
   try {
     const data = await fn();

@@ -9,9 +9,11 @@ import FormLayoutBlock from './FormLayoutBlock';
 import RecordLayoutBlock from './RecordLayoutBlock';
 import { useSearchParams } from 'next/navigation';
 
-const PageRenderer = () => {
-  const searchParams = useSearchParams();
-  const layoutId = searchParams.get('layoutId');
+type PageRendererProps = {
+  layoutId: string;
+};
+
+const PageRenderer = ({ layoutId }: PageRendererProps) => {
   const [pageLayout, setPageLayout] = useState<TPageLayout | null>(null);
   const [loading, setIsLoading] = useState<boolean>(true);
   const { models } = useDynamicModel();
@@ -44,7 +46,7 @@ const PageRenderer = () => {
       <div key={regionIndex} className="h-full space-y-4">
         {regionItems.map((item, idx) => {
           if (item.type === 'form') {
-            return <FormLayoutBlock key={item.formLayoutId} formLayoutId={item.formLayoutId} />;
+            return <FormLayoutBlock key={item.formLayoutId} formLayoutId={item.formLayoutId} attachments={item.attachments} />;
           }
           if (item.type === 'record') {
             return <RecordLayoutBlock key={item.recordLayoutId} recordLayoutId={item.recordLayoutId} />;

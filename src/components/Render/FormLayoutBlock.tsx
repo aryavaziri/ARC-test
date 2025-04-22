@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import { useEffect, useState } from 'react'
 import { useFlow } from '@/store/hooks/flowsHooks'
 import { FaCode } from 'react-icons/fa'
+import { TAttachment } from '@/types/layouts'
 
 interface Props {
   formLayoutId?: string;
@@ -15,33 +16,48 @@ interface Props {
   layoutLabel?: string;
   onSave?: () => void;
   onCancel?: () => void;
+  attachments?: TAttachment[];
 }
 
-const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, onSave, onCancel }) => {
+const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, onSave, onCancel, attachments }) => {
   const { models, allFields, formLayouts, addData } = useDynamicModel();
-  const { handleRunFlow } = useFlow();
+  const { runAndHandleFlow } = useFlow();
+  const methods = useForm();
+  const { register, handleSubmit, control, formState } = methods;
+
+  const [isMounted, setIsMounted] = useState(true);
+  useEffect(() => {
+    return () => setIsMounted(false);
+  }, []);
+
   const formLayout = formLayoutId
     ? formLayouts.find(f => f.id === formLayoutId)
     : formLayouts.find(f => f.modelId === modelId);
 
-  useEffect(() => { console.log(formLayout) }, [formLayout]);
-  const methods = useForm();
-  const { register, handleSubmit, control, formState } = methods
+  const submitButtons = attachments?.filter(att => att.type === 'button' && att.payload?.action === 'submit');
+  const customButtons = attachments?.filter(att => att.type === 'button' && att.payload?.action === 'custom');
 
-  if (!formLayout) { return <div className="text-sm text-muted italic">Loading form layout...</div> }
+  if (!formLayout) return <div className="text-sm text-muted italic">Loading form layout...</div>
 
   const model = models.find(m => m.id === formLayout.modelId);
   const fields = formLayout.contentSchema?.map(item => {
     const field = allFields.find(f => f.id === item.fieldId);
     if (!field || !field.id) return null;
-
     return {
       ...field,
-      lookupDetails: item.lookupDetails, // include layout-specific config
+      lookupDetails: item.lookupDetails,
+      attachments: formLayout.attachments,
     };
-  }).filter(Boolean) as (typeof allFields[0] & { lookupDetails?: any })[];
+  }).filter(Boolean) as (typeof allFields[0] & { lookupDetails?: any; attachment?: any })[];
 
-  useEffect(() => { console.log(fields) }, [fields]);
+  const buildInputPayload = () => {
+    const formValues = methods.getValues();
+    return fields.map(field => ({
+      name: field.label,
+      fieldId: field.id,
+      value: formValues[field.id]
+    }));
+  };
 
   const onSubmit = async (formData: FieldValues) => {
     const formatted = fields.map(field => ({
@@ -61,24 +77,70 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
       }
     );
 
-    onSave?.();
-    onCancel?.();
+    setTimeout(() => {
+      onSave?.();
+      onCancel?.();
+    }, 100); // Allow time for toast before unmount
+  };
+
+  const handleCustomSubmit = async (button: TAttachment) => {
+    const { beforeSubmitScript, afterSubmitScript } = button.payload;
+
+    try {
+      if (beforeSubmitScript) {
+        await runAndHandleFlow(beforeSubmitScript, {
+          values: buildInputPayload()
+        }, {
+          methods,
+          fields,
+          label: "Before Submit Flow",
+        });
+      }
+
+      await handleSubmit(onSubmit)();
+
+      if (afterSubmitScript && isMounted) {
+        await runAndHandleFlow(afterSubmitScript, {
+          values: buildInputPayload()
+        }, {
+          methods,
+          fields,
+          label: "After Submit Flow",
+        });
+      }
+
+    } catch (err) {
+      toast.error("Custom submission failed.");
+      console.error("Custom submit error:", err);
+    }
+  };
+
+  const handleCustomButton = async (button: TAttachment) => {
+    const { customFlow } = button.payload;
+
+    try {
+      if (customFlow) {
+        await runAndHandleFlow(customFlow, {
+          values: buildInputPayload()
+        }, {
+          methods,
+          fields,
+          label: layoutLabel ?? "Custom Flow",
+        });
+      }
+
+    } catch (err) {
+      toast.error("Custom flow failed.");
+      console.error("Custom flow error:", err);
+    }
   };
 
   const renderField = (field: typeof fields[number]) => {
-    if (!field.id) {
-      console.warn("⚠️ Skipping field with missing ID", field);
-      return null;
-    }
-
     const name = field.id;
     const label = field.label ?? 'Unnamed Field';
     const layoutItem = formLayout.contentSchema?.find(item => item.fieldId === name);
 
-    if (!layoutItem) {
-      console.warn("⚠️ No matching layout item for field", field);
-      return null;
-    }
+    if (!layoutItem) return null;
 
     return (
       <div key={name} className="space-x-2 flex items-end">
@@ -104,15 +166,23 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
           <button
             type="button"
             className="btn-icon hover:bg-primary-200 mb-1"
-            // onClick={() => handleRunFlow(layoutItem.flowId!, name)}
-            onClick={async () => await handleRunFlow(layoutItem.flowId!, name, methods, fields)}
+            onClick={async () => {
+              if (!layoutItem.flowId) return;
+
+              await runAndHandleFlow(layoutItem.flowId, {
+                values: buildInputPayload()
+              }, {
+                methods,
+                fields,
+                label: 'Custom Flow',
+              });
+            }}
           >
             <FaCode />
           </button>
         )}
       </div>
     );
-
   };
 
   return (
@@ -123,14 +193,27 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
       <div className="space-y-3">
         {fields.map(renderField)}
       </div>
-      <div className="pt-4">
-        <button
-          type="button"
-          className="btn btn-primary w-full"
-          onClick={handleSubmit(onSubmit)}
-        >
-          Submit
-        </button>
+      <div className="pt-4 flex gap-4">
+        {submitButtons?.map((btn, idx) => (
+          <button
+            key={idx}
+            type="button"
+            className="btn btn-primary mt-2"
+            onClick={() => handleCustomSubmit(btn)}
+          >
+            {btn.payload.text || "Custom Submit"}
+          </button>
+        ))}
+        {customButtons?.map((btn, idx) => (
+          <button
+            key={idx}
+            type="button"
+            className="btn btn-secondary mt-2"
+            onClick={() => handleCustomButton(btn)}
+          >
+            {btn.payload.text || "Custom Action"}
+          </button>
+        ))}
       </div>
     </div>
   );

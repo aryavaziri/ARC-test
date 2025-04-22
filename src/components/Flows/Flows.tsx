@@ -15,13 +15,16 @@ const Flows = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedFlow, setSelectedFlow] = useState<TFlow | null>(null);
 
+  // const [input, setInput] = useState({ path: "/dashboard", query: { test: "1234" } });
+  const input = { test:"testestest", path: "/dashboard", query: { test: "1234" } }
+
   const handleEdit = (flow: TFlow) => {
     setSelectedFlow(flow);
     setShowModal(true);
   };
 
   const handleRun = async (flow: TFlow) => {
-    const res = await runFlow(flow.id, { test: "Sample Data!" })
+    const res = await runFlow(flow.id, { input })
     console.log(res);
   };
 
@@ -39,6 +42,14 @@ const Flows = () => {
           <IoMdAdd />
         </button>
       </div>
+      {/* <div>
+        <label className={`mb-1 font-semibold text-medium`} htmlFor="">Input</label>
+        <textarea
+          rows={3}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="border border-border/50 rounded p-2 w-full"/>
+      </div> */}
 
       <div className="flex flex-col gap-4">
         {flows.map((flow) => (
@@ -77,7 +88,7 @@ const Flows = () => {
       </div>
 
       <CustomModal
-        className="min-w-[800px]"
+        className="w-[800px]"
         Component={() => (
           <AddEditFlowForm
             onClose={() => setShowModal(false)}

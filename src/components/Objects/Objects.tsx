@@ -12,12 +12,14 @@ import { IoChevronBackSharp } from "react-icons/io5";
 import Link from "next/link";
 import RecordLayouts from "./RecordLayouts/RecordLayout";
 import DependencyLayout from "./Dependency/DependencyLayout";
+import Scripts from "./Scripts/Scripts";
 
 const tabOptions = [
   { label: "Details", value: "Details" },
   { label: "Fields", value: "Fields" },
   { label: "Form Layouts", value: "FormLayouts" },
   { label: "Record Layouts", value: "RecordLayouts" },
+  { label: "Scripts", value: "Scripts" },
   { label: "Dependency", value: "Dependency" },
 ];
 
@@ -52,6 +54,8 @@ const ObjectsLayout = ({ objectId }: { objectId: string }) => {
         return <FormLayouts />;
       case "RecordLayouts":
         return <RecordLayouts />;
+      case "Scripts":
+        return <Scripts />;
       case "Dependency":
         return <DependencyLayout />;
       default:

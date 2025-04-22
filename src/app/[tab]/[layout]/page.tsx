@@ -1,14 +1,14 @@
 // /app/[tab]/[layout]/page.tsx
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { slugify } from '@/lib/helpers';
+import PageRenderer from '@/components/Render/PageRenderer';
 
 export default function DynamicLayoutPage() {
     const params = useParams();
-    const router = useRouter();
 
     const layoutId = useSelector((state: RootState) => {
         const tab = state.tabs.tabs.find(
@@ -21,5 +21,10 @@ export default function DynamicLayoutPage() {
     });
 
     if (!layoutId) return <div>Layout not found</div>;
-    router.push(`/render?layoutId=${layoutId}`);
+
+    return (
+        <div className="p-8 grow flex flex-col">
+            <PageRenderer layoutId={layoutId} />
+        </div>
+    );
 }
