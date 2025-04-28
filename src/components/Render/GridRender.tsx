@@ -6,6 +6,7 @@ import { TLineItem } from "@/types/dynamicModel";
 import FormLayoutBlock from "./FormLayoutBlock";
 import EditFormLayoutBlock from "./EditFormLayoutBlock";
 import CustomModal from "../Modals/CustomModal2";
+import { useDynamicModel } from "@/store/hooks/dynamicModelsHooks";
 
 interface GridRenderProps {
   modelId: string;
@@ -34,7 +35,10 @@ const GridRender = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // ✏️ Open Edit Modal
+  const { formLayouts } = useDynamicModel()
+  const formLayoutId = formLayouts.filter(f => f.modelId === modelId)?.find(f => f.label === 'Standard')?.id;
+  if (!formLayoutId) return <div className="text-sm text-muted italic">Loading...</div>
+
   const handleRowClick = (record: TLineItem) => {
     setSelectedRecord(record);
     setIsEditModalOpen(true);
@@ -45,7 +49,6 @@ const GridRender = ({
     setSelectedRecord(null);
   };
 
-  // ➕ Open Add Modal
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => setIsAddModalOpen(false);
 
@@ -96,43 +99,35 @@ const GridRender = ({
         </button>
       </div>
 
-      {/* ➕ Add Modal */}
       <CustomModal
+        header="Add New Record"
         isOpen={isAddModalOpen}
+        className={`w-[600px]`}
         onClose={closeAddModal}
-        Component={() =>
-          <div className="p-6 max-w-3xl w-full min-w-[600px]">
-            <h2 className="text-lg font-bold mb-4 text-primary">
-              Add New Record
-            </h2>
-            <FormLayoutBlock
-              modelId={modelId}
-              layoutLabel="Standard"
-              onSave={closeAddModal}
-              onCancel={closeAddModal}
-            />
-          </div>
-        }
+        Component={FormLayoutBlock}
+        componentProps={{
+          formLayoutId: formLayoutId ?? "",
+          modelId: modelId,
+          layoutLabel: "Standard",
+          onSave: closeAddModal,
+          onCancel: closeAddModal,
+          hasSubmit: true,
+        }}
       />
 
-      {/* ✏️ Edit Modal */}
       <CustomModal
+        header={`Edit Record – ${selectedRecord?.id.slice(0, 6)}...`}
         isOpen={isEditModalOpen}
+        className="w-[600px]"
         onClose={closeEditModal}
-        Component={() =>
-          <div className="p-6 max-w-3xl w-full min-w-[600px]">
-              <h2 className="text-lg font-bold mb-4 text-primary">
-                Edit Record – {selectedRecord?.id.slice(0, 6)}...
-              </h2>
-              <EditFormLayoutBlock
-                modelId={modelId}
-                layoutLabel="Standard"
-                recordId={selectedRecord?.id??""}
-                onSave={closeEditModal}
-                onCancel={closeEditModal}
-                />
-            </div>
-        }
+        Component={EditFormLayoutBlock}
+        componentProps={{
+          modelId: modelId,
+          layoutLabel: "Standard",
+          recordId: selectedRecord?.id ?? "",
+          onSave: closeEditModal,
+          onCancel: closeEditModal,
+        }}
       />
     </>
   );

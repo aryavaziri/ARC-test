@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
-import { TPageLayout } from '@/types/layouts';
+import { TCustomDroppedField, TPageLayout } from '@/types/layouts';
 import { getSchema } from '@/actions/layout';
 import { layoutTemplates } from '../Layout/LayoutTemplates';
 import FormLayoutBlock from './FormLayoutBlock';
 import RecordLayoutBlock from './RecordLayoutBlock';
 import { useSearchParams } from 'next/navigation';
+import CustomLayoutBlock from './CustomLayoutBlock';
 
 type PageRendererProps = {
   layoutId: string;
@@ -50,6 +51,9 @@ const PageRenderer = ({ layoutId }: PageRendererProps) => {
           }
           if (item.type === 'record') {
             return <RecordLayoutBlock key={item.recordLayoutId} recordLayoutId={item.recordLayoutId} />;
+          }
+          if (item.type === 'custom' && item.id) {
+            return <CustomLayoutBlock key={item.id} item={item as TCustomDroppedField} />;
           }
           return <div key={idx} className="text-red-500">⚠️ Unknown item type</div>;
         })}

@@ -3,12 +3,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Select, { components } from 'react-select';
 import { Controller, Control, FieldError, UseFormSetValue } from 'react-hook-form';
-import { TLineItem, TLookupField } from '@/types/dynamicModel';
+import { TLineItem, TLookupField, TRecord } from '@/types/dynamicModel';
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
 import CustomModal from '@/components/Modals/CustomModal2';
 import { MdOutlineSearch } from 'react-icons/md';
 import LookupRecordTable from './LookupRecordTable';
 import { TFormItem } from '@/types/layouts';
+import FormLayoutBlock from './FormLayoutBlock';
 
 type LookupProps = {
   field: TFormItem;
@@ -47,7 +48,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
       r.fields.some(f => matchingFieldIds.includes(f.fieldId))
     ) ?? [];
   }, [selectedLineItem, matchingFieldIds]);
-
+  const [showAddNew, setShowAddNew] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,17 +87,19 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
     if (!nestedRecord || !lookupDetails?.fields) return null;
 
     return lookupDetails.fields.map((row, idx) => {
-      const values = row.map(fid => {
-        const val = nestedRecord.fields.find(f => f.fieldId === fid)?.value;
-        return val?.toString() ?? '-';
-      });
+      const values = row
+        .map(fid => nestedRecord.fields.find(f => f.fieldId === fid)?.value)
+        .filter(val => val !== null && val !== undefined && val !== '') // Filter out empty values
+        .map(val => val?.toString());
+
+      if (values.length === 0) return null; // Skip rendering this row if no values
 
       return (
         <p key={`row-${idx}`} className="text-gray-600">
           {values.join(', ')}
         </p>
       );
-    });
+    }).filter(Boolean); // Filter out null rows
   };
 
   const selectOptions = items.map(opt => ({
@@ -164,7 +167,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
                                 key={`${header.id}-${option.value}-${idx}`}
                                 className="truncate text-muted-foreground max-w-[10rem]"
                               >
-                                {String(val) ?? '-'}
+                                {val? String(val) : '-'}
                               </div>
                             );
                           })}
@@ -206,21 +209,43 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
             )}
 
             <CustomModal
-              Component={() => (
-                <LookupRecordTable
-                  modelId={lookupDetails?.lookupModelId ?? ""}
-                  data={items}
-                  fieldHeaders={searchHeaders}
-                  onSelect={(record) => {
-                    controllerField.onChange(record.id);
-                    setShowTable(false);
-                  }}
-                />
-              )}
               isOpen={showTable}
               onClose={() => setShowTable(false)}
               header={`Select ${fieldLabel}`}
+              Component={LookupRecordTable}
+              componentProps={{
+                modelId: lookupDetails?.lookupModelId ?? "",
+                data: items,
+                fieldHeaders: searchHeaders,
+                onSelect: (record: TLineItem) => {
+                  controllerField.onChange(record.id);
+                  setShowTable(false);
+                },
+                onAddNew: () => {
+                  setShowAddNew(true);
+                }
+              }}
             />
+
+            <CustomModal
+              isOpen={showAddNew}
+              onClose={() => setShowAddNew(false)}
+              header={`Add New ${fieldLabel}`}
+              className='w-[600px]'
+              Component={FormLayoutBlock}
+              componentProps={{
+                modelId: lookupDetails?.lookupModelId ?? "",
+                layoutLabel: "Standard",
+                onSave: () => {
+                  setShowAddNew(false);
+                  // Optional: refresh lineItems here if needed
+                },
+                hasSubmit: true,
+                onCancel: () => setShowAddNew(false),
+              }}
+            />
+
+
           </>
         )}
       />

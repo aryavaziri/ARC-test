@@ -8,8 +8,8 @@ type Props = {
 };
 
 const ExternalControlledModal: React.FC<Props> = ({ Component, isOpen, onClose, componentProps, header, className }) => {
-  const modalWrapperClasses = "fixed top-0 left-0 h-screen w-screen flex items-start justify-center bg-black/50 z-[9999] backdrop-blur-xs";
-  const modalContentClasses = "relative bg-bg text-text shadow shadow-light rounded-2xl max-w-[60vw] max-h-[80vh] min-h-[40vh] overflow-y-auto mt-[10vh]";
+  const modalWrapperClasses = "fixed top-0 left-0 min-h-screen w-screen flex items-start justify-center bg-black/50 z-[9999] backdrop-blur-xs";
+  const modalContentClasses = "relative bg-bg text-text shadow shadow-light rounded-2xl max-w-[60vw] min-h-[40vh] overflow-y-auto mt-[10vh]";
   return (
     <>
       {isOpen && (

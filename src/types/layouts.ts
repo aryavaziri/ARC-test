@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { number, z } from 'zod';
 import { checkboxInputSchema, dateInputSchema, fieldSchema, longTextInputSchema, lookupSchema, numberInputSchema, textInputSchema } from './dynamicModel';
 import { IconName } from '@/store/slice/iconMap';
 
@@ -47,7 +47,9 @@ export const VALID_ATTACHMENT_TYPES = [
   'note',
   'divider',
   'spacer',
-  `button`
+  `button`,
+  `empty`,
+  `field`
 ] as const;
 
 
@@ -86,6 +88,7 @@ const droppedRecordField = z.object({
 });
 
 const droppedCustomField = z.object({
+  id: z.string().optional(),
   type: z.literal('custom'),
   label: z.string(),
   index: z.number().int().nonnegative(),
@@ -122,12 +125,15 @@ export const formItemSchema = z.object({
     fields: z.array(z.array(z.string())),
     isCustomStyle: z.boolean(),
   }).optional(),
+  col: z.number().int().nonnegative().optional(),
 })
 
 export const formLayoutSchema = z.object({
   id: z.string().uuid(),
   label: z.string(),
   modelId: z.string().uuid(),
+  // numberOfColumns: z.number().int().nonnegative().optional().default(1),
+  numberOfColumns: z.number().int().min(1).optional().default(1),
   contentSchema: z.array(formItemSchema).optional(),
   attachments: z.array(attachmentSchema).optional()
 })

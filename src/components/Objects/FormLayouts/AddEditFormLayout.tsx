@@ -12,6 +12,8 @@ type Props = {
   onClose: () => void;
 };
 
+type LayoutFormInput = Pick<TFormLayout, 'label' | 'numberOfColumns'>;
+
 const AddEditFormLayout = ({ layoutId, mode, onClose }: Props) => {
   const {
     selectedModel,
@@ -26,9 +28,9 @@ const AddEditFormLayout = ({ layoutId, mode, onClose }: Props) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<Pick<TFormLayout, 'label'>>({
+  } = useForm<LayoutFormInput>({
     resolver: zodResolver(
-      formLayoutSchema.omit({ id: true, modelId: true, contentSchema: true })
+      formLayoutSchema.omit({ id: true, modelId: true, contentSchema: true, attachments: true })
     ),
   });
 
@@ -43,7 +45,7 @@ const AddEditFormLayout = ({ layoutId, mode, onClose }: Props) => {
     }
   }, [layoutId, mode, reset]);
 
-  const onSubmit = async (data: { label: string }) => {
+  const onSubmit = async (data: LayoutFormInput) => {
     if (!selectedModel) return;
 
     if (mode === 'add') {
@@ -55,6 +57,7 @@ const AddEditFormLayout = ({ layoutId, mode, onClose }: Props) => {
       await updateFormLayout({
         id: layoutId,
         label: data.label,
+        numberOfColumns: data.numberOfColumns
       });
     }
 
@@ -71,6 +74,18 @@ const AddEditFormLayout = ({ layoutId, mode, onClose }: Props) => {
         required
         style={3}
       />
+      <label className="text-sm font-semibold">Number of Columns</label>
+      <select
+        {...register("numberOfColumns", { valueAsNumber: true })}
+        className="border rounded px-2 py-1"
+        defaultValue={1}
+      >
+        {[1, 2, 3, 4].map(n => (
+          <option key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
 
       <div className="flex justify-end gap-2 mt-4">
         <button type="button" onClick={onClose} className="btn btn-ghost">

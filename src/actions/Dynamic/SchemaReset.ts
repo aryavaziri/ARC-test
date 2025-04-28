@@ -23,21 +23,22 @@ export async function resetStandardSchema(modelId: string): Promise<TResponse> {
     ];
     let allFields: any[] = [];
     let orderCounter = 0;
-    
+
     for (const { m2m, input, type } of inputTypes) {
       const joined = await m2m.findAll({ where: { modelId } });
-    
+
       for (let i = 0; i < joined.length; i++) {
         const relation = joined[i];
         const field = await input.findByPk(relation.inputId);
         if (!field) continue;
-    
+
         const fieldData: any = {
           fieldId: field.id,
           type,
-          order: orderCounter++, // 👈 use global counter instead of i
+          order: orderCounter++,
+          col: 0
         };
-    
+
         if (type === "lookup") {
           const lookupField = field as LookupInput;
           fieldData.lookupDetails = {
@@ -47,11 +48,11 @@ export async function resetStandardSchema(modelId: string): Promise<TResponse> {
             isCustomStyle: false,
           };
         }
-    
+
         allFields.push(fieldData);
       }
     }
-    
+
     // console.log(allFields)
     allFields.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 

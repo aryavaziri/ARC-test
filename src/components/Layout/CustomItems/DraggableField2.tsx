@@ -18,22 +18,23 @@ interface DraggableField2Props {
 
 const DraggableField2 = ({ field, index, region, move, onRemove }: DraggableField2Props) => {
   const ref = useRef<HTMLDivElement>(null);
-
-  const [, drop] = useDrop({
-    accept: ['FIELD', 'SORTED_FIELD'],
-    hover(item: any) {
-      if (!ref.current || index === undefined) return;
-      if (item.type !== 'SORTED_FIELD' || item.region !== region) return;
-
-      const dragIndex = item.index;
-      const hoverIndex = index;
-
-      if (dragIndex === hoverIndex) return;
-
-      move?.(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    }
-  });
+  // const [, drop] = useDrop({
+  //   accept: ['FIELD', 'SORTED_FIELD'],
+  //   canDrop: () => false,
+  //   hover(item: any) {
+  //     console.log("T1")
+  //     if (!ref.current || index === undefined) return;
+  //     if (item.type !== 'SORTED_FIELD' || item.region !== region) return;
+  //     console.log("T2")
+  //     const dragIndex = item.index;
+  //     const hoverIndex = index;
+  //     if (dragIndex === hoverIndex) return;
+  //     console.log("T3")
+  //     move?.(dragIndex, hoverIndex);
+  //     item.index = hoverIndex;
+  //   },
+  //   drop: () => ({ handled: true })
+  // });
 
   const [{ isDragging }, drag] = useDrag({
     type: index !== undefined ? 'SORTED_FIELD' : 'FIELD',
@@ -42,18 +43,16 @@ const DraggableField2 = ({ field, index, region, move, onRemove }: DraggableFiel
       index,
       region,
     },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
   });
 
-  drag(drop(ref));
+  // drag(drop(ref));
+  drag(ref);
 
   return (
     <div
       ref={ref}
-      className={`flex justify-between items-center bg-white border px-3 py-2 rounded shadow-sm ${isDragging ? 'opacity-50' : ''
-        }`}
+      className={`flex justify-between items-center bg-white border px-3 py-2 rounded shadow-sm ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex items-center gap-2">
         <FaGripVertical className="text-muted cursor-move" />

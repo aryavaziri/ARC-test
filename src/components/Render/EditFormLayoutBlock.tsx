@@ -56,7 +56,6 @@ const EditFormLayoutBlock = ({ modelId, layoutLabel, recordId, onSave, onCancel 
   useEffect(() => {
     const record = lineItem?.find((r) => r.id === recordId);
     if (!record) return;
-
     const values = record.fields.reduce((acc, field) => {
       acc[field.fieldId] = field.value;
       return acc;
@@ -102,15 +101,15 @@ const EditFormLayoutBlock = ({ modelId, layoutLabel, recordId, onSave, onCancel 
     onSave?.();
   };
 
-  if (!initialValues && lineItem?.length) {
-    return <p className="text-muted text-sm">Loading record...</p>;
-  }
+  // if (!initialValues && lineItem?.length) {
+  //   return <p className="text-muted text-sm">Loading record...</p>;
+  // }
 
   const isFieldError = (e: any): e is FieldError =>
     !!e && typeof e === 'object' && 'type' in e;
 
   return (
-    <div className="con space-y-4">
+    <div className="con space-y-0">
       {fields.filter((field) => !!field?.fieldId).map((field) => {
         const error = formState.errors[field.fieldId];
         return renderField({

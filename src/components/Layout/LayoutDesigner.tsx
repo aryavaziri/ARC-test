@@ -22,10 +22,11 @@ import DraggableField2 from './CustomItems/DraggableField2';
 export const CUSTOM_FIELD_ITEMS = [
   { label: 'Button', customKey: 'button' },
   { label: 'Input', customKey: 'input' },
-  { label: 'Divider', customKey: 'divider' },
+  { label: 'Field', customKey: 'field' },
   { label: 'Empty Container', customKey: 'empty' },
-  { label: 'Note', customKey: 'note' },
-  { label: 'Spacer', customKey: 'spacer' },
+  // { label: 'Divider', customKey: 'divider' },
+  // { label: 'Note', customKey: 'note' },
+  // { label: 'Spacer', customKey: 'spacer' },
 ];
 
 const LayoutDesigner = () => {
