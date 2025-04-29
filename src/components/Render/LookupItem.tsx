@@ -27,6 +27,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
   const [showTable, setShowTable] = useState(false);
   const lookupDetails = field.lookupDetails;
   const isCustom = lookupDetails?.isCustomStyle;
+  const allowAddingRecord = !!lookupDetails?.allowAddingRecord
 
   const matchingFieldIds = useMemo(() => {
     const model = models.find(m => m.id === lookupDetails?.lookupModelId);
@@ -167,7 +168,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
                                 key={`${header.id}-${option.value}-${idx}`}
                                 className="truncate text-muted-foreground max-w-[10rem]"
                               >
-                                {val? String(val) : '-'}
+                                {val ? String(val) : '-'}
                               </div>
                             );
                           })}
@@ -223,7 +224,8 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
                 },
                 onAddNew: () => {
                   setShowAddNew(true);
-                }
+                },
+                allowAddingRecord
               }}
             />
 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DynamicModel } from "@/models/Dynamic/DynamicModel";
+import { DynamicModel, FormLayout, RecordLayout } from "@/models/Dynamic/DynamicModel";
 import { Flow } from "@/models/Flow/Flow";
 import sequelize from "@/lib/Sequelize";
 import { auth } from "@/auth";
+import { PageLayout } from "@/models/Layout/PageLayout";
 
 function normalizeInput(input: Record<string, any>): any {
   if (typeof input === "string") {
@@ -42,7 +43,7 @@ export const POST = async (req: NextRequest, context: { params?: Record<string, 
     }
 
     let input: any = undefined;
-    
+
     try {
       input = await req.json();
       // console.log(body);
@@ -51,9 +52,9 @@ export const POST = async (req: NextRequest, context: { params?: Record<string, 
     } catch (err) {
       console.warn("⚠️ Failed to parse request JSON, input will be undefined.");
     }
-    
+
     // console.log(input);
-    const { values:formValues } = input ?? {}
+    const { values: formValues, pageLayoutId, formLayoutId } = input ?? {}
     // console.log(formValues);
     const rawParams = req.nextUrl.searchParams;
     const params = Object.fromEntries(rawParams.entries());
@@ -62,7 +63,7 @@ export const POST = async (req: NextRequest, context: { params?: Record<string, 
     // console.log("Get Value", getValue(input));
 
     const fn = new Function("deps", `
-      const { DynamicModel, input, params, formValues } = deps;
+      const { DynamicModel, FormLayout,RecordLayout, PageLayout, input, params, formValues,formLayoutId } = deps;
       return (async () => {
         ${flow.script}
       })();
@@ -70,9 +71,10 @@ export const POST = async (req: NextRequest, context: { params?: Record<string, 
 
     const result = await fn({
       input,
-      DynamicModel,
+      DynamicModel, FormLayout, RecordLayout, PageLayout,
       params,
       formValues,
+      formLayoutId
     });
 
     if (result instanceof NextResponse) {

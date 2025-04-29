@@ -32,6 +32,16 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
     ? formLayouts.find(f => f.id === formLayoutId)
     : formLayouts.find(f => f.modelId === modelId);
 
+  const [layoutItemsState, setLayoutItemsState] = useState<Record<string, any>>(() => {
+    const initial: Record<string, any> = {};
+    formLayout?.contentSchema?.forEach(item => {
+      if (item.fieldId) {
+        initial[item.fieldId] = item;
+      }
+    });
+    return initial;
+  });
+
   const submitButtons = attachments?.filter(att => att.type === 'button' && att.payload?.action === 'submit');
   const customButtons = attachments?.filter(att => att.type === 'button' && att.payload?.action === 'custom');
 
@@ -59,7 +69,7 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
 
     fields?.forEach(field => {
       const col = formLayout?.contentSchema?.find(i => i.fieldId === field.id)?.col ?? 0;
-      cols[col].push(field);
+      cols[col]?.push(field);
     });
 
     return cols;
@@ -160,11 +170,21 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
     }
   };
 
+  const updateLayoutItem = (fieldId: string, updates: Partial<any>) => {
+    setLayoutItemsState(prev => ({
+      ...prev,
+      [fieldId]: {
+        ...prev[fieldId],
+        ...updates
+      }
+    }));
+  };
+
   const renderField = (field: typeof fields[number]) => {
     const name = field.id;
     const label = field.label ?? 'Unnamed Field';
-    const layoutItem = formLayout?.contentSchema?.find(item => item.fieldId === name);
-
+    // const layoutItem = formLayout?.contentSchema?.find(item => item.fieldId === name);
+    const layoutItem = layoutItemsState[name];
     if (!layoutItem) return null;
 
     return (
@@ -190,16 +210,18 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
         {layoutItem.flowId && (
           <button
             type="button"
-            className="btn-icon hover:bg-primary-200 mb-1"
+            className="aspect-square h-8 btn-icon"
             onClick={async () => {
               if (!layoutItem.flowId) return;
 
               await runAndHandleFlow(layoutItem.flowId, {
-                values: buildInputPayload()
+                values: buildInputPayload(),
+                formLayoutId
               }, {
                 methods,
                 fields,
                 label: 'Custom Flow',
+                updateLayoutItem
               });
             }}
           >

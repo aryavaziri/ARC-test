@@ -27,10 +27,11 @@ const setValueReturnSchema = baseAction.extend({
     value: z.any(),
 });
 
-// const getValueReturnSchema = baseAction.extend({
-//     action: z.literal("getValue"),
-//     targetFieldId: z.string(),
-// });
+const updateLayoutItemReturnSchema = baseAction.extend({
+    action: z.literal("updateLayoutItem"),
+    targetFieldId: z.string(),
+    updates: z.record(z.any()), // loosely typed — could be made stricter later
+});
 
 const toastReturnSchema = baseAction.extend({
     action: z.literal("toast"),
@@ -46,12 +47,13 @@ const redirectReturnSchema = baseAction.extend({
 // Unified Flow Return Schema
 export const flowGeneralReturnSchema = z.discriminatedUnion("action", [
     setValueReturnSchema,
-    // getValueReturnSchema,
+    updateLayoutItemReturnSchema,
     toastReturnSchema,
     redirectReturnSchema,
 ]);
 
 // === Types ===
+export type TUpdateLayoutItemReturn = z.infer<typeof updateLayoutItemReturnSchema>;
 export type TFlowGeneralReturn = z.infer<typeof flowGeneralReturnSchema>;
 export type TSetValueReturn = z.infer<typeof setValueReturnSchema>;
 export type TToastReturn = z.infer<typeof toastReturnSchema>;

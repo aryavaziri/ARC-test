@@ -21,7 +21,7 @@ export class PageLayout extends Model {
         type: DataType.TEXT,
         get() {
             const raw = this.getDataValue('contentSchema');
-            return raw ? JSON.parse(raw) : {};
+            return raw ? JSON.parse(raw) : [];
         },
         set(value: object) {
             this.setDataValue('contentSchema', JSON.stringify(value ?? []));

@@ -238,7 +238,8 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
                 initialFields={field?.lookupDetails?.fields ?? [[]]}
                 initialSearchFields={field?.lookupDetails?.searchFields ?? []}
                 initialIsCustomStyle={field?.lookupDetails?.isCustomStyle ?? false}
-                onChange={({ fields, searchFields, isCustomStyle }) => {
+                initialAllowAddingRecord={field?.lookupDetails?.allowAddingRecord ?? false}
+                onChange={({ fields, searchFields, isCustomStyle, allowAddingRecord }) => {
                   const updated = contentSchema.map((item) => {
                     if (item.lookupDetails?.lookupModelId === selectedLookup) {
                       return {
@@ -248,6 +249,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
                           fields,
                           searchFields,
                           isCustomStyle,
+                          allowAddingRecord
                         },
                       };
                     }

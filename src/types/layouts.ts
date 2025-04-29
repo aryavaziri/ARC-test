@@ -124,6 +124,7 @@ export const formItemSchema = z.object({
     searchFields: z.array(z.string()).optional(),
     fields: z.array(z.array(z.string())),
     isCustomStyle: z.boolean(),
+    allowAddingRecord: z.boolean().optional(),
   }).optional(),
   col: z.number().int().nonnegative().optional(),
 })

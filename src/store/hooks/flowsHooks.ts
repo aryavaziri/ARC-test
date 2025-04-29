@@ -67,6 +67,7 @@ export const useFlow = () => {
     action: TFlowGeneralReturn,
     helpers?: {
       setValue?: (fieldId: string, value: any) => void;
+      updateLayoutItem?: (fieldId: string, updates: Partial<any>) => void;
       fields?: { id: string; label: string }[];
     }
   ) => {
@@ -77,6 +78,13 @@ export const useFlow = () => {
         const { setValue } = helpers || {};
         if (!setValue) return;
         setValue(action.targetFieldId, action.value);
+        break;
+      }
+
+      case "updateLayoutItem": {
+        const { updateLayoutItem } = helpers || {};
+        if (!updateLayoutItem) return;
+        updateLayoutItem(action.targetFieldId, action.updates);
         break;
       }
 
@@ -106,6 +114,7 @@ export const useFlow = () => {
       methods?: UseFormReturn<any>;
       fields?: { id: string; label: string }[];
       label?: string; // Optional: show name in toast
+      updateLayoutItem?: (fieldId: string, updates: Partial<any>) => void;
     }
   ) => {
     const flow = flows.find((f) => f.id === flowId);

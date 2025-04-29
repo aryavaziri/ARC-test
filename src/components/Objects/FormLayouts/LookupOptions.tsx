@@ -9,10 +9,12 @@ type LookupOptionsProps = {
   initialFields: string[][];
   initialSearchFields?: string[];
   initialIsCustomStyle: boolean;
+  initialAllowAddingRecord: boolean;
   onChange: (data: {
     fields: string[][];
     searchFields?: string[];
     isCustomStyle: boolean;
+    allowAddingRecord: boolean;
   }) => void;
 };
 
@@ -21,6 +23,7 @@ const LookupOptions: React.FC<LookupOptionsProps> = ({
   initialSearchFields = [],
   initialFields,
   initialIsCustomStyle,
+  initialAllowAddingRecord,
   onChange
 }) => {
   const { models } = useDynamicModel();
@@ -29,10 +32,11 @@ const LookupOptions: React.FC<LookupOptionsProps> = ({
   );
   const [localFields, setLocalFields] = useState<string[][]>(initialFields || [[]]);
   const [searchFields, setSearchFields] = useState<string[]>(initialSearchFields || []);
+  const [allowAddingRecord, setAllowAddingRecord] = useState(initialAllowAddingRecord);
   const [useSameFields, setUseSameFields] = useState(() =>
     arraysEqual(initialSearchFields ?? [], initialFields.flat())
   );
-    
+
   function arraysEqual(a: string[], b: string[]) {
     if (a.length !== b.length) return false;
     const sortedA = [...a].sort();
@@ -40,7 +44,7 @@ const LookupOptions: React.FC<LookupOptionsProps> = ({
     return sortedA.every((val, idx) => val === sortedB[idx]);
   }
 
-  
+
   useEffect(() => {
     if (useSameFields) {
       setSearchFields(localFields.flat());
@@ -110,7 +114,7 @@ const LookupOptions: React.FC<LookupOptionsProps> = ({
       )}
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Search Fields</label>
+        <label className="text-sm font-medium">Search Table Fields</label>
         <label className="inline-flex items-center gap-2 text-sm mb-2">
           <input
             type="checkbox"
@@ -142,6 +146,18 @@ const LookupOptions: React.FC<LookupOptionsProps> = ({
         )}
       </div>
 
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">Additional Options</label>
+        <label className="inline-flex items-center gap-2 text-sm mb-2">
+          <input
+            type="checkbox"
+            checked={allowAddingRecord}
+            onChange={(e) => setAllowAddingRecord(e.target.checked)}
+          />
+          Allow adding new record?
+        </label>
+      </div>
+
       <div className="flex justify-end pt-4">
         <button
           className="btn btn-primary"
@@ -149,6 +165,7 @@ const LookupOptions: React.FC<LookupOptionsProps> = ({
             fields: localFields,
             searchFields,
             isCustomStyle: styleType === 'custom',
+            allowAddingRecord
           })}
         >
           Save
