@@ -5,13 +5,13 @@ import sequelize from "@/lib/Sequelize";
 import { TRecord } from "@/types/dynamicModel";
 import { TextInputRecord, NumberInputRecord, DateInputRecord, LongTextInputRecord, CheckboxInputRecord, LookupInputRecord } from "@/models/Dynamic/Records";
 import { LineItem } from "@/models/Dynamic/DynamicModel";
+import { auth } from "@/auth";
 
 // ✅ GET Model Records
 export const GET = handleApi(async ({ params }) => {
   const modelId = params?.modelId;
   if (!modelId) throw new Error("Missing modelId");
   const lineItemList = await LineItem.findAll({ where: { modelId }, raw: true });
-
   if (!lineItemList.length) throw new Error("No model data found")
 
   const groupedRecords = await Promise.all(
@@ -32,14 +32,13 @@ export const GET = handleApi(async ({ params }) => {
 });
 
 // ✅ POST Model Records
-export const POST = handleApi(async ({ req, params }) => {
+export const POST = handleApi(async ({ req, params, session }) => {
   const modelId = params?.modelId;
   if (!modelId) throw new Error("Missing modelId");
   const records: TRecord[] = await req.json();
   if (!Array.isArray(records)) throw new Error("Expected an array of records");
-
   const result = await sequelize.transaction(async (t) => {
-    const lineItem = await LineItem.create({ modelId }, { transaction: t });
+    const lineItem = await LineItem.create({ modelId, enteredBy: session?.user.id }, { transaction: t });
     const inserted = await Promise.all(
       records.map(async (record) => {
         const base = {

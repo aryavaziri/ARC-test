@@ -13,6 +13,7 @@ import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, Lookup
 import { TabModel } from "@/models/Layout/Tabs";
 import { PageLayout } from "@/models/Layout/PageLayout";
 import { Flow } from "@/models/Flow/Flow";
+import { resetAllRecordLayouts } from "../Dynamic/SchemaReset";
 
 
 export const dropDatabase = async (db: string) => {
@@ -52,7 +53,6 @@ const sequelizeWithoutDb = new Sequelize({
 export const syncTables = async () => {
   // await dropDatabase(process.env.CentralizedDB ?? "")
   await sequelize.authenticate();
-  await Flow.sync({ alter: true });
   // await syncUserModels();
   // await syncDynamicModels();
   // await importUserBac('arcerp_dev1')

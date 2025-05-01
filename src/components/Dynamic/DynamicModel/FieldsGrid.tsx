@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaLink } from 'react-icons/fa';
 import { MdEdit, MdOutlineDelete } from 'react-icons/md';
 import CustomModal from '@/components/Modals/CustomModal2';
 import AddDynamicField from './Fields/AddEditDynamicField';
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
 import EditDynamicModel from './EditDynamicModel';
 import { RiDeleteBin2Fill, RiDeleteBin7Fill } from 'react-icons/ri';
+import Dependencies from './Dependencies';
 
 type Props = {
   // modelId: string;
@@ -16,6 +17,7 @@ type Props = {
 const FieldsGrid: React.FC<Props> = ({ }) => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModelModal, setShowEditModelModal] = useState(false);
+  const [showDependencies, setShowDependencies] = useState(false);
   const { models, selectedModel, selectedField, deleteItem, loading, deleteField, setSelectedField } = useDynamicModel();
 
   const handleClose = () => {
@@ -28,11 +30,21 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
     setSelectedField(null)
   };
 
+  const handleClose3 = () => {
+    setShowDependencies(false);
+    setSelectedField(null)
+  };
+
 
   const handleEdit = (field: any) => {
     // console.log('Edit field:', field);
     setSelectedField(field)
     setShowModal(true)
+  };
+
+  const handleDependencies = (field: any) => {
+    setSelectedField(field)
+    setShowDependencies(true)
   };
 
   const handleDelete = async () => {
@@ -57,8 +69,14 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
     ...(selectedModel?.ModelDateInputs?.map(f => ({ ...f, type: 'date' })) || []),
     ...(selectedModel?.ModelCheckboxInputs?.map(f => ({ ...f, type: 'checkbox' })) || []),
     ...(selectedModel?.ModelLookupInputs?.map(f => ({ ...f, type: 'lookup' })) || []),
-  ];
+    // ...(selectedModel?.ModelLookupInputs?.filter(f => {
+    //   const referencedModel = models.find(m => m.id === f.lookupModelId);
+    //   return referencedModel && (
+    //     (referencedModel.ModelLookupInputs?.length || 0) > 0
+    //   );
+    // })?.map(f => ({ ...f, type: 'lookup' })) || []),
 
+  ];
   return (
     // <div className={!selectedModel?.id ? `hidden` : `flex grow`}>
     <div className="flex grow">
@@ -96,16 +114,54 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
                     <td>{field.id.slice(0, 8)}...</td>
                     <td>{field.label}</td>
                     <td className={`subtitle`}><p>{field.type.toUpperCase()}{field.type == 'lookup' && 'lookupModelId' in field ? ` - (${models.find(m => m.id === field.lookupModelId)?.name})` : ''}</p></td>
-                    <td >
+                    <td className='justify-end' >
+                      {field.type === "lookup" && 'lookupModelId' in field && !!models.find((m) => m.id === field.lookupModelId)?.ModelLookupInputs?.length &&
+                        <button
+                          onClick={() => handleDependencies(field)}
+                          className="btn-icon hover:bg-amber-400 aspect-square h-6 border-none shadow shadow-border"
+                        >
+                          <FaLink size={16} />
+                        </button>
+                      }
+                      {/* )()} */}
+                      {/* {field.type === "lookup" && 'lookupModelId' in field && !!models.find(m => m.id === field.lookupModelId)?.ModelLookupInputs?.length &&
+                        <button
+                          onClick={() => handleDependencies(field)}
+                          className="btn-icon hover:bg-amber-400 aspect-square h-6 border-none shadow shadow-border"
+                        >
+                          <FaLink size={16} />
+                        </button>
+                      } */}
+                      {/* {field.type === "lookup" &&
+                        'lookupModelId' in field &&
+                        (() => {
+                          const targetModel = models.find((m) => m.id === field.lookupModelId);
+                          const outerLookups = selectedModel?.ModelLookupInputs ?? [];
+                          const innerLookups = targetModel?.ModelLookupInputs ?? [];
+
+                          const hasMatchingNestedLookup = innerLookups.some((inner) =>
+                            outerLookups.some((outer) => outer.lookupModelId === inner.lookupModelId)
+                          );
+
+                          return hasMatchingNestedLookup ? (
+                            <button
+                              onClick={() => handleDependencies(field)}
+                              className="btn-icon hover:bg-amber-400 aspect-square h-6 border-none shadow shadow-border"
+                            >
+                              <FaLink size={16} />
+                            </button>
+                          ) : null;
+                        })()
+                      } */}
                       <button
                         onClick={() => handleEdit(field)}
-                        className="btn-icon hover:bg-lime-400 p-[5px] border-none shadow shadow-border text-md"
+                        className="btn-icon hover:bg-lime-400 aspect-square h-6 border-none shadow shadow-border text-md"
                       >
                         <MdEdit />
                       </button>
                       <button
                         onClick={async () => await handleRemoveField(field.id)}
-                        className="btn-icon hover:bg-red-400 p-[5px] border-none shadow shadow-border text-md"
+                        className="btn-icon hover:bg-red-400 aspect-square h-6 border-none shadow shadow-border text-md"
                       >
                         <RiDeleteBin7Fill />
                       </button>
@@ -136,6 +192,15 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
           header="Edit Model"
           className="w-[500px]"
           Component={() => (<EditDynamicModel onClose={() => { handleClose2() }} />)}
+        />
+
+        <CustomModal
+          isOpen={showDependencies}
+          onClose={handleClose3}
+          header="Edit Model"
+          className="w-[500px]"
+          Component={Dependencies}
+          componentProps={{ onClose: handleClose3 }}
         />
       </div>
     </div>

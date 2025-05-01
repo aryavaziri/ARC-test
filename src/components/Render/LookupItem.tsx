@@ -85,6 +85,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
 
   const getRowPreview = (recordId: string) => {
     const nestedRecord = lineItem.find(l => l.id === recordId);
+    console.log(nestedRecord)
     if (!nestedRecord || !lookupDetails?.fields) return null;
 
     return lookupDetails.fields.map((row, idx) => {

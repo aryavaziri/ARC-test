@@ -94,7 +94,7 @@ const Nav = () => {
             />
           );
         })}
-        <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Object Manager", url: "/settings/objectManager" }, { label: "Layout Manager", url: "/settings/layoutManager" }, { label: "Flow Manager", url: "/settings/flowManager" }, { label: "Theme", url: "/settings/theme" }]} />
+        <NavItem Icon={FaTools} label="Settings" menuItems={[{ label: "Object Manager", url: "/settings/objectManager" }, { label: "Layout Manager", url: "/settings/layoutManager" }, { label: "Flow Manager", url: "/settings/flowManager" }, { label: "Configurations", url: "/settings/configurations" }, { label: "Theme", url: "/settings/theme" }]} />
       </ul>
       <div className="flex gap-2">
         {pathname == "/render" && <Link href={`${pathname.replace('/render', '/design')}?${params.toString()}`} className={`btn btn-primary w-min`} >Design</Link>}

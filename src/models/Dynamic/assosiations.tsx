@@ -7,6 +7,7 @@ import { DateInput } from "./Fields/DateInput";
 import { NumberInput } from "./Fields/NumberInput";
 import { CheckboxInput } from "./Fields/CheckboxInput";
 import { LookupInput } from "./Fields/LookupInput";
+import { User } from "../UserData/User";
 
 export const setAssociations = () => {
 
@@ -51,7 +52,7 @@ export const setAssociations = () => {
         through: ModelLookupInput,
         foreignKey: "modelId",
         otherKey: "inputId",
-        as: "ModelLookupInputs", 
+        as: "ModelLookupInputs",
         onDelete: "CASCADE",
     });
 
@@ -63,7 +64,8 @@ export const setAssociations = () => {
     ModelCheckboxInput.belongsTo(CheckboxInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
     ModelLookupInput.belongsTo(LookupInput, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
 
-    LineItem.belongsTo(DynamicModel, { foreignKey: "inputId", as: "input", onDelete: "CASCADE", });
+    LineItem.belongsTo(DynamicModel, { foreignKey: "modelId", as: "input", onDelete: "CASCADE", });
+    LineItem.belongsTo(User, { foreignKey: "enteredBy", as: "creator", onDelete: "RESTRICT", });
 
 
 

@@ -1,6 +1,7 @@
-import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, Default } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, Default, AllowNull } from "sequelize-typescript";
 import { ModelCheckboxInput, ModelDateInput, ModelLongTextInput, ModelLookupInput, ModelNumberInput, ModelTextInput } from "./M2M";
 import { LineItem } from "@/models/Dynamic/DynamicModel";
+import { User } from "../UserData/User";
 
 @Table({
     tableName: "TextInputRecord",

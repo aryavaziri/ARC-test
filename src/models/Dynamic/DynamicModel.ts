@@ -1,10 +1,6 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, AllowNull, BeforeCreate, BeforeUpdate, AfterCreate, Unique, Index } from "sequelize-typescript";
-import { TextInput } from "./Fields/TextInput";
-import { LongTextInput } from "./Fields/LongTextInput";
-import { DateInput } from "./Fields/DateInput";
-import { NumberInput } from "./Fields/NumberInput";
-import { CheckboxInput } from "./Fields/CheckboxInput";
-import { LookupInput } from "./Fields/LookupInput";
+import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, AllowNull, AfterCreate, Index } from "sequelize-typescript";
+import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, NumberInput } from "./Fields";
+import { User } from "../UserData/User";
 
 @Table({
     tableName: "DynamicModel",
@@ -61,6 +57,10 @@ export class LineItem extends Model {
     @ForeignKey(() => DynamicModel)
     @Column(DataType.UUID)
     declare modelId: string;
+
+    @ForeignKey(() => User)
+    @Column(DataType.UUID)
+    declare enteredBy: string;
 
 }
 

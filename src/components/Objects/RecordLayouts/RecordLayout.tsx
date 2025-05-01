@@ -9,9 +9,10 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import AddEditRecordLayout from './AddEditRecordLayout';
 import RecordSchemaLayout from './RecordSchemaLayout';
+import { BiReset } from 'react-icons/bi';
 
 const RecordLayouts = () => {
-  const { models, selectedModel, recordLayouts, setSelectedField, removeRecordLayout } = useDynamicModel();
+  const { models, selectedModel, recordLayouts, setSelectedField, removeRecordLayout, resetRecordLayout } = useDynamicModel();
 
   const [showLayoutModal, setShowLayoutModal] = useState(false);
   const [editMode, setEditMode] = useState<"add" | "edit">("add");
@@ -66,28 +67,41 @@ const RecordLayouts = () => {
                         <td>
                           <div className="flex justify-between w-full items-center">
                             <p className={`font-semibold whitespace-nowrap`}>{layout.label}</p>
-                            {layout.label.toLowerCase() !== "standard" && (
-                              <div className={`flex gap-1`}>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleOpenModal('edit', layout.id);
-                                  }}
-                                  className="btn-icon hover:bg-lime-400 p-[5px] border-none shadow shadow-border text-md"
-                                >
-                                  <MdEdit />
-                                </button>
+                            <div className={`flex gap-1`}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenModal('edit', layout.id);
+                                    }}
+                                    className="btn-icon hover:bg-lime-400 p-[5px] border-none shadow shadow-border text-md"
+                                  >
+                                    <MdEdit />
+                                  </button>
+                              {layout.label.toLowerCase() !== "standard" ? (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeRecordLayout(layout.id);
+                                    }}
+                                    className="btn-icon hover:bg-red-400 p-[5px] border-none shadow shadow-border text-md"
+                                  >
+                                    <RiDeleteBin7Fill />
+                                  </button>
+                                </>) : (
+
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation(); // 🛑 prevent row click from firing
-                                    removeRecordLayout(layout.id);
+                                    resetRecordLayout(layout.modelId);
                                   }}
-                                  className="btn-icon hover:bg-red-400 p-[5px] border-none shadow shadow-border text-md"
+                                  className="btn-icon hover:bg-amber-600 p-[5px] border-none shadow shadow-border text-md"
                                 >
-                                  <RiDeleteBin7Fill />
+                                  <BiReset />
                                 </button>
-                              </div>
-                            )}
+
+                              )}
+                            </div>
                           </div>
                         </td>
                       </tr>

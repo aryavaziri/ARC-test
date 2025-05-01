@@ -9,7 +9,7 @@ import { addDynamicModel, addInputFieldToModel, editDynamicFieldAction, addLineI
 import { TResponse } from "@/lib/helpers";
 import axios from "axios";
 import { TFormLayout, TRecordLayout } from "@/types/layouts";
-import { resetStandardSchema } from "@/actions/Dynamic/SchemaReset";
+import { resetRecordLayoutAction, resetStandardSchema } from "@/actions/Dynamic/SchemaReset";
 
 export const useDynamicModel = () => {
   const { dispatch, useAppSelector } = useAppDispatchWithSelector();
@@ -178,6 +178,11 @@ export const useDynamicModel = () => {
     console.log(result)
   };
 
+  const resetRecordLayout = async (modelId:string) => {
+    const result = await resetRecordLayoutAction(modelId)
+    console.log(result)
+  };
+
   // const addMultiRecord = async (data: TRecord[]) => {
   //   const result = await dispatch(createModelMultiRecord(data));
   //   return unwrapResult(result);
@@ -223,6 +228,7 @@ export const useDynamicModel = () => {
     updateRecordLayout,
     getLineItems,
     updateLineItem,
+    resetRecordLayout,
     // getAllFormLayouts,
     // addRecord,
     // addMultiRecord,

@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/auth";
 import sequelize from "@/lib/Sequelize";
+import { Session } from "next-auth";
 
 // 🧠 Handler context type
 type HandlerContext = {
     req: NextRequest;
     params?: Record<string, string>;
-    session?: any;
+    session?: Session;
 };
 
 // 🔁 Main wrapper
 export function handleApi<T = any>(
     fn: (ctx: HandlerContext) => Promise<T>,
-    options: { authRequired?: boolean } = { }
+    options: { authRequired?: boolean } = {}
 ) {
     return async (req: NextRequest, context: { params?: Record<string, string> }) => {
         try {

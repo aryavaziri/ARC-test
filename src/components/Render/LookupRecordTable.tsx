@@ -30,7 +30,7 @@ const LookupRecordTable: React.FC<LookupRecordTableProps> = ({ data, onSelect, f
   }, [search, data]);
 
   useEffect(() => {
-    const lookupIds = filteredData.reduce<string[]>((acc, record) => {
+    const lookupIds = data.reduce<string[]>((acc, record) => {
       record.fields.forEach(field => {
         if (field.type === "lookup") {
           const matchedField = allFields.find(f => f.id === field.fieldId);
@@ -42,22 +42,22 @@ const LookupRecordTable: React.FC<LookupRecordTableProps> = ({ data, onSelect, f
       });
       return acc;
     }, []);
-  
+
     const fetchLookups = async () => {
       if (lookupIds.length > 0) {
-        setLoadingLookups(true); // start loading
+        setLoadingLookups(true);
         try {
           await Promise.all(lookupIds.map(id => getLineItems(id)));
         } catch (error) {
           console.error("Failed to fetch lookup records:", error);
         }
-        setLoadingLookups(false); // done loading
+        setLoadingLookups(false);
       }
     };
-  
+
     fetchLookups();
-  }, [filteredData, allFields]);
-  
+  }, [data, allFields]);
+
 
 
   if (!formLayoutId || loadingLookups) return <div className="text-sm text-muted italic text-center items-center pt-24">Loading...</div>
