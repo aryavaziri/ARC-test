@@ -8,7 +8,7 @@ import AddDynamicField from './Fields/AddEditDynamicField';
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
 import EditDynamicModel from './EditDynamicModel';
 import { RiDeleteBin2Fill, RiDeleteBin7Fill } from 'react-icons/ri';
-import Dependencies from './Dependencies';
+import Dependencies from './Dependency/Dependencies';
 
 type Props = {
   // modelId: string;
@@ -197,8 +197,8 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
         <CustomModal
           isOpen={showDependencies}
           onClose={handleClose3}
-          header="Edit Model"
-          className="w-[500px]"
+          header="Dependencies"
+          className="w-[800px]"
           Component={Dependencies}
           componentProps={{ onClose: handleClose3 }}
         />

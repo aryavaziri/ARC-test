@@ -115,12 +115,16 @@ export const useDynamicModel = () => {
     return unwrapResult(result);
   };
 
-  const getLookupLineItem = async (modelId: string) => {
-    const { data: response } = await axios.get<TResponse>(
-      `/api/dynamic-models/${modelId}/data`
-    )
-    return response.data
+  const getLookupLineItem = async (modelId: string, lineItemIds?: string[]) => {
+    const { data: response } = lineItemIds?.length ? await axios.post<TResponse>(`/api/dynamic-models/${modelId}/data`, { lineItemIds }) : await axios.get<TResponse>(`/api/dynamic-models/${modelId}/data`)
+    return response.data as TLineItem[]
   };
+  // const getLookupByLineItemids = async (modelId: string, lineItemIds: string[]) => {
+  //   const { data: response } = await axios.get<TResponse>(
+  //     `/api/dynamic-models/${modelId}/data`
+  //   )
+  //   return response.data
+  // };
 
   const getAllFormLayouts = async () => {
     const result = await dispatch(fetchAllFormLayouts());
@@ -169,16 +173,16 @@ export const useDynamicModel = () => {
 
   const getAllRecordLayouts = async () => {
     const result = await dispatch(fetchAllRecordLayouts());
-    console.log(result)
+    // console.log(result)
     return unwrapResult(result);
   };
 
-  const resetFormLayout = async (modelId:string) => {
+  const resetFormLayout = async (modelId: string) => {
     const result = await resetStandardSchema(modelId)
     console.log(result)
   };
 
-  const resetRecordLayout = async (modelId:string) => {
+  const resetRecordLayout = async (modelId: string) => {
     const result = await resetRecordLayoutAction(modelId)
     console.log(result)
   };

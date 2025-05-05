@@ -14,6 +14,7 @@ import { TabModel } from "@/models/Layout/Tabs";
 import { PageLayout } from "@/models/Layout/PageLayout";
 import { Flow } from "@/models/Flow/Flow";
 import { resetAllRecordLayouts } from "../Dynamic/SchemaReset";
+import { Dependency } from "@/models/Dynamic/Dependencies";
 
 
 export const dropDatabase = async (db: string) => {
@@ -53,6 +54,7 @@ const sequelizeWithoutDb = new Sequelize({
 export const syncTables = async () => {
   // await dropDatabase(process.env.CentralizedDB ?? "")
   await sequelize.authenticate();
+  await Dependency.sync({ alter: true });
   // await syncUserModels();
   // await syncDynamicModels();
   // await importUserBac('arcerp_dev1')
@@ -87,6 +89,8 @@ const syncDynamicModels = async () => {
     await LongTextInputRecord.sync({ alter: true });
     await CheckboxInputRecord.sync({ alter: true });
     await LookupInputRecord.sync({ alter: true });
+
+    await Dependency.sync({ alter: true });
 
     // await LookupInputSearchColumn.sync({ alter: true });
     // await LookupInputTableColumn.sync({ alter: true });

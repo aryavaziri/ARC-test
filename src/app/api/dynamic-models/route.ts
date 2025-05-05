@@ -1,4 +1,5 @@
 import { handleApi } from "@/lib/apiHandler";
+import { Dependency } from "@/models/Dynamic/Dependencies";
 import { DynamicModel } from "@/models/Dynamic/DynamicModel";
 import { TextInput, NumberInput, DateInput, LongTextInput, CheckboxInput, LookupInput } from "@/models/Dynamic/Fields";
 import { dynamicModelSchema } from "@/types/dynamicModel";
@@ -9,26 +10,25 @@ const getModelIncludes = () => [
   { model: DateInput, as: "ModelDateInputs" },
   { model: LongTextInput, as: "ModelLongTextInputs" },
   { model: CheckboxInput, as: "ModelCheckboxInputs" },
-  {
-    model: LookupInput,
-    as: "ModelLookupInputs",
-    // through: { attributes: [] },
-    // include: [
-    //   { association: 'searchModalColumns' },
-    //   { association: 'recordTableColumns' }]
-  },
+  { model: LookupInput, as: "ModelLookupInputs" },
 ];
 
-// ✅ GET: Fetch all dynamic models with their fields
 export const GET = handleApi(async () => {
   const models = await DynamicModel.findAll({ include: getModelIncludes() });
+  const dependencies = await Dependency.findAll({ raw: true });
+  const dependencyMap = new Map<string, any[]>();
+  dependencies.forEach(dep => {
+    const list = dependencyMap.get(dep.referenceFieldId) ?? [];
+    list.push(dep);
+    dependencyMap.set(dep.referenceFieldId, list);
+  });
+
   const cleanModels = models.map((model) => {
     const m = model.get({ plain: true });
 
     m.ModelLookupInputs = m.ModelLookupInputs.map((lookup: any) => ({
       ...lookup,
-      searchModalColumns: lookup.searchModalColumns?.map((c: any) => c.fieldId) || [],
-      recordTableColumns: lookup.recordTableColumns?.map((c: any) => c.fieldId) || [],
+      dependencies: dependencyMap.get(lookup.id) ?? [],
     }));
 
     return m;
@@ -36,7 +36,6 @@ export const GET = handleApi(async () => {
   return cleanModels;
 });
 
-// ✅ POST: Create a new dynamic model (auth required)
 export const POST = handleApi(async ({ req }) => {
   const json = await req.json();
   const data = dynamicModelSchema.partial({ id: true }).parse(json);

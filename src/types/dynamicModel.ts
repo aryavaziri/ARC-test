@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const dependencySchema = z.object({
+  id: z.string().uuid().optional(),
+  referenceFieldId: z.string().uuid({ message: "referenceFieldId must be a valid UUID", }),
+  controllingFieldId: z.string().uuid().optional().nullable(),
+  referenceLineItemIds: z.array(z.string().uuid()).optional(),
+});
+
 export const fieldTypeEnum = z.enum(['text', 'number', 'date', 'checkbox', 'longText', 'lookup']);
 
 export const textInputSchema = z.object({
@@ -27,6 +34,7 @@ export const lookupSchema = z.object({
   lookupModelId: z.string().uuid(),
   type: z.literal('lookup'),
   primaryFieldId: z.string().uuid(),
+  dependencies: z.array(dependencySchema)
 });
 
 export const createLookupSchema = lookupSchema.omit({ id: true });
@@ -111,3 +119,4 @@ export type TDynamicModel = z.infer<typeof dynamicModelSchema>;
 export type FieldType = z.infer<typeof fieldTypeEnum>;
 
 export type TLookupField = z.infer<typeof createLookupSchema>;
+export type TDependency = z.infer<typeof dependencySchema>;

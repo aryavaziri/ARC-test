@@ -134,6 +134,7 @@ export async function resetAllRecordLayouts(): Promise<TResponse> {
 
     // 🗑️ Step 1: Delete all existing record layouts
     await RecordLayout.destroy({ where: {}, truncate: true });
+    await FormLayout.destroy({ where: {}, truncate: true });
 
     // 📦 Step 2: Get all dynamic model IDs
     const models = await DynamicModel.findAll({ attributes: ['id'] });
@@ -141,6 +142,7 @@ export async function resetAllRecordLayouts(): Promise<TResponse> {
 
     // 🧠 Step 3: Recreate a new "Standard" layout for each model
     for (const modelId of modelIds) {
+      await resetStandardSchema(modelId);
       await resetRecordLayoutAction(modelId);
     }
 

@@ -1,5 +1,5 @@
 import { number, z } from 'zod';
-import { checkboxInputSchema, dateInputSchema, fieldSchema, longTextInputSchema, lookupSchema, numberInputSchema, textInputSchema } from './dynamicModel';
+import { checkboxInputSchema, dateInputSchema, longTextInputSchema, lookupSchema, numberInputSchema, textInputSchema } from './dynamicModel';
 import { IconName } from '@/store/slice/iconMap';
 
 export const lookupSchemaInForms = lookupSchema.extend({
@@ -17,14 +17,6 @@ export const fieldSchemaInForms = z.discriminatedUnion("type", [
   lookupSchemaInForms,
 ]);
 
-
-// export const tabSchema = z.object({
-//   id: z.string().uuid(),
-//   name: z.string(),
-//   layoutType: z.string().nullable().optional(),
-//   content: z.array(z.object({ form: formLayoutSchema, order: z.number().optional() })).optional(),
-// });
-
 export const layoutSchema = z.object({
   label: z.string().min(1, "Layout label is required"),
   route: z.string().min(1, "Route is required"),
@@ -38,32 +30,12 @@ export const tabSchema = z.object({
   layouts: z.array(layoutSchema).min(1, "At least one layout is required"),
 });
 
-export const VALID_ATTACHMENT_TYPES = [
-  'script',
-  'flow',
-  'input',
-  'component',
-  'external',
-  'note',
-  'divider',
-  'spacer',
-  `button`,
-  `empty`,
-  `field`
-] as const;
-
+export const VALID_ATTACHMENT_TYPES = ['script', 'flow', 'input', 'component', 'external', 'note', 'divider', 'spacer', `button`, `empty`, `field`] as const;
 
 export const attachmentSchema = z.object({
   type: z.enum(VALID_ATTACHMENT_TYPES),
   payload: z.any(), // Consider refining per type
 });
-
-// export const attachmentsSchema = z.array(attachmentSchema);
-
-// const attachmentSchema = z.object({
-//   type: z.enum(['script', 'flow', 'customInput', 'component', 'external','note', 'divider', 'spacer']),
-//   payload: z.any(), // Can refine this further based on type
-// });
 
 const sharedFields = z.object({
   attachments: z.array(attachmentSchema).optional(),
@@ -75,7 +47,6 @@ const droppedFormField = z.object({
   index: z.number().int().nonnegative(),
   region: z.number().int().nonnegative(),
   formLayoutId: z.string(),
-  // recordLayoutId: z.undefined().optional(),
 });
 
 const droppedRecordField = z.object({
@@ -84,7 +55,6 @@ const droppedRecordField = z.object({
   index: z.number().int().nonnegative(),
   region: z.number().int().nonnegative(),
   recordLayoutId: z.string(),
-  // formLayoutId: z.undefined().optional(),
 });
 
 const droppedCustomField = z.object({
@@ -133,7 +103,6 @@ export const formLayoutSchema = z.object({
   id: z.string().uuid(),
   label: z.string(),
   modelId: z.string().uuid(),
-  // numberOfColumns: z.number().int().nonnegative().optional().default(1),
   numberOfColumns: z.number().int().min(1).optional().default(1),
   contentSchema: z.array(formItemSchema).optional(),
   attachments: z.array(attachmentSchema).optional()
@@ -169,7 +138,6 @@ export type TRecordLayout = z.infer<typeof recordLayoutSchema>;
 export type TAttachment = z.infer<typeof attachmentSchema>;
 export type TAttachmentType = typeof VALID_ATTACHMENT_TYPES[number];
 
-// export type TRegionKey = z.infer<typeof RegionKeyEnum>;
 export type TContentSchema = z.infer<typeof contentSchema>;
 export type TDroppedField = z.infer<typeof droppedFieldSchema>;
 export type TCustomDroppedField = z.infer<typeof droppedCustomField>;

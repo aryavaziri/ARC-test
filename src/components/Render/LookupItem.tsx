@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Select, { components } from 'react-select';
-import { Controller, Control, FieldError, UseFormSetValue } from 'react-hook-form';
-import { TLineItem, TLookupField, TRecord } from '@/types/dynamicModel';
+import { Controller, Control, FieldError } from 'react-hook-form';
+import { TDependency, TLineItem, TLookupField } from '@/types/dynamicModel';
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks';
 import CustomModal from '@/components/Modals/CustomModal2';
 import { MdOutlineSearch } from 'react-icons/md';
@@ -13,130 +13,121 @@ import FormLayoutBlock from './FormLayoutBlock';
 
 type LookupProps = {
   field: TFormItem;
+  controllingValues?: string[];
   control: Control<any>;
   error?: FieldError;
 };
 
-const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
-  const { models, getLineItems, allFields, lineItem: selectedLineItem } = useDynamicModel();
+const Lookup: React.FC<LookupProps> = ({
+  field,
+  control,
+  error,
+  controllingValues = [],
+}) => {
+  const { getLineItems, allFields, getLookupLineItem } = useDynamicModel();
   const [items, setItems] = useState<TLineItem[]>([]);
+  const dependencies = useMemo(() => {
+    const baseField = allFields.find(f => f.id === field.fieldId) as TLookupField | undefined;
+    return baseField?.dependencies ?? [];
+  }, [allFields, field.fieldId]);
 
   const [fieldHeaders, setFieldHeaders] = useState<{ id: string; label: string }[]>([]);
   const [searchHeaders, setSearchHeaders] = useState<{ id: string; label: string }[]>([]);
   const [fieldLabel, setFieldLabel] = useState<string>('Lookup');
   const [showTable, setShowTable] = useState(false);
+
   const lookupDetails = field.lookupDetails;
   const isCustom = lookupDetails?.isCustomStyle;
-  const allowAddingRecord = !!lookupDetails?.allowAddingRecord
+  const allowAddingRecord = !!lookupDetails?.allowAddingRecord;
 
-  const matchingFieldIds = useMemo(() => {
-    const model = models.find(m => m.id === lookupDetails?.lookupModelId);
-    if (!model) return [];
+  const isDisabled: boolean = useMemo(() => {
+    return dependencies.some(dep =>
+      dep.controllingFieldId &&
+      Array.isArray(controllingValues) &&
+      !!controllingValues.length
+    );
+  }, [dependencies, controllingValues]);
 
-    const ids: string[] = [
-      ...model.ModelTextInputs?.map(f => f.id) ?? [],
-      ...model.ModelNumberInputs?.map(f => f.id) ?? [],
-      ...model.ModelDateInputs?.map(f => f.id) ?? [],
-      ...model.ModelCheckboxInputs?.map(f => f.id) ?? [],
-      ...model.ModelLongTextInputs?.map(f => f.id) ?? [],
-      ...model.ModelLookupInputs?.map(f => f.id) ?? [],
-    ];
-    return ids;
-  }, [models, lookupDetails?.lookupModelId]);
-
-  const lineItem = useMemo(() => {
-    return selectedLineItem?.filter((r: TLineItem) =>
-      r.fields.some(f => matchingFieldIds.includes(f.fieldId))
-    ) ?? [];
-  }, [selectedLineItem, matchingFieldIds]);
   const [showAddNew, setShowAddNew] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!lookupDetails) return;
 
-      const baseField = allFields.find(f => f.id === field.fieldId)
-      const resolvedPrimary = (baseField as TLookupField).primaryFieldId ?? ""
-      const result: TLineItem[] = await getLineItems(lookupDetails.lookupModelId);
-      const additionalItems = selectedLineItem?.filter(r =>
-        r.fields.some(f => matchingFieldIds.includes(f.fieldId))
-      ) ?? [];
+      const baseField = allFields.find(f => f.id === field.fieldId) as TLookupField | undefined;
+      const resolvedPrimary = baseField?.primaryFieldId ?? '';
 
-      const merged = [
-        ...result,
-        ...additionalItems.filter(i => !result.some(r => r.id === i.id)),
-      ];
+      const flatFields = lookupDetails.fields?.flat()?.length
+        ? lookupDetails.fields.flat()
+        : resolvedPrimary ? [resolvedPrimary] : [];
 
-      const flatFields = lookupDetails.fields?.flat()?.length > 0 ? lookupDetails.fields.flat() : resolvedPrimary ? [resolvedPrimary] : [];
-      const flatSearchFields = lookupDetails.searchFields?.length ? lookupDetails.searchFields : resolvedPrimary ? [resolvedPrimary] : [];
+      const flatSearchFields = lookupDetails.searchFields?.length
+        ? lookupDetails.searchFields
+        : resolvedPrimary ? [resolvedPrimary] : [];
+
+      let result: TLineItem[] = [];
+
+      if (!dependencies.length) {
+        result = await getLineItems(lookupDetails.lookupModelId);
+      } else {
+        const lineItemIds = getAllDependencyLineItemIds(dependencies, controllingValues);
+
+        if (!lineItemIds.length || !field.lookupDetails?.lookupModelId) {
+          result = [];
+        } else {
+          try {
+            result = await getLookupLineItem(field.lookupDetails.lookupModelId, lineItemIds);
+          } catch (err) {
+            console.error('Failed to fetch filtered records:', err);
+            result = [];
+          }
+        }
+      }
 
       const allFieldMap = new Map(allFields.map(f => [f.id, f.label]));
-      const headers = flatFields.map(id => ({ id, label: allFieldMap.get(id) || id }));
-      const headers2 = flatSearchFields.map(id => ({ id, label: allFieldMap.get(id) || id }));
-
-      setItems(merged);
+      setFieldHeaders(flatFields.map(id => ({ id, label: allFieldMap.get(id) ?? id })));
+      setSearchHeaders(flatSearchFields.map(id => ({ id, label: allFieldMap.get(id) ?? id })));
       setFieldLabel(baseField?.label ?? 'Lookup');
-      setFieldHeaders(headers);
-      setSearchHeaders(headers2);
+      setItems(result);
     };
 
     fetchData();
-  }, [models, matchingFieldIds]);
+  }, [field.fieldId, lookupDetails?.lookupModelId, dependencies, controllingValues, allFields]);
+
 
   const getRowPreview = (recordId: string) => {
-    const nestedRecord = lineItem.find(l => l.id === recordId);
-    console.log(nestedRecord)
-    if (!nestedRecord || !lookupDetails?.fields) return null;
-
-    return lookupDetails.fields.map((row, idx) => {
-      const values = row
-        .map(fid => nestedRecord.fields.find(f => f.fieldId === fid)?.value)
-        .filter(val => val !== null && val !== undefined && val !== '') // Filter out empty values
-        .map(val => val?.toString());
-
-      if (values.length === 0) return null; // Skip rendering this row if no values
+    // const nestedRecord = lineItem.find(l => l.id === recordId);
+    const nestedRecord = items.find(l => l.id === recordId);
+    return lookupDetails?.fields.map((row, idx) => {
+      const line = row
+        .map(fid => nestedRecord?.fields.find(f => f.fieldId === fid)?.value)
+        .filter(Boolean)
+        .join(', ');
 
       return (
         <p key={`row-${idx}`} className="text-gray-600">
-          {values.join(', ')}
+          {line || '\u00A0'}
         </p>
       );
-    }).filter(Boolean); // Filter out null rows
+    });
   };
 
   const selectOptions = items.map(opt => ({
-    label: '', // not used, we’ll customize it
+    label: '',
     value: opt.id,
   }));
 
-  const getGridColsClass = (count: number) => {
-    return {
-      1: 'grid-cols-1',
-      2: 'grid-cols-2',
-      3: 'grid-cols-3',
-      4: 'grid-cols-4',
-      5: 'grid-cols-5',
-      6: 'grid-cols-6',
-      7: 'grid-cols-7',
-      8: 'grid-cols-8',
-      9: 'grid-cols-9',
-      10: 'grid-cols-10',
-    }[count] || 'grid-cols-2';
-  };
+  const getGridColsClass = (count: number) => `grid-cols-${Math.min(count, 10)}`;
 
+  const CustomMenuList = (props: any) => (
+    <components.MenuList {...props}>
+      <div className={`grid ${getGridColsClass(fieldHeaders.length)} px-3 py-1 text-xs font-semibold text-muted-foreground bg-white sticky top-0 z-10 border-b border-border`}>
+        {fieldHeaders.map(h => <div key={`header-${h.id}`}>{h.label}</div>)}
+      </div>
+      {props.children}
+    </components.MenuList>
+  );
 
-  const CustomMenuList = (props: any) => {
-    return (
-      <components.MenuList {...props}>
-        <div className={`grid ${getGridColsClass(fieldHeaders.length)} px-3 py-1 text-xs font-semibold text-muted-foreground bg-white sticky top-0 z-10 border-b border-border`}>
-          {fieldHeaders.map(h => (
-            <div key={`header-${h.id}`}>{h.label}</div>
-          ))}
-        </div>
-        {props.children}
-      </components.MenuList>
-    );
-  };
   return (
     <div className="flex flex-col gap-1 w-full">
       <label className="font-medium">{fieldLabel}</label>
@@ -154,6 +145,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
                     value={selectOptions.find(o => o.value === controllerField.value) || null}
                     onChange={(option) => controllerField.onChange(option?.value)}
                     isClearable
+                    isDisabled={isDisabled}
                     className="w-full"
                     classNamePrefix="react-select"
                     components={{ MenuList: CustomMenuList }}
@@ -167,8 +159,7 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
                             return (
                               <div
                                 key={`${header.id}-${option.value}-${idx}`}
-                                className="truncate text-muted-foreground max-w-[10rem]"
-                              >
+                                className="truncate text-muted-foreground max-w-[10rem]">
                                 {val ? String(val) : '-'}
                               </div>
                             );
@@ -176,37 +167,26 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
                         </div>
                       );
                     }}
-                    styles={{
-                      control: (base) => ({
-                        ...base,
-                        borderColor: error ? '#ef4444' : base.borderColor,
-                        minHeight: '2.2rem',
-                      }),
-                      input: (base) => ({
-                        ...base,
-                        paddingTop: 0,
-                        paddingBottom: 0,
-                      }),
-                      dropdownIndicator: (base) => ({
-                        ...base,
-                        padding: '0.25rem',
-                      }),
-                      menuPortal: base => ({ ...base, zIndex: 9999 }),
-                    }}
                   />
                 </div>
-                <div className="btn-icon aspect-square" onClick={() => setShowTable(true)}>
+                <div
+                  className={`btn-icon aspect-square ${!!dependencies.length ? 'hover:bg-light' : ''}`}
+                  onClick={() => !isDisabled && setShowTable(true)}
+                // onClick={() => !dependencies.length && setShowTable(true)}
+                >
                   <MdOutlineSearch />
                 </div>
+                <div className={`btn-icon`} onClick={() => console.log(controllingValues)} >TEST</div>
               </div>
             ) : (
               <div className="flex w-full gap-2">
                 <div className="p-2 grow hover:bg-primary-100/30 rounded border border-border shadow-sm flex flex-col gap-1">
-                  {controllerField.value && getRowPreview(controllerField.value)}
+                  {getRowPreview(controllerField.value)}
                 </div>
-                <div className="btn-icon aspect-square" onClick={() => setShowTable(true)}>
+                <div className="btn-icon aspect-square" onClick={() => !isDisabled && setShowTable(true)}>
                   <MdOutlineSearch />
                 </div>
+                <div className={`btn-icon`} onClick={() => console.log(controllingValues)} >TEST</div>
               </div>
             )}
 
@@ -216,17 +196,15 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
               header={`Select ${fieldLabel}`}
               Component={LookupRecordTable}
               componentProps={{
-                modelId: lookupDetails?.lookupModelId ?? "",
+                modelId: lookupDetails?.lookupModelId ?? '',
                 data: items,
                 fieldHeaders: searchHeaders,
                 onSelect: (record: TLineItem) => {
                   controllerField.onChange(record.id);
                   setShowTable(false);
                 },
-                onAddNew: () => {
-                  setShowAddNew(true);
-                },
-                allowAddingRecord
+                onAddNew: () => setShowAddNew(true),
+                allowAddingRecord,
               }}
             />
 
@@ -234,21 +212,16 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
               isOpen={showAddNew}
               onClose={() => setShowAddNew(false)}
               header={`Add New ${fieldLabel}`}
-              className='w-[600px]'
+              className="w-[600px]"
               Component={FormLayoutBlock}
               componentProps={{
-                modelId: lookupDetails?.lookupModelId ?? "",
-                layoutLabel: "Standard",
-                onSave: () => {
-                  setShowAddNew(false);
-                  // Optional: refresh lineItems here if needed
-                },
+                modelId: lookupDetails?.lookupModelId ?? '',
+                layoutLabel: 'Standard',
+                onSave: () => setShowAddNew(false),
                 hasSubmit: true,
                 onCancel: () => setShowAddNew(false),
               }}
             />
-
-
           </>
         )}
       />
@@ -259,3 +232,35 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
 
 export default Lookup;
 
+function getAllDependencyLineItemIds(
+  dependencies: TDependency[],
+  controllingValues: string[] = []
+): string[] {
+  const filteredLineItemIds = new Set<string>();
+
+  for (const dependency of dependencies) {
+    const { controllingFieldId, referenceLineItemIds } = dependency;
+
+    if (controllingFieldId && Array.isArray(controllingValues)) {
+      for (const val of controllingValues) {
+        if (val) filteredLineItemIds.add(val);
+      }
+    }
+
+    if (referenceLineItemIds) {
+      try {
+        const parsed = Array.isArray(referenceLineItemIds)
+          ? referenceLineItemIds
+          : JSON.parse(referenceLineItemIds);
+
+        for (const id of parsed) {
+          if (typeof id === 'string' && id) filteredLineItemIds.add(id);
+        }
+      } catch (err) {
+        console.warn('Invalid referenceLineItemIds JSON:', referenceLineItemIds);
+      }
+    }
+  }
+
+  return Array.from(filteredLineItemIds);
+}

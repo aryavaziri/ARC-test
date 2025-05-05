@@ -2,14 +2,11 @@
 
 import { useForm, FieldValues, FieldError } from 'react-hook-form'
 import { useDynamicModel } from '@/store/hooks/dynamicModelsHooks'
-import Lookup from './LookupItem'
-import DynamicItem, { DynamicInputType } from './DynamicItem'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useFlow } from '@/store/hooks/flowsHooks'
-import { FaCode } from 'react-icons/fa'
 import { TAttachment } from '@/types/layouts'
-import { on } from 'events'
+import RenderField from './RenderFieldNew'
 
 interface Props {
   formLayoutId?: string;
@@ -25,22 +22,12 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
   const { models, allFields, formLayouts, addData } = useDynamicModel();
   const { runAndHandleFlow } = useFlow();
   const methods = useForm();
-  const { register, handleSubmit, control, formState } = methods;
+  const { handleSubmit } = methods;
 
 
   const formLayout = formLayoutId
     ? formLayouts.find(f => f.id === formLayoutId)
     : formLayouts.find(f => f.modelId === modelId);
-
-  const [layoutItemsState, setLayoutItemsState] = useState<Record<string, any>>(() => {
-    const initial: Record<string, any> = {};
-    formLayout?.contentSchema?.forEach(item => {
-      if (item.fieldId) {
-        initial[item.fieldId] = item;
-      }
-    });
-    return initial;
-  });
 
   const submitButtons = attachments?.filter(att => att.type === 'button' && att.payload?.action === 'submit');
   const customButtons = attachments?.filter(att => att.type === 'button' && att.payload?.action === 'custom');
@@ -48,7 +35,7 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
   const numberOfColumns = useMemo(() => {
     const maxCol = Math.max(0, ...(formLayout?.contentSchema ?? []).map(f => f.col ?? 0));
     return maxCol + 1;
-  }, [formLayoutId]);
+  }, [formLayoutId, formLayout]);
 
   const fields = formLayout?.contentSchema?.map(item => {
     const field = allFields.find(f => f.id === item.fieldId);
@@ -60,22 +47,15 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
     };
   }).filter(Boolean) as (typeof allFields[0] & { lookupDetails?: any; attachment?: any })[];
 
-  useEffect(() => {
-    console.log(formLayout)
-  }, [formLayout]);
-
   const groupedFields: ExtendedField[][] = useMemo(() => {
+    if (!models) return [[]]
     const cols: ExtendedField[][] = Array.from({ length: numberOfColumns }, () => []);
-
     fields?.forEach(field => {
       const col = formLayout?.contentSchema?.find(i => i.fieldId === field.id)?.col ?? 0;
       cols[col]?.push(field);
     });
-
     return cols;
-  }, [fields, formLayout, numberOfColumns]);
-
-  // if (!formLayout || !fields.length) return <div className="text-sm text-muted italic">Loading form layout...</div>
+  }, [fields, formLayout, numberOfColumns, models]);
 
   const model = models.find(m => m.id === formLayout?.modelId);
 
@@ -170,81 +150,27 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
     }
   };
 
-  const updateLayoutItem = (fieldId: string, updates: Partial<any>) => {
-    setLayoutItemsState(prev => ({
-      ...prev,
-      [fieldId]: {
-        ...prev[fieldId],
-        ...updates
-      }
-    }));
-  };
-
-  const renderField = (field: typeof fields[number]) => {
-    const name = field.id;
-    const label = field.label ?? 'Unnamed Field';
-    // const layoutItem = formLayout?.contentSchema?.find(item => item.fieldId === name);
-    const layoutItem = layoutItemsState[name];
-    if (!layoutItem) return null;
-
-    return (
-      <div key={name} className="space-x-2 flex items-end">
-        {field.type === 'lookup' ? (
-          <Lookup
-            field={layoutItem}
-            control={control}
-            error={formState.errors[name] as FieldError}
-          />
-        ) : (
-          <DynamicItem<FieldValues>
-            name={name}
-            label={label}
-            type={field.type as DynamicInputType}
-            register={register}
-            error={formState.errors[name] as FieldError}
-            required={field.isRequired ?? false}
-            style={3}
-          />
-        )}
-
-        {layoutItem.flowId && (
-          <button
-            type="button"
-            className="aspect-square h-8 btn-icon"
-            onClick={async () => {
-              if (!layoutItem.flowId) return;
-
-              await runAndHandleFlow(layoutItem.flowId, {
-                values: buildInputPayload(),
-                formLayoutId
-              }, {
-                methods,
-                fields,
-                label: 'Custom Flow',
-                updateLayoutItem
-              });
-            }}
-          >
-            <FaCode />
-          </button>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="con">
       <div className="text-sm font-semibold text-muted-foreground mb-4">
         {model?.name} - {formLayout?.label}
       </div>
-      {/* <button className="btn btn-secondary py-1" onClick={() => console.log(formLayout)}>TEST</button> */}
-
-      <div className={`grid gap-12`} style={{ gridTemplateColumns: `repeat(${numberOfColumns}, minmax(0, 1fr))` }}>
-        {groupedFields.map((colFields, colIdx) => (
-          <div key={colIdx} className="flex flex-col gap-3">
-            {colFields.map(renderField)}
-          </div>
-        ))}
+      <div className={`grid gap-12 ${`grid-cols-${numberOfColumns}`}`} >
+        {groupedFields.map((colFields, colIdx) => {
+          return (
+            <div key={colIdx} className="flex flex-col gap-3">
+              {colFields.map((field) => (
+                <RenderField
+                  key={field.id}
+                  field={field}
+                  formLayoutId={formLayout?.id}
+                  fields={fields}
+                  methods={methods}
+                />
+              ))}
+            </div>
+          )
+        })}
       </div>
 
       <div className="pt-4 flex gap-4">

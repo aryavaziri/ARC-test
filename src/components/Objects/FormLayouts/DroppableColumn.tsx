@@ -12,7 +12,7 @@ type Props = {
   colIdx: number;
   items: TFormItem[];
   append: (item: TFormItem) => void;
-  remove: (index: number) => void;
+  remove: (colIdx: number, index: number) => void;
   moveItem: (fieldId: string, hoverIndex: number, targetCol: number) => void;
   isAdded: (fieldId: string) => boolean;
   onOptionsClick: (lookupModelId: string) => void;
@@ -47,6 +47,8 @@ const DroppableColumn = ({
   >({
     accept: ['AVAILABLE_FIELD', 'FIELD_ITEM'],
     drop(item, monitor) {
+      if (monitor.didDrop()) return;
+      console.log(item)
       if (item.type === 'FIELD_ITEM') {
         const columnItemCount = items.length; // since items is already scoped to this column
         moveItem(item.fieldId, columnItemCount, colIdx);
@@ -95,7 +97,7 @@ const DroppableColumn = ({
                 item={item}
                 colIdx={colIdx}
                 field={matchedField}
-                onRemove={() => remove(index)}
+                onRemove={() => remove(colIdx, index)}
                 onOptionsClick={() => onOptionsClick(item.lookupDetails?.lookupModelId ?? '')}
                 onFlowClick={() => onFlowClick(item.fieldId)}
               />
@@ -118,11 +120,23 @@ type DropZoneProps = {
 const DropZone: FC<DropZoneProps> = ({ index, colIdx, moveItem }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [{ isOver }, drop] = useDrop<{ type: 'FIELD_ITEM'; fieldId: string; colIdx: number }, void, { isOver: boolean }>({
-    accept: 'FIELD_ITEM',
+  const [{ isOver }, drop] = useDrop<
+    { type: 'FIELD_ITEM'; fieldId: string; colIdx: number } |
+    { type: 'AVAILABLE_FIELD'; field: TField },
+    any,
+    { isOver: boolean }
+  >({
+    accept: ['FIELD_ITEM', 'AVAILABLE_FIELD'],
     drop: (dragged) => {
-      moveItem(dragged.fieldId, index, colIdx);
+      if (dragged.type === 'FIELD_ITEM') {
+        moveItem(dragged.fieldId, index, colIdx);
+      } else if (dragged.type === 'AVAILABLE_FIELD') {
+        const field = dragged.field;
+        moveItem(field.id, index, colIdx); // 👈 insert new field at index
+      }
+      return { handled: true }
     },
+
     collect: monitor => ({
       isOver: monitor.isOver({ shallow: true }),
     }),

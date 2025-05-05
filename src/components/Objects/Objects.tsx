@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { IoChevronBackSharp } from "react-icons/io5";
 import Link from "next/link";
 import RecordLayouts from "./RecordLayouts/RecordLayout";
-import DependencyLayout from "./Dependency/DependencyLayout";
+// import DependencyLayout from "./Dependency/DependencyList";
 import Scripts from "./Scripts/Scripts";
 
 const tabOptions = [
@@ -57,7 +57,8 @@ const ObjectsLayout = ({ objectId }: { objectId: string }) => {
       case "Scripts":
         return <Scripts />;
       case "Dependency":
-        return <DependencyLayout />;
+        return
+        // return <DependencyLayout />;
       default:
         return null;
     }

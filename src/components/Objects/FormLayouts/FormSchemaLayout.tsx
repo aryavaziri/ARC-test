@@ -14,6 +14,7 @@ import { useRef } from 'react';
 import DraggableFieldSource from './DraggableFieldSource';
 import DroppableColumn from './DroppableColumn';
 import Select from 'react-select';
+import { TField } from '@/types/dynamicModel';
 
 const schema = z.object({ contentSchema: z.array(formItemSchema), numberOfColumns: z.number().int().nonnegative().optional().default(1), });
 type LayoutFormData = z.infer<typeof schema>;
@@ -21,6 +22,21 @@ type Props = { selectedLayoutId: string };
 
 const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
   const { selectedModel, formLayouts, updateFormLayout, allFields } = useDynamicModel();
+  const selectedModelFieldIds = useMemo(() => {
+    if (!selectedModel) return [];
+
+    const extractIds = (items?: { id: string }[]) => items?.map(i => i.id) ?? [];
+
+    return [
+      ...extractIds(selectedModel.ModelTextInputs),
+      ...extractIds(selectedModel.ModelNumberInputs),
+      ...extractIds(selectedModel.ModelCheckboxInputs),
+      ...extractIds(selectedModel.ModelLongTextInputs),
+      ...extractIds(selectedModel.ModelDateInputs),
+      ...extractIds(selectedModel.ModelLookupInputs),
+    ];
+  }, [selectedModel]);
+
 
   const [selectedLookup, setSelectedLookup] = useState<string | null>(null);
   const [selectedFlowFieldId, setSelectedFlowFieldId] = useState<string | null>(null);
@@ -48,11 +64,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
   }, [selectedLayout, resetLayoutForm]);
 
 
-  const availableFields = useMemo(() => {
-    return allFields.filter(f =>
-      selectedLayout?.contentSchema?.some(i => i.fieldId === f.id)
-    );
-  }, [allFields, selectedLayout]);
+
 
 
   const onSave = async (data: LayoutFormData) => {
@@ -75,6 +87,14 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
     resetLayoutForm(cleanedSchema);
   };
   const contentSchema = watch('contentSchema') ?? [];
+
+  const availableFields = useMemo(() => {
+    return allFields.filter(f =>
+      selectedModelFieldIds.includes(f.id) &&
+      !contentSchema.some(i => i.fieldId === f.id)
+    );
+  }, [allFields, contentSchema, selectedModelFieldIds]);
+
   const [numberOfColumns, setNumberOfColumns] = useState(() => {
     const maxCol = Math.max(0, ...(selectedLayout?.contentSchema ?? []).map(item => item.col ?? 0));
     return maxCol + 1;
@@ -106,28 +126,75 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
       });
     return reordered;
   };
+  const fieldMap = useMemo(() => {
+    const map = new Map<string, TField>();
+    allFields.forEach(field => map.set(field.id, field));
+    return map;
+  }, [allFields]);
+
 
   const moveItemByFieldId = (fieldId: string, hoverIndex: number, targetCol: number) => {
-    const items = [...getValues("contentSchema")].map(item => ({ ...item, col: item.col ?? 0 }));
-    const draggedItem = items.find(i => i.fieldId === fieldId);
-    if (!draggedItem) return;
-    const remainingItems = items.filter(i => i.fieldId !== fieldId);
-    const updatedTargetColItems = remainingItems.filter(i => i.col === targetCol);
-    updatedTargetColItems.splice(hoverIndex, 0, { ...draggedItem, col: targetCol });
-    const otherItems = remainingItems.filter(i => i.col !== targetCol);
-    const combined = [...otherItems, ...updatedTargetColItems];
-    const reordered = reorderContentSchema(combined);
+    const existing = getValues("contentSchema");
+    const existingItem = existing.find(i => i.fieldId === fieldId);
+
+    const items = existing.map(item => ({ ...item, col: item.col ?? 0 }));
+    let updatedItems;
+
+    if (existingItem) {
+      const remainingItems = items.filter(i => i.fieldId !== fieldId);
+      const targetColItems = remainingItems.filter(i => i.col === targetCol);
+      targetColItems.splice(hoverIndex, 0, { ...existingItem, col: targetCol });
+      const otherItems = remainingItems.filter(i => i.col !== targetCol);
+      updatedItems = [...otherItems, ...targetColItems];
+    } else {
+      const baseField = fieldMap.get(fieldId);
+      const isLookup = baseField?.type === "lookup";
+
+      const newItem = {
+        fieldId,
+        type: baseField?.type ?? 'text',
+        order: hoverIndex,
+        col: targetCol, // ensure col is always defined
+        lookupDetails: isLookup
+          ? {
+            lookupModelId: (baseField as Extract<TField, { type: 'lookup' }>).lookupModelId,
+            isCustomStyle: false,
+            fields: [],
+          }
+          : undefined,
+      };
+
+      const targetColItems = items.filter(i => i.col === targetCol);
+      targetColItems.splice(hoverIndex, 0, newItem);
+      const otherItems = items.filter(i => i.col !== targetCol);
+      updatedItems = [...otherItems, ...targetColItems];
+    }
+
+    const reordered = reorderContentSchema(updatedItems);
     setValue("contentSchema", reordered);
   };
 
-  const handleRemove = (index: number) => {
-    remove(index);
-    setTimeout(() => {
-      const current = getValues("contentSchema");
-      const reordered = reorderContentSchema([...current]);
-      setValue("contentSchema", reordered);
-    }, 0);
+  const handleRemove = (colIdx: number, colIndex: number) => {
+    const field = groupedFields[colIdx][colIndex];
+    const globalIndex = fields.findIndex(f => f.fieldId === field.fieldId);
+    if (globalIndex !== -1) {
+      remove(globalIndex);
+      setTimeout(() => {
+        const current = getValues("contentSchema");
+        const reordered = reorderContentSchema([...current]);
+        setValue("contentSchema", reordered);
+      }, 0);
+    }
   };
+
+  // const handleRemove = (colIdx: number, index: number) => {
+  //   remove(index);
+  //   setTimeout(() => {
+  //     const current = getValues("contentSchema");
+  //     const reordered = reorderContentSchema([...current]);
+  //     setValue("contentSchema", reordered);
+  //   }, 0);
+  // };
 
   return (
     <>
@@ -145,7 +212,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
             }}
             isSearchable={false}
           />
-          <button className="btn btn-secondary py-1" onClick={() => console.log(contentSchema)}>TEST</button>
+          <button className="btn btn-secondary py-1 text-sm" onClick={() => console.log(contentSchema)}>Schema LOG</button>
         </div>
 
         <div className="text-sm text-gray-500 flex gap-4 mb-2">

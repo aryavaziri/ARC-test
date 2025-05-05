@@ -12,9 +12,10 @@ import { CheckboxInputRecord, DateInputRecord, LongTextInputRecord, LookupInputR
 import { TabModel } from "@/models/Layout/Tabs";
 import { PageLayout } from "@/models/Layout/PageLayout";
 import { Flow } from "@/models/Flow/Flow";
+import { Dependency } from "@/models/Dynamic/Dependencies";
 
 const UserModels = [UserRole, User];
-const DynamicModels = [TextInput, LongTextInput, DateInput, NumberInput, DynamicModel, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, TextInputRecord, NumberInputRecord, CheckboxInput, DateInputRecord, CheckboxInputRecord, LongTextInputRecord, ModelTextInput, LineItem, LookupInput, LookupInputRecord, ModelLookupInput, LookupInputSearchColumn, LookupInputTableColumn, FormLayout, TabModel, PageLayout, RecordLayout, Flow];
+const DynamicModels = [TextInput, LongTextInput, DateInput, NumberInput, DynamicModel, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, TextInputRecord, NumberInputRecord, CheckboxInput, DateInputRecord, CheckboxInputRecord, LongTextInputRecord, ModelTextInput, LineItem, LookupInput, LookupInputRecord, ModelLookupInput, LookupInputSearchColumn, LookupInputTableColumn, FormLayout, TabModel, PageLayout, RecordLayout, Flow, Dependency];
 
 
 const sequelize = new Sequelize({

@@ -19,6 +19,7 @@ import { iconMap } from "@/store/slice/iconMap"; // for rendering icons
 import { slugify } from "@/lib/helpers";
 import { useDynamicModel } from "@/store/hooks/dynamicModelsHooks";
 import { useFlow } from "@/store/hooks/flowsHooks";
+import { resetAllRecordLayouts } from "@/actions/Dynamic/SchemaReset";
 
 const Nav = () => {
   const { userData } = useAuth();
@@ -99,6 +100,7 @@ const Nav = () => {
       <div className="flex gap-2">
         {pathname == "/render" && <Link href={`${pathname.replace('/render', '/design')}?${params.toString()}`} className={`btn btn-primary w-min`} >Design</Link>}
         {pathname == "/design" && <Link href={`${pathname.replace('/design', '/render')}?${params.toString()}`} className={`btn btn-primary w-min`} >Render</Link>}
+        <button className={`btn btn-primary w-min`} onClick={async () => await resetAllRecordLayouts()} >Reset Layout</button>
         <button className={`btn btn-primary w-min`} onClick={async () => await syncTables()} >SYNC DB</button>
       </div>
       {isAuth ? (

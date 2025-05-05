@@ -24,8 +24,8 @@ export const DELETE = handleApi(async ({ params }) => {
     await LongTextInput.destroy({ where: { id: fieldId }, transaction: t });
     await CheckboxInput.destroy({ where: { id: fieldId }, transaction: t });
 
-    await LookupInputSearchColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
-    await LookupInputTableColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
+    // await LookupInputSearchColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
+    // await LookupInputTableColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
     await LookupInput.destroy({ where: { id: fieldId }, transaction: t });
 
     if (!deleted) throw new Error("Field not found or already deleted");
@@ -117,8 +117,8 @@ export const PUT = handleApi(async ({ params, req }) => {
 
         await LookupInput.update(updatePayload, { where: { id: fieldId }, transaction: t });
 
-        await LookupInputSearchColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
-        await LookupInputTableColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
+        // await LookupInputSearchColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
+        // await LookupInputTableColumn.destroy({ where: { lookupInputId: fieldId }, transaction: t });
 
         // await LookupInputSearchColumn.bulkCreate(
         //   parsed.searchModalColumns?.map((relatedFieldId) => ({
