@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey } from "sequelize-typescript";
 import { DynamicModel } from "../DynamicModel";
 
 @Table({ tableName: "LookupInputs", timestamps: false })
@@ -17,6 +17,9 @@ export class LookupInput extends Model {
   @Column(DataType.BOOLEAN)
   declare isRequired: boolean;
 
+  @Column(DataType.BOOLEAN)
+  declare isHidden: boolean;
+
   @ForeignKey(() => DynamicModel)
   @Column({
     type: DataType.UUID,
@@ -29,34 +32,4 @@ export class LookupInput extends Model {
     allowNull: false,
   })
   declare primaryFieldId: string;
-
-  // @HasMany(() => LookupInputSearchColumn, 'lookupInputId')
-  // searchModalColumns?: LookupInputSearchColumn[];
-
-  // @HasMany(() => LookupInputTableColumn, 'lookupInputId')
-  // recordTableColumns?: LookupInputTableColumn[];
-}
-
-@Table({ tableName: 'LookupInputSearchColumns', timestamps: false })
-export class LookupInputSearchColumn extends Model {
-  @PrimaryKey
-  @ForeignKey(() => LookupInput)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare lookupInputId: string;
-
-  @PrimaryKey
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare fieldId: string;
-}
-
-@Table({ tableName: 'LookupInputTableColumns', timestamps: false })
-export class LookupInputTableColumn extends Model {
-  @PrimaryKey
-  @ForeignKey(() => LookupInput)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare lookupInputId: string;
-
-  @PrimaryKey
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare fieldId: string;
 }

@@ -16,6 +16,11 @@ export class Dependency extends Model {
   @Column(DataType.UUID)
   declare referenceFieldId: string;
 
+  @AllowNull(false)
+  @ForeignKey(() => LookupInput)
+  @Column(DataType.UUID)
+  declare dependantFieldId: string;
+
   @ForeignKey(() => LookupInput)
   @Column(DataType.UUID)
   declare controllingFieldId: string;

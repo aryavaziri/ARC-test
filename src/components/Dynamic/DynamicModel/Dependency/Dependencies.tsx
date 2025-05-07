@@ -17,7 +17,7 @@ interface Props {
 
 const Dependencies: React.FC<Props> = ({ onClose }) => {
   const { selectedModel, selectedField, getLineItems, models } = useDynamicModel();
-  const { createDependency, dependencies, fetchDependencies } = useDependency(selectedField?.id ?? '');
+  const { createDependency, dependencies, fetchDependencies, deleteDependency } = useDependency(selectedField?.id ?? '');
   const { handleSubmit } = useForm();
 
   const [dependentField, setDependentField] = useState<SelectOption | null>(null);
@@ -42,7 +42,7 @@ const Dependencies: React.FC<Props> = ({ onClose }) => {
 
   useEffect(() => {
     fetchDependencies()
-  }, []);
+  }, [deleteDependency, createDependency]);
 
   const loadLineItemOptions = async (inputValue: string) => {
     const fieldMeta = dependentFields.find(f => f.id === dependentField?.value);
@@ -63,13 +63,14 @@ const Dependencies: React.FC<Props> = ({ onClose }) => {
     const parsed = dependencySchema
       .omit({ id: true, referenceFieldId: true })
       .parse({
+        dependantFieldId: dependentField?.value,
         controllingFieldId: useManualFilter ? undefined : controllingField?.value,
         referenceLineItemIds: useManualFilter ? selectedLineItemOptions.map(o => o.value) : [],
       });
 
     const newDep = await createDependency({ ...parsed, referenceFieldId: selectedField!.id });
 
-    if (newDep) {
+    if (newDep.success) {
       setDependentField(null);
       setControllingField(null);
       setSelectedLineItemOptions([]);
@@ -156,7 +157,7 @@ const Dependencies: React.FC<Props> = ({ onClose }) => {
         </button>
       </div>
 
-      <DependencyList dependencies={dependencies} referenceFieldId={selectedField!.id} />
+      <DependencyList dependencies={dependencies} deleteDependency={deleteDependency} />
     </div>
   );
 };

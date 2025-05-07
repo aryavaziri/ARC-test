@@ -22,4 +22,7 @@ export class TextInput extends Model {
   @Column(DataType.BOOLEAN)
   declare isRequired: boolean;
 
+  @Column(DataType.BOOLEAN)
+  declare isHidden: boolean;
+
 }

@@ -39,6 +39,7 @@ export const GET = handleApi(async ({ params }) => {
 
       return {
         id: lineItemId,
+        modelId,
         fields,
       };
     })
@@ -51,7 +52,8 @@ export const POST = handleApi(async ({ params, req }) => {
   const modelId = params?.modelId;
   if (!modelId) throw new Error("Missing modelId");
 
-  let { lineItemIds } = await req.json();
+  let { lineItemIds, dependantFieldId } = await req.json();
+  // console.log("TEST",lineItemIds, dependantFieldId)
   if (typeof lineItemIds === 'string') {
     try {
       lineItemIds = JSON.parse(lineItemIds);
@@ -72,7 +74,14 @@ export const POST = handleApi(async ({ params, req }) => {
         DateInputRecord.findAll({ where: { lineItemId }, raw: true }),
         LongTextInputRecord.findAll({ where: { lineItemId }, raw: true }),
         CheckboxInputRecord.findAll({ where: { lineItemId }, raw: true }),
-        LookupInputRecord.findAll({ where: { lineItemId, ...(lineItemIds?.length ? { value: { [Op.in]: lineItemIds } } : {}) }, raw: true }),
+        LookupInputRecord.findAll({
+          where: {
+            lineItemId,
+            ...(dependantFieldId ? { fieldId: dependantFieldId } : {}),
+            ...(lineItemIds?.length ? { value: { [Op.in]: lineItemIds } } : {})
+          },
+          raw: true
+        }),
       ]);
 
       if (!!lineItemIds?.length && !lookup.length) return null;
@@ -84,7 +93,7 @@ export const POST = handleApi(async ({ params, req }) => {
         ...checkbox.map((r) => ({ ...r, type: "checkbox" as const })),
         ...lookup.map((r) => ({ ...r, type: "lookup" as const })),
       ];
-      return { id: lineItemId, fields };
+      return { id: lineItemId, modelId, fields };
     })
   );
 

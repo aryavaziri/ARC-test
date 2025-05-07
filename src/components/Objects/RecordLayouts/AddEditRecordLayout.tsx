@@ -13,57 +13,30 @@ type Props = {
 };
 
 const AddEditRecordLayout = ({ layoutId, mode, onClose }: Props) => {
-  const {
-    selectedModel,
-    recordLayouts,
-    createRecordLayout,
-    updateRecordLayout,
-  } = useDynamicModel();
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<Pick<TRecordLayout, 'label' | 'isGrid'>>({
-    resolver: zodResolver(
-      recordLayoutSchema.omit({ id: true, modelId: true, contentSchema: true })
-    ),
-    defaultValues: {
-      label: '',
-      isGrid: false,
-    },
+  const { selectedModel, recordLayouts, createRecordLayout, updateRecordLayout } = useDynamicModel();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<Pick<TRecordLayout, 'label' | 'isGrid' | 'allowAddingLineItems'>>({
+    resolver: zodResolver(recordLayoutSchema.omit({ id: true, modelId: true, contentSchema: true })),
+    defaultValues: { label: '', isGrid: false, allowAddingLineItems: false }
   });
 
   useEffect(() => {
     if (layoutId && mode === 'edit') {
       const layout = recordLayouts.find((l) => l.id === layoutId);
       if (layout) {
-        reset({
-          label: layout.label,
-          isGrid: layout.isGrid ?? false,
-        });
+        reset({ label: layout.label, isGrid: layout.isGrid ?? false, allowAddingLineItems: layout.allowAddingLineItems ?? false });
       }
     } else {
-      reset({ label: '', isGrid: false });
+      reset({ label: '', isGrid: false, allowAddingLineItems: false });
     }
   }, [layoutId, mode, recordLayouts, reset]);
 
   const onSubmit = async (data: { label: string; isGrid?: boolean }) => {
     if (!selectedModel) return;
-
     if (mode === 'add') {
-      await createRecordLayout({
-        ...data,
-        modelId: selectedModel.id,
-      });
+      await createRecordLayout({ ...data, modelId: selectedModel.id });
     } else if (layoutId) {
-      await updateRecordLayout({
-        id: layoutId,
-        ...data,
-      });
+      await updateRecordLayout({ id: layoutId, ...data });
     }
-
     onClose();
   };
 
@@ -77,22 +50,20 @@ const AddEditRecordLayout = ({ layoutId, mode, onClose }: Props) => {
         required
         style={3}
       />
-
       <Input
         name="isGrid"
         type='checkbox'
         label="Grid"
         register={register}
         error={errors.isGrid}
-        // required
-        // style={3}
       />
-
-      {/* <label className="flex items-center gap-2 mt-2">
-        <input type="checkbox" {...register("isGrid")} className="checkbox" />
-        <span className="text-sm">Display as Grid/Table</span>
-      </label> */}
-
+      <Input
+        name="allowAddingLineItems"
+        type='checkbox'
+        label="Allow Adding Line Items"
+        register={register}
+        error={errors.allowAddingLineItems}
+      />
       <div className="flex justify-end gap-2 mt-6">
         <button type="button" onClick={onClose} className="btn btn-ghost">
           Cancel

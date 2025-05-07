@@ -10,7 +10,7 @@ const Configurations = () => {
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const [recordLayoutId, setRecordLayoutId] = useState<string | null>(null);
 
-  const modelOptions = models.map(model => ({
+  const modelOptions = models.filter(m => m.showInConfiguration).map(model => ({
     label: model.name,
     value: model.id,
   }));

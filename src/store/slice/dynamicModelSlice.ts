@@ -12,6 +12,7 @@ export interface DynamicModelState {
   formLayouts: TFormLayout[];
   recordLayouts: TRecordLayout[];
   selectedLineItem: TLineItem[] | null;
+  lineItems: TLineItem[] | [];
   selectedModel: TDynamicModel | null;
   selectedField: TField | null;
   selectedRecord: TRecord | null;
@@ -24,6 +25,7 @@ const initialState: DynamicModelState = {
   inputFields: [],
   allFields: [],
   records: [],
+  lineItems: [],
   formLayouts: [],
   recordLayouts: [],
   selectedLineItem: null,

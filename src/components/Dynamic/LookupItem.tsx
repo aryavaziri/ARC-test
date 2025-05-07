@@ -103,16 +103,15 @@ const Lookup: React.FC<LookupProps> = ({ field, control, error }) => {
               <MdOutlineSearch />
             </div>
             <CustomModal
-              Component={() => (
-                <LookupRecordTable
-                  data={lineItem}
-                  fieldHeaders={fieldHeaders}
-                  onSelect={(record) => {
-                    controllerField.onChange(record.id);
-                    setShowTable(false);
-                  }}
-                />
-              )}
+              Component={LookupRecordTable}
+              componentProps={{
+                data: lineItem,
+                fieldHeaders: fieldHeaders,
+                onSelect: (record) => {
+                  controllerField.onChange(record.id);
+                  setShowTable(false);
+                }
+              }}
               isOpen={showTable}
               onClose={() => setShowTable(false)}
               header={`Select ${field.label}`}

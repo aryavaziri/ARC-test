@@ -21,4 +21,7 @@ export class LongTextInput extends Model {
   @Column(DataType.INTEGER)
   declare maxLength: number;
 
+  @Column(DataType.BOOLEAN)
+  declare isHidden: boolean;
+
 }

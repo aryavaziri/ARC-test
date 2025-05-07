@@ -15,7 +15,7 @@ const schema = dynamicModelSchema.partial({ id: true });
 type FormValues = z.infer<typeof schema>;
 
 const DynamicModelGrid: React.FC = () => {
-  const { models, addNewItem, setSelectedModel, selectedModel, getData } = useDynamicModel();
+  const { models, addNewItem, setSelectedModel, selectedModel, getLineItems } = useDynamicModel();
 
   const router = useRouter();
 
@@ -26,7 +26,7 @@ const DynamicModelGrid: React.FC = () => {
 
   }
   useEffect(() => {
-    selectedModel && getData()
+    selectedModel && getLineItems(selectedModel.id)
   }, [selectedModel]);
 
   const {

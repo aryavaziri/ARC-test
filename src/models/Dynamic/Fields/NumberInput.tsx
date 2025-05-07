@@ -27,4 +27,7 @@ export class NumberInput extends Model {
 
   @Column(DataType.BOOLEAN)
   declare isRequired: boolean;
+
+  @Column(DataType.BOOLEAN)
+  declare isHidden: boolean;
 }

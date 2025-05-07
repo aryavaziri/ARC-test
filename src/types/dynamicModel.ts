@@ -2,66 +2,57 @@ import { z } from 'zod';
 
 export const dependencySchema = z.object({
   id: z.string().uuid().optional(),
-  referenceFieldId: z.string().uuid({ message: "referenceFieldId must be a valid UUID", }),
+  referenceFieldId: z.string().uuid({ message: "referenceFieldId must be a valid UUID" }),
+  dependantFieldId: z.string().uuid({ message: "referenceFieldId must be a valid UUID" }),
   controllingFieldId: z.string().uuid().optional().nullable(),
   referenceLineItemIds: z.array(z.string().uuid()).optional(),
 });
 
 export const fieldTypeEnum = z.enum(['text', 'number', 'date', 'checkbox', 'longText', 'lookup']);
 
-export const textInputSchema = z.object({
+export const baseInputSchema = z.object({
   id: z.string().uuid(),
   label: z.string(),
-  maxLength: z.number().max(255).optional().default(100),
   isRequired: z.boolean().optional().nullable(),
-  type: z.literal('text'),
+  isHidden: z.boolean().optional().nullable(),
 });
 
-export const numberInputSchema = z.object({
-  id: z.string().uuid(),
-  label: z.string(),
+export const textInputSchema = baseInputSchema.extend({
+  type: z.literal('text'),
+  maxLength: z.number().max(255).optional().default(100),
+});
+
+export const numberInputSchema = baseInputSchema.extend({
+  type: z.literal('number'),
   min: z.number().nullable().optional(),
   max: z.number().nullable().optional(),
-  numberType: z.string().optional().default('INTEGER'),
-  isRequired: z.boolean().optional(),
-  type: z.literal('number'),
+  numberType: z.enum(['INTEGER', 'FLOAT', 'PERCENTAGE', 'NON_NEGATIVE', 'CURRENCY_USD', 'CURRENCY_EUR']).optional().nullable().default('INTEGER'),
 });
 
-export const lookupSchema = z.object({
-  id: z.string().uuid(),
-  label: z.string(),
-  isRequired: z.boolean().optional(),
-  lookupModelId: z.string().uuid(),
-  type: z.literal('lookup'),
-  primaryFieldId: z.string().uuid(),
-  dependencies: z.array(dependencySchema)
-});
-
-export const createLookupSchema = lookupSchema.omit({ id: true });
-
-export const dateInputSchema = z.object({
-  id: z.string().uuid(),
-  label: z.string(),
-  startRange: z.string().nullable().optional(), // You may use .date() if you transform later
-  endRange: z.string().nullable().optional(),
-  isRequired: z.boolean().optional(),
+export const dateInputSchema = baseInputSchema.extend({
   type: z.literal('date'),
+  format: z.enum(['YYYY-MM-DD', 'MM/DD/YYYY', 'DD-MM-YYYY', 'HH:mm', 'YYYY-MM-DD HH:mm', 'MMM D, YYYY', 'dddd, MMMM D']).optional().nullable().default('DD-MM-YYYY'),
+  startRange: z.string().nullable().optional(),
+  endRange: z.string().nullable().optional(),
 });
 
-export const checkboxInputSchema = z.object({
-  id: z.string().uuid(),
-  label: z.string(),
-  isRequired: z.boolean().optional(),
+export const lookupSchema = baseInputSchema.extend({
+  type: z.literal('lookup'),
+  lookupModelId: z.string().uuid(),
+  primaryFieldId: z.string().uuid(),
+  dependencies: z.array(dependencySchema).optional()
+});
+
+export const checkboxInputSchema = baseInputSchema.extend({
   type: z.literal('checkbox'),
 });
 
-export const longTextInputSchema = z.object({
-  id: z.string().uuid(),
-  label: z.string(),
-  maxLength: z.number().max(10000),
-  isRequired: z.boolean().optional(),
+export const longTextInputSchema = baseInputSchema.extend({
   type: z.literal('longText'),
+  maxLength: z.number().max(10000),
 });
+
+export const createLookupSchema = lookupSchema.omit({ id: true });
 
 export const fieldSchema = z.discriminatedUnion("type", [
   textInputSchema,
@@ -92,7 +83,7 @@ export const fieldRecordSchema = z.object({
 
 export const recordSchema = z.object({
   id: z.string().uuid(),
-  // recordName: z.string(),
+  modelId: z.string(),
   fields: z.array(fieldRecordSchema),
 });
 
@@ -101,6 +92,7 @@ export const dynamicModelSchema = z.object({
   name: z.string(),
   description: z.string().nullable().optional(),
   layoutType: z.string().nullable().optional(),
+  showInConfiguration: z.boolean().nullable().optional(),
 
   ModelTextInputs: z.array(textInputSchema).optional(),
   ModelLookupInputs: z.array(lookupSchema).optional(),

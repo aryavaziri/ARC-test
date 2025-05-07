@@ -129,13 +129,13 @@ const FormLayouts = () => {
         onClose={handleCloseModal}
         header={editMode === "add" ? "Add Layout" : "Edit Layout"}
         className="w-[500px]"
-        Component={() => (
-          <AddEditFormLayout
-            layoutId={selectedLayoutId}
-            mode={editMode}
-            onClose={handleCloseModal}
-          />
-        )}
+        Component={AddEditFormLayout}
+        componentProps={{
+          layoutId: selectedLayoutId,
+          mode: editMode,
+          onClose: handleCloseModal
+
+        }}
       />
     </div>
   );

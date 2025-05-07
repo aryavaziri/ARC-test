@@ -68,15 +68,15 @@ const RecordLayouts = () => {
                           <div className="flex justify-between w-full items-center">
                             <p className={`font-semibold whitespace-nowrap`}>{layout.label}</p>
                             <div className={`flex gap-1`}>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleOpenModal('edit', layout.id);
-                                    }}
-                                    className="btn-icon hover:bg-lime-400 p-[5px] border-none shadow shadow-border text-md"
-                                  >
-                                    <MdEdit />
-                                  </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenModal('edit', layout.id);
+                                }}
+                                className="btn-icon hover:bg-lime-400 p-[5px] border-none shadow shadow-border text-md"
+                              >
+                                <MdEdit />
+                              </button>
                               {layout.label.toLowerCase() !== "standard" ? (
                                 <>
                                   <button
@@ -131,13 +131,12 @@ const RecordLayouts = () => {
         onClose={handleCloseModal}
         header={editMode === "add" ? "Add Layout" : "Edit Layout"}
         className="w-[500px]"
-        Component={() => (
-          <AddEditRecordLayout
-            layoutId={selectedLayoutId}
-            mode={editMode}
-            onClose={handleCloseModal}
-          />
-        )}
+        Component={AddEditRecordLayout}
+        componentProps={{
+          layoutId: selectedLayoutId,
+          mode: editMode,
+          onClose: handleCloseModal,
+        }}
       />
     </div>
   );

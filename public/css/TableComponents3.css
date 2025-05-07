@@ -1,0 +1,62 @@
+@layer components {
+  .my-table3 {
+    @apply w-full border-separate border-spacing-y-2 transition ;
+  }
+
+  .my-table3 thead tr {
+    @apply text-text;
+  }
+
+  .my-table3 thead th {
+    @apply py-2 cursor-default font-light text-sm;
+  }
+
+  .my-table3 tbody {
+    @apply text-text;
+  }
+
+  .my-table3 tbody td:has(button) {
+    @apply gap-2 justify-center items-center relative z-10;
+  }
+
+  .my-table3 tbody tr {
+    @apply text-center shadow-2xs bg-primary-50 rounded-xl transition hover:bg-primary-100 overflow-hidden;
+  }
+
+  .my-table3 tbody td {
+    @apply py-3 px-2 cursor-default;
+  }
+  
+  .my-table3 input {
+    @apply !rounded-none !text-text;
+  }
+
+  .my-table3 td:first-child {
+    @apply !rounded-l-xl !overflow-hidden;
+  }
+
+  .my-table3 td:last-child {
+    @apply rounded-r-xl overflow-hidden;
+  }
+
+  .my-table3 tbody tr:has(input) {
+    @apply text-center bg-green-600/20 hover:bg-green-600/20 shadow-none transition  overflow-hidden;
+  }
+
+
+  .my-table3 td.subtitle > * {
+    @apply rounded-full bg-secondary-200/50 w-min mx-auto text-sm px-2 py-1;
+  }
+
+  .tab-button {
+    @apply px-6 py-2 text-lg font-medium transition-all rounded-full whitespace-nowrap text-text bg-transparent hover:bg-secondary hover:text-bg;
+  }
+
+  .tab-active {
+    @apply bg-primary text-bg font-semibold;
+  }
+
+  .row-selected {
+    @apply bg-primary/30 text-text hover:bg-primary/40;
+  }
+}

@@ -305,18 +305,44 @@ export const recordBuilder = (builder: ActionReducerMapBuilder<DynamicModelState
       state.loading = true;
       state.error = null;
     })
+    // .addCase(getLineItem.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   const incoming = action.payload;
+    //   const existing = state.selectedLineItem ?? []
+    //   const mergedMap = new Map<string, TLineItem>();
+    //   for (const item of existing) {
+    //     mergedMap.set(item.id, item);
+    //   }
+    //   for (const item of incoming) {
+    //     mergedMap.set(item.id, item);
+    //   }
+    //   state.selectedLineItem = Array.from(mergedMap.values());
+    // })
     .addCase(getLineItem.fulfilled, (state, action) => {
       state.loading = false;
+
       const incoming = action.payload;
-      const existing = state.selectedLineItem ?? []
-      const mergedMap = new Map<string, TLineItem>();
-      for (const item of existing) {
-        mergedMap.set(item.id, item);
+      const existingSelected = state.selectedLineItem ?? [];
+      const existingLineItems = state.lineItems ?? [];
+
+      const selectedMap = new Map<string, TLineItem>();
+      for (const item of existingSelected) {
+        selectedMap.set(item.id, item);
       }
       for (const item of incoming) {
-        mergedMap.set(item.id, item);
+        selectedMap.set(item.id, item);
       }
-      state.selectedLineItem = Array.from(mergedMap.values());
+      state.selectedLineItem = Array.from(selectedMap.values());
+
+      // 🔁 Add to lineItems as well
+      const lineItemMap = new Map<string, TLineItem>();
+      for (const item of existingLineItems) {
+        lineItemMap.set(item.id, item);
+      }
+      for (const item of incoming) {
+        lineItemMap.set(item.id, item);
+      }
+      state.lineItems = Array.from(lineItemMap.values());
     })
     .addCase(getLineItem.rejected, (state, action) => {
       state.loading = false;

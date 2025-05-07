@@ -11,7 +11,8 @@ const dynamicModelEditSchema = z.object({
   id: z.string().uuid(),
   name: z.string().optional(),
   description: z.string().nullable().optional(),
-  layoutType: z.string().nullable().optional()
+  layoutType: z.string().nullable().optional(),
+  showInConfiguration: z.boolean().nullable().optional(),
 })
 type TDynamicModel = z.infer<typeof dynamicModelEditSchema>
 interface Props {
@@ -89,6 +90,15 @@ const EditDynamicModel: React.FC<Props> = ({ onClose }) => {
           label="Type"
           register={register}
           error={errors.layoutType}
+          style={3}
+        />
+
+        <Input
+          name="showInConfiguration"
+          label="Show In Configuration"
+          type='checkbox'
+          register={register}
+          error={errors.showInConfiguration}
           style={3}
         />
 

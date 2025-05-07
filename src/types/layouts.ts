@@ -123,6 +123,7 @@ export const recordLayoutSchema = z.object({
   label: z.string(),
   modelId: z.string().uuid(),
   isGrid: z.boolean().optional(),
+  allowAddingLineItems: z.boolean().optional(),
   contentSchema: z.array(recordItemSchema).optional(),
   attachments: z.array(attachmentSchema).optional()
 })

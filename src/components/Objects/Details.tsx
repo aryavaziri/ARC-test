@@ -24,8 +24,8 @@ const Details = () => {
     setShowEditModelModal(false);
     setSelectedField(null)
   };
-  
-  const model = models.find(m=>m.id===selectedModel?.id)
+
+  const model = models.find(m => m.id === selectedModel?.id)
   if (!selectedModel || !model) return
   return (
     <div className="flex grow">
@@ -60,7 +60,18 @@ const Details = () => {
           </div>
           <div className={`flex justify-between px-8 rounded hover:shadow-md shadow-border/30 py-4 hover:bg-primary-50`}>
             <p className="font-semibold text-gray-600">Number of Fields</p>
-            <p className="text-gray-800">{model.ModelTextInputs?.length || 0}</p>
+            <p className="text-gray-800">
+              {(model.ModelTextInputs?.length || 0) +
+                (model.ModelLongTextInputs?.length || 0) +
+                (model.ModelNumberInputs?.length || 0) +
+                (model.ModelDateInputs?.length || 0) +
+                (model.ModelLookupInputs?.length || 0) +
+                (model.ModelCheckboxInputs?.length || 0)}
+            </p>
+          </div>
+          <div className={`flex justify-between px-8 rounded hover:shadow-md shadow-border/30 py-4 hover:bg-primary-50`}>
+            <p className="font-semibold text-gray-600">Show in Configurations</p>
+            <p className="text-gray-800">{!!model.showInConfiguration ? `Yes` : `No`}</p>
           </div>
         </div>
       </div>
@@ -69,7 +80,8 @@ const Details = () => {
         onClose={handleClose2}
         header="Edit Model"
         className="w-[500px]"
-        Component={() => (<EditDynamicModel onClose={() => { handleClose2() }} />)}
+        Component={EditDynamicModel}
+        componentProps={{ onClose: handleClose2 }}
       />
     </div>
   )

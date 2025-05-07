@@ -186,15 +186,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
       }, 0);
     }
   };
-
-  // const handleRemove = (colIdx: number, index: number) => {
-  //   remove(index);
-  //   setTimeout(() => {
-  //     const current = getValues("contentSchema");
-  //     const reordered = reorderContentSchema([...current]);
-  //     setValue("contentSchema", reordered);
-  //   }, 0);
-  // };
+  const field = contentSchema.find(f => f.fieldId === selectedFlowFieldId);
 
   return (
     <>
@@ -296,6 +288,7 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
         isOpen={!!selectedLookup}
         onClose={() => setSelectedLookup(null)}
         header="Lookup Options"
+        componentProps={{}}
         Component={() => {
           const field = contentSchema.find((f) => f.lookupDetails?.lookupModelId === selectedLookup);
           return (
@@ -336,20 +329,18 @@ const FormSchemaLayout = ({ selectedLayoutId }: Props) => {
         isOpen={!!selectedFlowFieldId}
         onClose={() => setSelectedFlowFieldId(null)}
         header="Select Flow"
-        Component={() => {
-          const field = contentSchema.find(f => f.fieldId === selectedFlowFieldId);
-          return (
-            <FlowOptionsModal
-              initialFlowId={field?.flowId ?? undefined}
-              onSelect={(flowId) => {
-                const updated = contentSchema.map(item =>
-                  item.fieldId === selectedFlowFieldId ? { ...item, flowId: flowId ?? undefined } : item
-                );
-                setValue('contentSchema', updated);
-                setSelectedFlowFieldId(null);
-              }}
-            />
-          );
+        Component={FlowOptionsModal}
+        componentProps={{
+          initialFlowId: field?.flowId ?? undefined,
+          onSelect: (flowId) => {
+            const updated = contentSchema.map(item =>
+              item.fieldId === selectedFlowFieldId
+                ? { ...item, flowId: flowId ?? undefined }
+                : item
+            );
+            setValue('contentSchema', updated);
+            setSelectedFlowFieldId(null);
+          },
         }}
       />
 

@@ -52,11 +52,8 @@ const RenderField: React.FC<RenderFieldProps> = ({
         values.push(...watched.filter((v) => typeof v === 'string'));
       }
     });
-    console.log(values)
     return values;
   }, [watchedValues]);
-
-  useEffect(() => { console.log(watchedValues) }, [watchedValues])
 
   const updateLayoutItem = (fieldId: string, updates: Partial<any>) => {
     if (updates?.value !== undefined) {

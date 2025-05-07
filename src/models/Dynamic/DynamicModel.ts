@@ -16,15 +16,14 @@ export class DynamicModel extends Model {
     @Column(DataType.STRING)
     declare name: string;
 
-    @Column({
-        type: DataType.STRING,
-    })
+    @Column({ type: DataType.STRING })
     declare description: string;
 
-    @Column({
-        type: DataType.STRING,
-    })
+    @Column({ type: DataType.STRING })
     declare layoutType: string;
+
+    @Column({ type: DataType.BOOLEAN })
+    declare showInConfiguration: boolean;
 
     TextInputs?: TextInput[]
     LongTextInputs?: LongTextInput[]
@@ -127,6 +126,10 @@ export class RecordLayout extends Model {
     @Default(false)
     @Column(DataType.BOOLEAN)
     declare isGrid: boolean;
+
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    declare allowAddingLineItems: boolean;
 
     @AllowNull(false)
     @ForeignKey(() => DynamicModel)

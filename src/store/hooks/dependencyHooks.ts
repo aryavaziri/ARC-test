@@ -23,13 +23,14 @@ export function useDependency(referenceFieldId: string) {
   const createDependency = useCallback(
     async (data: Omit<TDependency, 'id'>) => {
       try {
-        const { referenceFieldId, controllingFieldId, referenceLineItemIds } =
+        const { referenceFieldId, controllingFieldId, referenceLineItemIds, dependantFieldId } =
           dependencySchema.omit({ id: true }).parse(data);
 
         const { data: response } = await axios.post<TResponse>(
           `/api/dynamic-models/dependencies/${referenceFieldId}`,
           {
             controllingFieldId,
+            dependantFieldId,
             referenceLineItemIds,
           }
         );
@@ -38,6 +39,7 @@ export function useDependency(referenceFieldId: string) {
         return response;
       } catch (err) {
         console.error("❌ Failed to create dependency", err);
+        return { success: false, error: (err as Error).message } as TResponse
       }
     },
     []

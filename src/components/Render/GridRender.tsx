@@ -7,8 +7,10 @@ import FormLayoutBlock from "./FormLayoutBlock";
 import EditFormLayoutBlock from "./EditFormLayoutBlock";
 import CustomModal from "../Modals/CustomModal2";
 import { useDynamicModel } from "@/store/hooks/dynamicModelsHooks";
+import RowLineItemAdd from "./RowLineItemAdd";
 
 interface GridRenderProps {
+  allowAddingLineItems?: boolean;
   modelId: string;
   records: TLineItem[];
   fieldHeaders: {
@@ -24,13 +26,7 @@ interface GridRenderProps {
   removeLineItem: (id: string) => Promise<void>;
 }
 
-const GridRender = ({
-  modelId,
-  records,
-  fieldHeaders,
-  getDisplayValue,
-  removeLineItem,
-}: GridRenderProps) => {
+const GridRender = ({ modelId, records, fieldHeaders, getDisplayValue, removeLineItem, allowAddingLineItems }: GridRenderProps) => {
   const [selectedRecord, setSelectedRecord] = useState<TLineItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -55,7 +51,7 @@ const GridRender = ({
   return (
     <>
       <div className="overflow-x-auto">
-        <table className="my-table whitespace-nowrap">
+        <table className="my-table3 whitespace-nowrap">
           <thead>
             <tr>
               <th>#</th>
@@ -68,7 +64,7 @@ const GridRender = ({
             {records.map((record, index) => (
               <tr
                 key={record.id}
-                className="group cursor-pointer hover:bg-primary-50 transition"
+                className="group cursor-pointer transition"
                 onClick={() => handleRowClick(record)}
               >
                 <td className="relative !w-[40px]" onClick={(e) => e.stopPropagation()}>
@@ -89,15 +85,24 @@ const GridRender = ({
                 ))}
               </tr>
             ))}
+            {allowAddingLineItems && (
+              <RowLineItemAdd
+                headers={fieldHeaders}
+                onSubmitNewRecord={async (newItem) => {
+                  // Handle your logic, such as sending to backend or updating local state
+                  console.log("New record submitted inline:", newItem);
+                }}
+              />
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-4">
         <button className="btn btn-primary" onClick={openAddModal}>
           Add Record
         </button>
-      </div>
+      {/* {allowAddingLineItems && <div className="mt-4">
+      </div>} */}
 
       <CustomModal
         header="Add New Record"
@@ -106,7 +111,7 @@ const GridRender = ({
         onClose={closeAddModal}
         Component={FormLayoutBlock}
         componentProps={{
-          formLayoutId: formLayoutId ?? "",
+          formLayoutId: formLayoutId,
           modelId: modelId,
           layoutLabel: "Standard",
           onSave: closeAddModal,

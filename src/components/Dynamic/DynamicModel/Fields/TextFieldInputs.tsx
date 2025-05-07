@@ -1,20 +1,18 @@
 import Input from "@/components/UI/Input";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { TCreateField } from "@/types/dynamicModel";
+import { useForm } from "react-hook-form";
 
 type Props = {
-  register: UseFormRegister<TCreateField>;
-  errors: FieldErrors<TCreateField>;
+  method: ReturnType<typeof useForm<TCreateField>>;
 };
-
-export default function TextFieldInputs({ register, errors }: Props) {
+export default function TextFieldInputs({ method }: Props) {
   return (
     <Input
       name="maxLength"
       label="Max Length"
       type="number"
-      register={register}
-      error={"maxLength" in errors ? errors.maxLength : undefined}
+      register={method.register}
+      error={"maxLength" in method.formState.errors ? method.formState.errors.maxLength : undefined}
       style={3}
     />
   );

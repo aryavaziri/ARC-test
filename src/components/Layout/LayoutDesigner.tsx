@@ -247,24 +247,21 @@ const LayoutDesigner = () => {
           isOpen={showTemplateModal}
           onClose={() => setShowTemplateModal(false)}
           header="Select a Template"
-          Component={() => (
-            <TemplatePicker
-              selectedTemplateId={selectedTemplateId}
-              onSelect={(id: string) => {
-                handleTemplateChange(id);
-                setShowTemplateModal(false);
-              }}
-            />
-          )}
+          componentProps={{
+            selectedTemplateId: selectedTemplateId,
+            onSelect: (id: string) => {
+              handleTemplateChange(id);
+              setShowTemplateModal(false);
+            }
+          }}
+          Component={TemplatePicker}
         />
 
         <CustomModal
           isOpen={showSaveAsModal}
-          onClose={() => {
-            setShowSaveAsModal(false);
-            // setNewLayoutName('');
-          }}
+          onClose={() => { setShowSaveAsModal(false) }}
           header="Save Layout As"
+          componentProps={{}}
           Component={() => (
             <div className="flex flex-col gap-4 p-8">
               <Input
@@ -272,11 +269,7 @@ const LayoutDesigner = () => {
                 register={register}
                 label="New Layout Name"
                 style={2}
-              // value={newLayoutName}
-              // onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewLayoutName(e.target.value)}
-              // required
               />
-
               <div className="flex justify-end gap-2 mt-4">
                 <button className="btn" onClick={() => setShowSaveAsModal(false)}>Cancel</button>
                 <button className="btn btn-primary" onClick={handleSubmit(onSaveAs)}>Save</button>

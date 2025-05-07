@@ -105,12 +105,11 @@ const Tabs = () => {
 
       <DndProvider backend={HTML5Backend}>
         <CustomModal
-          Component={() => (
-            <AddEditTabForm
-              onClose={() => setShowModal(false)}
-              defaultValues={selectedTabForEdit ?? undefined}
-            />
-          )}
+          componentProps={{
+            onClose: () => setShowModal(false),
+            defaultValues: selectedTabForEdit ?? undefined
+          }}
+          Component={AddEditTabForm}
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           header="Add/Edit Tab"

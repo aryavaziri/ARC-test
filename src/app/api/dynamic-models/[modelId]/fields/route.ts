@@ -3,9 +3,8 @@
 import { handleApi } from "@/lib/apiHandler";
 import sequelize from "@/lib/Sequelize";
 import { createFieldSchema, TField } from "@/types/dynamicModel";
-import { TextInput, NumberInput, DateInput, LongTextInput, CheckboxInput, LookupInput, LookupInputSearchColumn, LookupInputTableColumn, } from "@/models/Dynamic/Fields";
+import { TextInput, NumberInput, DateInput, LongTextInput, CheckboxInput, LookupInput } from "@/models/Dynamic/Fields";
 import { ModelTextInput, ModelNumberInput, ModelDateInput, ModelLongTextInput, ModelCheckboxInput, ModelLookupInput, } from "@/models/Dynamic/M2M";
-// import { setStandardSchema } from "@/lib/schemaBuilder";
 import { resetRecordLayoutAction, resetStandardSchema } from "@/actions/Dynamic/SchemaReset";
 
 export const POST = handleApi(async ({ req, params }) => {
@@ -39,10 +38,10 @@ export const POST = handleApi(async ({ req, params }) => {
 
     return field.get({ plain: true });
   });
-  if (modelId) {
-    const res = await resetStandardSchema(modelId)
-    const res2 = await resetRecordLayoutAction(modelId)
-  }
+  // if (modelId) {
+  //   const res = await resetStandardSchema(modelId)
+  //   const res2 = await resetRecordLayoutAction(modelId)
+  // }
 
 
   return {

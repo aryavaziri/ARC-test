@@ -152,7 +152,7 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
 
   return (
     <div className="con">
-      <div className="text-sm font-semibold text-muted-foreground mb-4">
+      <div className="text-sm font-semibold text-muted-foreground mb-4 border-b pb-2 border-border/40 w-fit px-4">
         {model?.name} - {formLayout?.label}
       </div>
       <div className={`grid gap-12 ${`grid-cols-${numberOfColumns}`}`} >
@@ -189,7 +189,7 @@ const FormLayoutBlock: React.FC<Props> = ({ formLayoutId, modelId, layoutLabel, 
             type="button"
             className="btn btn-primary mt-2"
             onClick={handleSubmit(onSubmit)}
-          >Submit Submit</button>
+          >Submit</button>
         }
         {customButtons?.map((btn, idx) => (
           <button

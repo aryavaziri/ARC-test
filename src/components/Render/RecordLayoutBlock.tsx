@@ -11,15 +11,7 @@ interface Props {
 }
 
 const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
-  const {
-    recordLayouts,
-    models,
-    allFields,
-    getLookupLineItem,
-    removeLineItem,
-    getLineItems,
-    lineItem, // ✅ Use Redux state directly
-  } = useDynamicModel();
+  const { recordLayouts, models, allFields, getLookupLineItem, removeLineItem, getLineItems, lineItem, } = useDynamicModel();
 
   const layout = useMemo(
     () => recordLayouts.find((l) => l.id === recordLayoutId),
@@ -35,42 +27,40 @@ const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
 
   const fieldHeaders = useMemo(() => {
-    if (!layout) return [];
+    if (!layout?.contentSchema) return [];
+    console.log(layout)
 
     return (
-      layout.contentSchema?.flatMap((item) => {
+      layout.contentSchema.flatMap((item) => {
         const base = allFields.find((f) => f.id === item.fieldId);
         if (!base) return [];
+        if (base.type !== "lookup") { return [{ id: base.id, label: base.label }] }
 
-        if (base.type !== "lookup") {
-          return [{ id: base.id, label: base.label }];
-        }
+        const lookupFields = item.lookupDetails?.fields?.flat() || [];
 
-        const primary = allFields.find((f) => f.id === (base as any).primaryFieldId);
-        if (!primary) return [];
+        // const heads = allFields.filter((f) => lookupFields.length ? lookupFields.some(lf => lf === f.id) : f.id === (base as any).primaryFieldId)
+        const heads = lookupFields.length
+          ? allFields.filter(f => lookupFields.includes(f.id))
+          : [allFields.find(f => f.id === (base as any).primaryFieldId)].filter(Boolean);
 
-        return [
-          {
-            id: primary.id,
-            label: `${base.label}: ${primary.label}`,
-            isLookup: true,
-            parentFieldId: base.id,
-          },
-        ];
+        console.log(heads)
+        return heads.filter((f) => !!f).map(h => ({
+          id: h.id,
+          label: `${base.label}: ${h.label}`,
+          isLookup: true,
+          parentFieldId: base.id,
+
+        }))
       }) || []
     );
   }, [layout, allFields]);
 
-  // ✅ Fetch grid records on layout change
   useEffect(() => {
     if (layout?.modelId) {
       getLineItems(layout.modelId);
     }
   }, [layout?.modelId]);
 
-
-
-  // ✅ Fetch lookup records for display
   useEffect(() => {
     const fetchLookupRecords = async () => {
       const ids = new Set<string>();
@@ -166,6 +156,7 @@ const RecordLayoutBlock = ({ recordLayoutId }: Props) => {
 
       {layout.isGrid ? (
         <GridRender
+          allowAddingLineItems={layout.allowAddingLineItems}
           modelId={layout.modelId}
           records={records}
           fieldHeaders={fieldHeaders}

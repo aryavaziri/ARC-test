@@ -18,5 +18,8 @@ import { Table, Column, Model, DataType, PrimaryKey, Default } from "sequelize-t
   
     @Column(DataType.BOOLEAN)
     declare isRequired: boolean;
+
+    @Column(DataType.BOOLEAN)
+    declare isHidden: boolean;
   }
   

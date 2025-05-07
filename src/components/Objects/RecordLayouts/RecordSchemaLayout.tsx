@@ -111,7 +111,7 @@ const RecordSchemaLayout = ({ selectedLayoutId }: Props) => {
   const hasChanged = JSON.stringify(initialSchemaRef.current) !== JSON.stringify(contentSchema);
   const hasNoFields = contentSchema.length === 0;
   const isStandardLayout = selectedLayout?.label.toLowerCase() === 'standard';
-  const disableSave = isStandardLayout || !hasChanged;
+  const disableSave = !hasChanged;
 
   const moveItem = (dragIndex: number, hoverIndex: number) => {
     const items = [...getValues("contentSchema")];
@@ -187,60 +187,46 @@ const RecordSchemaLayout = ({ selectedLayoutId }: Props) => {
       </div>
 
       <CustomModal
-        Component={() => {
-          const item = watch('contentSchema').find((f) => f.fieldId === selectedLookup);
-          if (!selectedLookup || !item?.lookupDetails) return null;
-
-          return selectedLayout?.isGrid ? (
-            <LookupGridColumn
-              lookupId={item.lookupDetails.lookupModelId}
-              initialFields={item.lookupDetails.fields?.flat() || []}
-              onSave={(updatedFields) => {
-                const updated = getValues('contentSchema').map((f) => {
-                  if (f.fieldId === selectedLookup && f.lookupDetails) {
-                    return {
-                      ...f,
-                      lookupDetails: {
-                        ...f.lookupDetails,
-                        fields: [updatedFields], // wrap in 2D array for consistency
-                      },
-                    };
-                  }
-                  return f;
-                });
-                setValue('contentSchema', updated);
-                setSelectedLookup(null);
-              }}
-              onClose={() => setSelectedLookup(null)}
-            />
-          ) : (
-            <LookupCustom
-              lookupId={item.lookupDetails.lookupModelId}
-              initialGrid={item.lookupDetails.fields || [[]]}
-              onSave={(updatedGrid) => {
-                const updated = getValues('contentSchema').map((f) => {
-                  if (f.fieldId === selectedLookup && f.lookupDetails) {
-                    return {
-                      ...f,
-                      lookupDetails: {
-                        ...f.lookupDetails,
-                        fields: updatedGrid,
-                      },
-                    };
-                  }
-                  return f;
-                });
-                setValue('contentSchema', updated);
-                setSelectedLookup(null);
-              }}
-              onClose={() => setSelectedLookup(null)}
-            />
-          );
-        }}
         isOpen={!!selectedLookup}
         onClose={() => setSelectedLookup(null)}
         header="Custom field"
+        componentProps={{}} // still required by CustomModal
+        Component={() => {
+          const item = watch('contentSchema').find(f => f.fieldId === selectedLookup);
+          if (!selectedLookup || !item?.lookupDetails) return null;
+
+          const { lookupModelId, fields } = item.lookupDetails;
+          const handleSave = (newFields: any[][]) => {
+            const updated = getValues('contentSchema').map(f =>
+              f.fieldId === selectedLookup && f.lookupDetails
+                ? { ...f, lookupDetails: { ...f.lookupDetails, fields: newFields } }
+                : f
+            );
+            setValue('contentSchema', updated);
+            setSelectedLookup(null);
+          };
+
+          const sharedProps = {
+            lookupId: lookupModelId,
+            onClose: () => setSelectedLookup(null),
+          };
+
+          return selectedLayout?.isGrid ? (
+            <LookupGridColumn
+              {...sharedProps}
+              initialFields={fields?.flat() || []}
+              onSave={(updatedFields) => handleSave([updatedFields])}
+            />
+          ) : (
+            <LookupCustom
+              {...sharedProps}
+              initialGrid={fields || [[]]}
+              onSave={handleSave}
+            />
+          );
+        }}
       />
+
     </>
   );
 };

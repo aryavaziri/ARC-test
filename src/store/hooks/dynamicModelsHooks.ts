@@ -17,6 +17,7 @@ export const useDynamicModel = () => {
   const models = useAppSelector((state: RootState) => state.dynamicModel.dynamicModels);
   const selectedModel = useAppSelector((state: RootState) => state.dynamicModel.selectedModel);
   const lineItem = useAppSelector((state: RootState) => state.dynamicModel.selectedLineItem);
+  const allLineItems = useAppSelector((state: RootState) => state.dynamicModel.lineItems);
   const selectedField = useAppSelector((state: RootState) => state.dynamicModel.selectedField);
   const inputFields = useAppSelector((state: RootState) => state.dynamicModel.inputFields);
   const allFields = useAppSelector((state: RootState) => state.dynamicModel.allFields);
@@ -110,14 +111,36 @@ export const useDynamicModel = () => {
     return unwrapResult(result);
   };
 
-  const getLineItems = async (id: string) => {
-    const result = await dispatch(getLineItem(id));
-    return unwrapResult(result);
+  // const getLineItems = async (id: string) => {
+  //   const result = await dispatch(getLineItem(id));
+  //   return unwrapResult(result);
+  // };
+
+  const getLineItems = async (modelId: string) => {
+    // ✅ Check if we already have items for this modelId
+    const existing = allLineItems.filter((item) => item.modelId === modelId);
+
+    if (existing.length > 0) {
+      return existing;
+    }
+
+    // 🔁 Otherwise, fetch from server
+    const result = await dispatch(getLineItem(modelId));
+    return unwrapResult(result); // this will come from thunk's fulfilled result
   };
 
-  const getLookupLineItem = async (modelId: string, lineItemIds?: string[]) => {
-    const { data: response } = lineItemIds?.length ? await axios.post<TResponse>(`/api/dynamic-models/${modelId}/data`, { lineItemIds }) : await axios.get<TResponse>(`/api/dynamic-models/${modelId}/data`)
+
+
+  const getLookupLineItem = async (modelId: string, dependantFieldId?: string, lineItemIds?: string[]) => {
+    const { data: response } = lineItemIds?.length ? await axios.post<TResponse>(`/api/dynamic-models/${modelId}/data`, { lineItemIds, dependantFieldId }) : await axios.get<TResponse>(`/api/dynamic-models/${modelId}/data`)
     return response.data as TLineItem[]
+  };
+
+  const getPrimaryValue = async (lineItemId: string, primaryFieldId: string) => {
+    console.log(lineItemId)
+    console.log(primaryFieldId)
+    const { data: response } = await axios.post<TResponse>(`/api/dynamic-models/model/data/${lineItemId}`, {primaryFieldId})
+    return response.data
   };
   // const getLookupByLineItemids = async (modelId: string, lineItemIds: string[]) => {
   //   const { data: response } = await axios.get<TResponse>(
@@ -216,9 +239,10 @@ export const useDynamicModel = () => {
     editInputField,
     deleteField,
     addData,
-    getData,
+    // getData,
     getLookupLineItem,
     removeLineItem,
+    getPrimaryValue,
     allFields,
     setFields,
     getFormLayoutsData,

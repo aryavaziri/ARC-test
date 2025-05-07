@@ -44,7 +44,7 @@ const Lookup: React.FC<LookupProps> = ({
     return dependencies.some(dep =>
       dep.controllingFieldId &&
       Array.isArray(controllingValues) &&
-      !!controllingValues.length
+      !controllingValues.length
     );
   }, [dependencies, controllingValues]);
 
@@ -66,24 +66,33 @@ const Lookup: React.FC<LookupProps> = ({
         : resolvedPrimary ? [resolvedPrimary] : [];
 
       let result: TLineItem[] = [];
-
       if (!dependencies.length) {
         result = await getLineItems(lookupDetails.lookupModelId);
       } else {
-        const lineItemIds = getAllDependencyLineItemIds(dependencies, controllingValues);
+        const dependencyMap = getDependencyLineItemMap(dependencies, controllingValues);
 
-        if (!lineItemIds.length || !field.lookupDetails?.lookupModelId) {
-          result = [];
+        const fetches = await Promise.all(
+          Object.entries(dependencyMap).map(async ([dependantFieldId, lineItemIds]) => {
+            try {
+              return await getLookupLineItem(lookupDetails.lookupModelId, dependantFieldId, lineItemIds);
+            } catch (err) {
+              console.error(`❌ Failed to fetch for ${dependantFieldId}`, err);
+              return [];
+            }
+          })
+        );
+
+        if (fetches.length > 0 && fetches.every(records => records.length > 0)) {
+          const idSets = fetches.map(records => new Set(records.map(r => r.id)));
+          const commonIds = [...idSets[0]].filter(id => idSets.every(set => set.has(id)));
+
+          // Get full objects for common IDs from any one of the fetches
+          const recordMap = new Map(fetches.flat().map(r => [r.id, r]));
+          result = commonIds.map(id => recordMap.get(id)).filter((r): r is TLineItem => !!r);
         } else {
-          try {
-            result = await getLookupLineItem(field.lookupDetails.lookupModelId, lineItemIds);
-          } catch (err) {
-            console.error('Failed to fetch filtered records:', err);
-            result = [];
-          }
+          result = [];
         }
       }
-
       const allFieldMap = new Map(allFields.map(f => [f.id, f.label]));
       setFieldHeaders(flatFields.map(id => ({ id, label: allFieldMap.get(id) ?? id })));
       setSearchHeaders(flatSearchFields.map(id => ({ id, label: allFieldMap.get(id) ?? id })));
@@ -148,8 +157,12 @@ const Lookup: React.FC<LookupProps> = ({
                     isDisabled={isDisabled}
                     className="w-full"
                     classNamePrefix="react-select"
+                    menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                    styles={{
+                      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                      menu: (base) => ({ ...base, position: "absolute" }),
+                    }}
                     components={{ MenuList: CustomMenuList }}
-                    menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                     formatOptionLabel={(option) => {
                       const record = items.find(r => r.id === option.value);
                       return (
@@ -232,35 +245,46 @@ const Lookup: React.FC<LookupProps> = ({
 
 export default Lookup;
 
-function getAllDependencyLineItemIds(
+function getDependencyLineItemMap(
   dependencies: TDependency[],
   controllingValues: string[] = []
-): string[] {
-  const filteredLineItemIds = new Set<string>();
+): Record<string, string[]> {
+  const resultMap: Record<string, Set<string>> = {};
 
-  for (const dependency of dependencies) {
-    const { controllingFieldId, referenceLineItemIds } = dependency;
+  for (const dep of dependencies) {
+    const depId = dep.dependantFieldId;
+    if (!depId) continue;
 
-    if (controllingFieldId && Array.isArray(controllingValues)) {
+    if (!resultMap[depId]) resultMap[depId] = new Set<string>();
+
+    // From controlling values (dynamic)
+    if (dep.controllingFieldId && Array.isArray(controllingValues)) {
       for (const val of controllingValues) {
-        if (val) filteredLineItemIds.add(val);
+        if (val) resultMap[depId].add(val);
       }
     }
 
-    if (referenceLineItemIds) {
+    // From static reference values (manual)
+    if (dep.referenceLineItemIds) {
       try {
-        const parsed = Array.isArray(referenceLineItemIds)
-          ? referenceLineItemIds
-          : JSON.parse(referenceLineItemIds);
+        const parsed = Array.isArray(dep.referenceLineItemIds)
+          ? dep.referenceLineItemIds
+          : JSON.parse(dep.referenceLineItemIds);
 
         for (const id of parsed) {
-          if (typeof id === 'string' && id) filteredLineItemIds.add(id);
+          if (typeof id === 'string') resultMap[depId].add(id);
         }
       } catch (err) {
-        console.warn('Invalid referenceLineItemIds JSON:', referenceLineItemIds);
+        console.warn('Invalid referenceLineItemIds JSON:', dep.referenceLineItemIds);
       }
     }
   }
 
-  return Array.from(filteredLineItemIds);
+  // Convert Sets to arrays
+  const result: Record<string, string[]> = {};
+  for (const [key, set] of Object.entries(resultMap)) {
+    result[key] = Array.from(set);
+  }
+
+  return result;
 }

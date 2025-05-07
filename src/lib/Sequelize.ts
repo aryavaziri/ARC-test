@@ -5,7 +5,7 @@ import { User } from "@/models/UserData/User";
 import { UserRole } from "@/models/UserData/UserRole";
 import { setAssociations as setUserDataAssociations } from "@/models/UserData/assosiations";
 import { setAssociations as setDynamicAssociations } from "@/models/Dynamic/assosiations";
-import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, LookupInputSearchColumn, LookupInputTableColumn, NumberInput } from "@/models/Dynamic/Fields";
+import { TextInput, CheckboxInput, DateInput, LongTextInput, LookupInput, NumberInput } from "@/models/Dynamic/Fields";
 import { DynamicModel, FormLayout, LineItem, RecordLayout } from "@/models/Dynamic/DynamicModel";
 import { ModelTextInput, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, ModelLookupInput } from "@/models/Dynamic/M2M";
 import { CheckboxInputRecord, DateInputRecord, LongTextInputRecord, LookupInputRecord, NumberInputRecord, TextInputRecord } from "@/models/Dynamic/Records";
@@ -15,7 +15,7 @@ import { Flow } from "@/models/Flow/Flow";
 import { Dependency } from "@/models/Dynamic/Dependencies";
 
 const UserModels = [UserRole, User];
-const DynamicModels = [TextInput, LongTextInput, DateInput, NumberInput, DynamicModel, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, TextInputRecord, NumberInputRecord, CheckboxInput, DateInputRecord, CheckboxInputRecord, LongTextInputRecord, ModelTextInput, LineItem, LookupInput, LookupInputRecord, ModelLookupInput, LookupInputSearchColumn, LookupInputTableColumn, FormLayout, TabModel, PageLayout, RecordLayout, Flow, Dependency];
+const DynamicModels = [TextInput, LongTextInput, DateInput, NumberInput, DynamicModel, ModelDateInput, ModelLongTextInput, ModelNumberInput, ModelCheckboxInput, TextInputRecord, NumberInputRecord, CheckboxInput, DateInputRecord, CheckboxInputRecord, LongTextInputRecord, ModelTextInput, LineItem, LookupInput, LookupInputRecord, ModelLookupInput, FormLayout, TabModel, PageLayout, RecordLayout, Flow, Dependency];
 
 
 const sequelize = new Sequelize({

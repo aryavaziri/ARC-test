@@ -77,7 +77,7 @@ const DroppableRegion = ({
               index: droppedFields.filter(f => f.region === region).length, // correct index
               attachments: [],
             };
-          
+
             setDroppedFields(prev => [...prev, newEmptyContainer]);
             setEditingParentId(newId);
             setEditingAttachmentIndex(null);
@@ -205,6 +205,7 @@ const DroppableRegion = ({
       {/* Modal */}
       {showAttachmentModal && editingParentId && (
         <CustomModal
+          Component={AttachmentEditor}
           isOpen={showAttachmentModal}
           onClose={() => {
             setShowAttachmentModal(false);
@@ -212,44 +213,39 @@ const DroppableRegion = ({
             setEditingParentId(null);
           }}
           header="Add or Edit Attachment"
-          Component={() => (
-            <AttachmentEditor
-              onClose={() => {
-                setShowAttachmentModal(false);
-                setEditingAttachmentIndex(null);
-                setEditingParentId(null);
-              }}
-              index={editingAttachmentIndex ?? undefined}
-              initialAttachment={currentAttachment}
-              parentId={editingParentId ?? undefined}
-              onSave={(attachment, index) => {
-                console.log(attachment)
-                setDroppedFields(prev =>
-                  prev.map(f => {
-                    const fId = f.type === 'form' ? f.formLayoutId : f.type === 'record' ? f.recordLayoutId : f.id;
-                    if (fId !== editingParentId) return f;
+          componentProps={{
+            onClose: () => {
+              setShowAttachmentModal(false);
+              setEditingAttachmentIndex(null);
+              setEditingParentId(null);
+            },
+            index: editingAttachmentIndex ?? undefined,
+            parentId: editingParentId ?? undefined,
+            initialAttachment: currentAttachment,
+            onSave: (attachment, index) => {
+              setDroppedFields(prev =>
+                prev.map(f => {
+                  const fId = f.type === 'form' ? f.formLayoutId : f.type === 'record' ? f.recordLayoutId : f.id;
+                  if (fId !== editingParentId) return f;
 
-                    // Special case for Empty container label updating
-                    console.log(attachment.type === 'empty', f.type === 'custom', f.type === 'custom' && f.customKey === 'empty')
-                    if (attachment.type === 'empty' && f.type === 'custom' && f.customKey === 'empty') {
-                      return { ...f, label: attachment.payload?.text || f.label, id: fId };
-                    }
+                  if (attachment.type === 'empty' && f.type === 'custom' && f.customKey === 'empty') {
+                    return { ...f, label: attachment.payload?.text || f.label, id: fId };
+                  }
 
-                    const currentAttachments = f.attachments || [];
-                    const newAttachments = index !== undefined
-                      ? [...currentAttachments.slice(0, index), attachment, ...currentAttachments.slice(index + 1)]
-                      : [...currentAttachments, attachment];
+                  const currentAttachments = f.attachments || [];
+                  const newAttachments = index !== undefined
+                    ? [...currentAttachments.slice(0, index), attachment, ...currentAttachments.slice(index + 1)]
+                    : [...currentAttachments, attachment];
 
-                    return { ...f, attachments: newAttachments };
-                  })
-                );
+                  return { ...f, attachments: newAttachments };
+                })
+              );
 
-                setShowAttachmentModal(false);
-                setEditingAttachmentIndex(null);
-                setEditingParentId(null);
-              }}
-            />
-          )}
+              setShowAttachmentModal(false);
+              setEditingAttachmentIndex(null);
+              setEditingParentId(null);
+            }
+          }}
         />
       )}
 

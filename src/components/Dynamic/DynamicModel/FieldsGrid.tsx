@@ -183,7 +183,8 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
           onClose={handleClose}
           header={selectedField ? "Edit Field" : "Add New Field"}
           className="w-[500px]"
-          Component={() => (<AddDynamicField onClose={() => { handleClose() }} />)}
+          Component={AddDynamicField}
+          componentProps={{ onClose: () => { handleClose() } }}
         />
 
         <CustomModal
@@ -191,13 +192,14 @@ const FieldsGrid: React.FC<Props> = ({ }) => {
           onClose={handleClose2}
           header="Edit Model"
           className="w-[500px]"
-          Component={() => (<EditDynamicModel onClose={() => { handleClose2() }} />)}
+          Component={EditDynamicModel}
+          componentProps={{ onClose: () => { handleClose2() } }}
         />
 
         <CustomModal
           isOpen={showDependencies}
           onClose={handleClose3}
-          header="Dependencies"
+          header={`${selectedField?.label} Dependencies`}
           className="w-[800px]"
           Component={Dependencies}
           componentProps={{ onClose: handleClose3 }}

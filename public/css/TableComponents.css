@@ -16,7 +16,7 @@
   }
 
   .my-table > tbody > tr {
-    @apply text-center relative;
+    @apply text-center relative overflow-hidden;
   }
 
   .my-table > tbody > tr::after {

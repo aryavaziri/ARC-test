@@ -24,4 +24,11 @@ export class DateInput extends Model {
 
   @Column(DataType.DATE)
   declare endRange: string;
+
+  @Column(DataType.BOOLEAN)
+  declare isHidden: boolean;
+
+  @Column(DataType.STRING)
+  declare format: string;
+
 }

@@ -98,6 +98,7 @@ const SingleRecordRender = ({
       <CustomModal
         isOpen={isAddModalOpen}
         onClose={closeAddModal}
+        componentProps={{}}
         Component={() => (
           <div className="p-6 max-w-3xl w-full min-w-[600px]">
             <h2 className="text-lg font-bold mb-4 text-primary">
@@ -116,22 +117,24 @@ const SingleRecordRender = ({
       <CustomModal
         isOpen={isEditModalOpen}
         onClose={closeEditModal}
-        Component={() =>
-          selectedRecord ? (
+        componentProps={{}}
+        Component={() => {
+          if (!selectedRecord) return null;
+          return (
             <div className="p-6 max-w-3xl w-full min-w-[600px]">
               <h2 className="text-lg font-bold mb-4 text-primary">
                 Edit Record – {selectedRecord.id.slice(0, 6)}...
               </h2>
               <EditFormLayoutBlock
                 modelId={modelId}
-                layoutLabel={"Standard"}
+                layoutLabel="Standard"
                 recordId={selectedRecord.id}
                 onSave={closeEditModal}
                 onCancel={closeEditModal}
               />
             </div>
-          ) : null
-        }
+          );
+        }}
       />
     </div>
   );

@@ -3,4 +3,4 @@ export { NumberInput } from "./NumberInput";
 export { DateInput } from "./DateInput";
 export { LongTextInput } from "./LongTextInput";
 export { CheckboxInput } from "./CheckboxInput";
-export { LookupInput, LookupInputSearchColumn, LookupInputTableColumn } from "./LookupInput";
+export { LookupInput } from "./LookupInput";
